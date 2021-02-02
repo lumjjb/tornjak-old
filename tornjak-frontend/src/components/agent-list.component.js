@@ -15,6 +15,8 @@ const Agent = props => (
       {/*
         // <Link to={"/agentView/"+props.agent._id}>view</Link> |
       */}
+      <a href="#" onClick={() => { props.getAgent (props.agent.id) }}>show</a>
+      <br/>
       <a href="#" onClick={() => { props.banAgent (props.agent.id) }}>ban</a>
       <br/>
       <a href="#" onClick={() => { props.deleteAgent (props.agent.id) }}>delete</a>
@@ -25,6 +27,7 @@ const Agent = props => (
 export default class AgentList extends Component {
   constructor(props) {
     super(props);
+    this.getAgent = this.getAgent.bind(this);
     this.deleteAgent = this.deleteAgent.bind(this);
     this.banAgent = this.banAgent.bind(this);
     this.state = { agents: [] };
@@ -53,6 +56,22 @@ export default class AgentList extends Component {
     })
   }
 
+  getAgent(id) {
+    axios.post(GetApiServerUri('/api/agent/get'), {
+        "id": {
+              "trust_domain": id.trust_domain,
+              "path": id.path,
+        }
+    })
+      .then(res => console.log(res.data));
+    this.setState({
+      agents: this.state.agents.filter(el => 
+          el.id.trust_domain === id.trust_domain ||
+          el.id.path === id.path)
+    })
+  }
+
+
   deleteAgent(id) {
     axios.post(GetApiServerUri('/api/agent/delete'), {
         "id": {
@@ -75,7 +94,8 @@ export default class AgentList extends Component {
           return <Agent key={currentAgent.id.path} 
                     agent={currentAgent} 
                     banAgent={this.banAgent} 
-                    deleteAgent={this.deleteAgent}/>;
+                    deleteAgent={this.deleteAgent}
+                    getAgent={this.getAgent}/>;
         })
     } else {
         return ""

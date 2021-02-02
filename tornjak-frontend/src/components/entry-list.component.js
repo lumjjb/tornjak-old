@@ -14,6 +14,8 @@ const Entry = props => (
       {/* <Link to={"/entryView/"+props.entry._id}>view</Link>*/}
       <br/>
       <a href="#" onClick={() => { props.deleteEntry (props.entry.id) }}>delete</a>
+      <br/>
+      <a href="#" onClick={() => { props.getEntry (props.entry.id) }}>show</a>
     </td>
 
     <td><div style={{overflowX: 'auto', width: "400px"}}>
@@ -27,6 +29,7 @@ export default class EntryList extends Component {
   constructor(props) {
     super(props);
     this.deleteEntry = this.deleteEntry.bind(this);
+    this.getEntry = this.getEntry.bind(this);
     this.state = { entries: [] };
   }
 
@@ -52,13 +55,25 @@ export default class EntryList extends Component {
       })
   }
 
+  getEntry(id) {
+    axios.post(GetApiServerUri('/api/entry/get'), {
+        "id": [id]
+    })
+      .then(res => { console.log(res.data)
+        this.setState({
+          entries: this.state.entries.filter(el => el.id === id)
+        })
+      })
+  }
+
   entryList() {
       //return this.state.entries.toString()
     if (typeof this.state.entries !== 'undefined') {
         return this.state.entries.map(currentEntry => {
           return <Entry key={currentEntry.id} 
                     entry={currentEntry} 
-                    deleteEntry={this.deleteEntry}/>;
+                    deleteEntry={this.deleteEntry}
+                    getEntry={this.getEntry}/>;
         })
     } else {
         return ""
