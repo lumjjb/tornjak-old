@@ -14,6 +14,8 @@ const Entry = props => (
     <td>
       {/* <Link to={"/entryView/"+props.entry._id}>view</Link>*/}
       <br/>
+      <a href="#" onClick={() => { props.getEntry (props.entry.id) }}>show</a>
+      <br/>
       <a href="#" onClick={() => { props.deleteEntry (props.entry.id) }}>delete</a>
     </td>
 
@@ -32,6 +34,7 @@ export default class EntryList extends Component {
   constructor(props) {
     super(props);
     this.deleteEntry = this.deleteEntry.bind(this);
+    this.getEntry = this.getEntry.bind(this);
     this.serverDropdownList = this.serverDropdownList.bind(this);
     this.onServerSelect = this.onServerSelect.bind(this);
     this.state = { 
@@ -85,7 +88,6 @@ export default class EntryList extends Component {
       })
   }
 
-
   deleteEntry(id) {
     var endpoint = ""
     if (IsManager) {
@@ -103,13 +105,31 @@ export default class EntryList extends Component {
       })
   }
 
+  getEntry(id) {
+    var endpoint = ""
+    if (IsManager) {
+        endpoint = GetApiServerUri('/manager-api/entry/get') + "/" + this.state.selectedServer
+    } else {
+        endpoint = GetApiServerUri('/api/entry/get')
+    }
+    axios.post(endpoint, {
+        "ids": [id]
+    })
+      .then(res => { console.log(res.data)
+        this.setState({
+          entries: this.state.entries.filter(el => el.id === id)
+        })
+      })
+  }
+
   entryList() {
       //return this.state.entries.toString()
     if (typeof this.state.entries !== 'undefined') {
         return this.state.entries.map(currentEntry => {
           return <Entry key={currentEntry.id} 
                     entry={currentEntry} 
-                    deleteEntry={this.deleteEntry}/>;
+                    deleteEntry={this.deleteEntry}
+                    getEntry={this.getEntry}/>;
         })
     } else {
         return ""

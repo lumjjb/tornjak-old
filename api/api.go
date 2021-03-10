@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+
 	grpc "google.golang.org/grpc"
 
 	agent "github.com/spiffe/spire/proto/spire/api/server/agent/v1"
@@ -28,6 +29,27 @@ func (s *Server) ListAgents(inp ListAgentsRequest) (*ListAgentsResponse, error) 
 	}
 
 	return (*ListAgentsResponse)(resp), nil
+}
+
+type GetAgentRequest agent.GetAgentRequest
+type GetAgentResponse types.Agent
+
+func (s *Server) GetAgent(inp GetAgentRequest) (*GetAgentResponse, error) {
+	inpReq := agent.GetAgentRequest{Id: inp.Id}
+	var conn *grpc.ClientConn
+	conn, err := grpc.Dial(s.SpireServerAddr, grpc.WithInsecure())
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+	client := agent.NewAgentClient(conn)
+
+	resp, err := client.GetAgent(context.Background(), &inpReq)
+	if err != nil {
+		return nil, err
+	}
+
+	return (*GetAgentResponse)(resp), nil
 }
 
 type BanAgentRequest agent.BanAgentRequest
@@ -92,6 +114,27 @@ func (s *Server) CreateJoinToken(inp CreateJoinTokenRequest) (*CreateJoinTokenRe
 }
 
 // Entries
+type GetEntryRequest entry.GetEntryRequest
+type GetEntryResponse types.Entry
+
+func (s *Server) GetEntry(inp GetEntryRequest) (*GetEntryResponse, error) {
+
+	inpReq := entry.GetEntryRequest{Id: inp.Id}
+	var conn *grpc.ClientConn
+	conn, err := grpc.Dial(s.SpireServerAddr, grpc.WithInsecure())
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+	client := entry.NewEntryClient(conn)
+
+	resp, err := client.GetEntry(context.Background(), &inpReq)
+	if err != nil {
+		return nil, err
+	}
+
+	return (*GetEntryResponse)(resp), nil
+}
 
 type ListEntriesRequest entry.ListEntriesRequest
 type ListEntriesResponse entry.ListEntriesResponse

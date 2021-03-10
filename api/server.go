@@ -30,6 +30,49 @@ func (_ *Server) homePage(w http.ResponseWriter, r *http.Request) {
 	cors(w, r)
 }
 
+func (s *Server) agentGet(w http.ResponseWriter, r *http.Request) {
+	cors(w, r)
+	fmt.Println("Endpoint Hit: Agent Get")
+
+	var input GetAgentRequest
+	buf := new(strings.Builder)
+
+	n, err := io.Copy(buf, r.Body)
+	if err != nil {
+		emsg := fmt.Sprintf("Error parsing data: %v", err.Error())
+		http.Error(w, emsg, http.StatusBadRequest)
+		return
+	}
+	data := buf.String()
+
+	if n == 0 {
+		input = GetAgentRequest{}
+	} else {
+		err := json.Unmarshal([]byte(data), &input)
+		if err != nil {
+			emsg := fmt.Sprintf("Error parsing data: %v", err.Error())
+			http.Error(w, emsg, http.StatusBadRequest)
+			return
+		}
+	}
+
+	ret, err := s.GetAgent(input)
+	if err != nil {
+		emsg := fmt.Sprintf("Error: %v", err.Error())
+		http.Error(w, emsg, http.StatusBadRequest)
+		return
+	}
+
+	je := json.NewEncoder(w)
+	err = je.Encode(ret)
+	if err != nil {
+		emsg := fmt.Sprintf("Error encoding output: %v", err.Error())
+		http.Error(w, emsg, http.StatusBadRequest)
+		return
+	}
+
+}
+
 func (s *Server) agentList(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Endpoint Hit: Agent List")
 
@@ -180,6 +223,49 @@ func (s *Server) agentCreateJoinToken(w http.ResponseWriter, r *http.Request) {
 	je := json.NewEncoder(w)
 	// Shouldn't error here
 	je.Encode(ret)
+}
+
+func (s *Server) entryGet(w http.ResponseWriter, r *http.Request) {
+	cors(w, r)
+	fmt.Println("Endpoint Hit: Entry Get")
+
+	var input GetEntryRequest
+	buf := new(strings.Builder)
+
+	n, err := io.Copy(buf, r.Body)
+	if err != nil {
+		emsg := fmt.Sprintf("Error parsing data: %v", err.Error())
+		http.Error(w, emsg, http.StatusBadRequest)
+		return
+	}
+	data := buf.String()
+
+	if n == 0 {
+		input = GetEntryRequest{}
+	} else {
+		err := json.Unmarshal([]byte(data), &input)
+		if err != nil {
+			emsg := fmt.Sprintf("Error parsing data: %v", err.Error())
+			http.Error(w, emsg, http.StatusBadRequest)
+			return
+		}
+	}
+
+	ret, err := s.GetEntry(input)
+	if err != nil {
+		emsg := fmt.Sprintf("Error: %v", err.Error())
+		http.Error(w, emsg, http.StatusBadRequest)
+		return
+	}
+
+	je := json.NewEncoder(w)
+	err = je.Encode(ret)
+	if err != nil {
+		emsg := fmt.Sprintf("Error encoding output: %v", err.Error())
+		http.Error(w, emsg, http.StatusBadRequest)
+		return
+	}
+
 }
 
 func (s *Server) entryList(w http.ResponseWriter, r *http.Request) {
@@ -363,12 +449,14 @@ func (s *Server) getTornjakServerInfo(w http.ResponseWriter, r *http.Request) {
 func (s *Server) HandleRequests() {
 
 	// Agents
+	http.HandleFunc("/api/agent/get", corsHandler(s.agentGet))
 	http.HandleFunc("/api/agent/list", corsHandler(s.agentList))
 	http.HandleFunc("/api/agent/ban", corsHandler(s.agentBan))
 	http.HandleFunc("/api/agent/delete", corsHandler(s.agentDelete))
 	http.HandleFunc("/api/agent/createjointoken", corsHandler(s.agentCreateJoinToken))
 
 	// Entries
+	http.HandleFunc("/api/entry/get", corsHandler(s.entryGet))
 	http.HandleFunc("/api/entry/list", corsHandler(s.entryList))
 	http.HandleFunc("/api/entry/create", corsHandler(s.entryCreate))
 	http.HandleFunc("/api/entry/delete", corsHandler(s.entryDelete))

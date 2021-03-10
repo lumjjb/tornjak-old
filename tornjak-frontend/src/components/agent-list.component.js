@@ -16,6 +16,8 @@ const Agent = props => (
       {/*
         // <Link to={"/agentView/"+props.agent._id}>view</Link> |
       */}
+      <a href="#" onClick={() => { props.getAgent (props.agent.id) }}>show</a>
+      <br/>
       <a href="#" onClick={() => { props.banAgent (props.agent.id) }}>ban</a>
       <br/>
       <a href="#" onClick={() => { props.deleteAgent (props.agent.id) }}>delete</a>
@@ -30,6 +32,7 @@ const ServerDropdown = props => (
 export default class AgentList extends Component {
   constructor(props) {
     super(props);
+    this.getAgent = this.getAgent.bind(this)
     this.deleteAgent = this.deleteAgent.bind(this);
     this.banAgent = this.banAgent.bind(this);
     this.serverDropdownList = this.serverDropdownList.bind(this);
@@ -84,6 +87,26 @@ export default class AgentList extends Component {
       })
   }
 
+  getAgent(id) {
+    var endpoint = ""
+    if (IsManager) {
+        endpoint = GetApiServerUri('/manager-api/agent/get') + "/" + this.state.   selectedServer
+    } else {
+        endpoint = GetApiServerUri('/api/agent/get')
+    }
+
+    axios.post(endpoint, {
+        "id": {
+              "trust_domain": id.trust_domain,
+              "path": id.path,
+        }
+    })
+      .then(res => alert(res.data), alert("Executing getAgent"), this.componentDidMount());
+    this.setState({
+      agents: this.state.agents.filter(el => el._id === id)
+    })
+  }
+
   banAgent(id) {
     var endpoint = ""
     if (IsManager) {
@@ -133,7 +156,8 @@ export default class AgentList extends Component {
           return <Agent key={currentAgent.id.path} 
                     agent={currentAgent} 
                     banAgent={this.banAgent} 
-                    deleteAgent={this.deleteAgent}/>;
+                    deleteAgent={this.deleteAgent}
+                    getAgent={this.getAgent}/>;
         })
     } else {
         return ""
