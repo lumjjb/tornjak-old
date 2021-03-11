@@ -101,7 +101,7 @@ export default class AgentList extends Component {
         "path": id.path,
       }
     })
-      .then(alert("Executing getAgent"));
+      .then(res => alert(JSON.stringify(res.data, null, ' ')));
   }
 
   banAgent(id) {
