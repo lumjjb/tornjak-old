@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import IsManager from './is_manager';
 import 'carbon-components/css/carbon-components.min.css';
-import { Dropdown } from 'carbon-components-react';
+//import { Dropdown } from 'carbon-components-react';
 import './style.css';
   
 

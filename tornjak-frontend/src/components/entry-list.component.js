@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
+//import { Link } from 'react-router-dom';
 import axios from 'axios'
 import GetApiServerUri from './helpers';
 import IsManager from './is_manager';
@@ -7,25 +7,25 @@ import IsManager from './is_manager';
 const Entry = props => (
   <tr>
     <td>{props.entry.id}</td>
-    <td>{ "spiffe://" + props.entry.spiffe_id.trust_domain + props.entry.spiffe_id.path}</td>
-    <td>{ "spiffe://" + props.entry.parent_id.trust_domain + props.entry.parent_id.path}</td>
-    <td>{ props.entry.selectors.map(s => s.type + ":" + s.value).join(', ')}</td>
-    
+    <td>{"spiffe://" + props.entry.spiffe_id.trust_domain + props.entry.spiffe_id.path}</td>
+    <td>{"spiffe://" + props.entry.parent_id.trust_domain + props.entry.parent_id.path}</td>
+    <td>{props.entry.selectors.map(s => s.type + ":" + s.value).join(', ')}</td>
+
     <td>
       {/* <Link to={"/entryView/"+props.entry._id}>view</Link>*/}
-      <br/>
-      <a href="#" onClick={() => { props.deleteEntry (props.entry.id) }}>delete</a>
+      <br />
+      <a href="#" onClick={() => { props.deleteEntry(props.entry.id) }}>delete</a>
     </td>
 
-    <td><div style={{overflowX: 'auto', width: "400px"}}>
-    <pre>{JSON.stringify(props.entry, null, ' ')}</pre>
+    <td><div style={{ overflowX: 'auto', width: "400px" }}>
+      <pre>{JSON.stringify(props.entry, null, ' ')}</pre>
     </div></td>
 
   </tr>
 )
 
 const ServerDropdown = props => (
-    <option value={props.value}>{props.name}</option>
+  <option value={props.value}>{props.name}</option>
 )
 
 export default class EntryList extends Component {
@@ -34,26 +34,26 @@ export default class EntryList extends Component {
     this.deleteEntry = this.deleteEntry.bind(this);
     this.serverDropdownList = this.serverDropdownList.bind(this);
     this.onServerSelect = this.onServerSelect.bind(this);
-    this.state = { 
-        servers: [],
-        selectedServer: "",
-        entries: [],
-        message: "",
+    this.state = {
+      servers: [],
+      selectedServer: "",
+      entries: [],
+      message: "",
     };
   }
 
   componentDidMount() {
     if (IsManager) {
-        this.populateServers()
+      this.populateServers()
     } else {
-        this.populateLocalEntries()
+      this.populateLocalEntries()
     }
   }
 
-  populateServers () {
+  populateServers() {
     axios.get(GetApiServerUri("/manager-api/server/list"), { crossdomain: true })
       .then(response => {
-        this.setState({ servers:response.data["servers"]} );
+        this.setState({ servers: response.data["servers"] });
       })
       .catch((error) => {
         console.log(error);
@@ -61,24 +61,24 @@ export default class EntryList extends Component {
   }
 
   populateEntries(serverName) {
-      axios.get(GetApiServerUri('/manager-api/entry/list/') + serverName, {     crossdomain: true })
-      .then(response =>{
+    axios.get(GetApiServerUri('/manager-api/entry/list/') + serverName, { crossdomain: true })
+      .then(response => {
         console.log(response);
-        this.setState({ entries:response.data["entries"]});
+        this.setState({ entries: response.data["entries"] });
       }).catch(err => {
-          this.setState({ 
-              message: "Error retrieving " + serverName + " : "+ err + (typeof (err.response) !== "undefined" ? ":" + err.response.data : ""),
-              entries: [],
-          });
+        this.setState({
+          message: "Error retrieving " + serverName + " : " + err + (typeof (err.response) !== "undefined" ? ":" + err.response.data : ""),
+          entries: [],
+        });
       });
 
   }
 
   populateLocalEntries() {
-      axios.get(GetApiServerUri('/api/entry/list'), { crossdomain: true })
+    axios.get(GetApiServerUri('/api/entry/list'), { crossdomain: true })
       .then(response => {
-          console.log(response.data);
-        this.setState({ entries:response.data["entries"]} );
+        console.log(response.data);
+        this.setState({ entries: response.data["entries"] });
       })
       .catch((error) => {
         console.log(error);
@@ -89,14 +89,15 @@ export default class EntryList extends Component {
   deleteEntry(id) {
     var endpoint = ""
     if (IsManager) {
-        endpoint = GetApiServerUri('/manager-api/entry/delete') + "/" + this.state.selectedServer
+      endpoint = GetApiServerUri('/manager-api/entry/delete') + "/" + this.state.selectedServer
     } else {
-        endpoint = GetApiServerUri('/api/entry/delete')
+      endpoint = GetApiServerUri('/api/entry/delete')
     }
     axios.post(endpoint, {
-        "ids": [id]
+      "ids": [id]
     })
-      .then(res => { console.log(res.data)
+      .then(res => {
+        console.log(res.data)
         this.setState({
           entries: this.state.entries.filter(el => el.id !== id)
         })
@@ -104,78 +105,78 @@ export default class EntryList extends Component {
   }
 
   entryList() {
-      //return this.state.entries.toString()
+    //return this.state.entries.toString()
     if (typeof this.state.entries !== 'undefined') {
-        return this.state.entries.map(currentEntry => {
-          return <Entry key={currentEntry.id} 
-                    entry={currentEntry} 
-                    deleteEntry={this.deleteEntry}/>;
-        })
+      return this.state.entries.map(currentEntry => {
+        return <Entry key={currentEntry.id}
+          entry={currentEntry}
+          deleteEntry={this.deleteEntry} />;
+      })
     } else {
-        return ""
+      return ""
     }
   }
 
   serverDropdownList() {
-      //return this.state.entries.toString()
+    //return this.state.entries.toString()
     if (typeof this.state.servers !== 'undefined') {
-        return this.state.servers.map(server => {
-          return <ServerDropdown key={server.name} 
-                    value={server.name} 
-                    name={server.name} />
-        })
+      return this.state.servers.map(server => {
+        return <ServerDropdown key={server.name}
+          value={server.name}
+          name={server.name} />
+      })
     } else {
-        return ""
+      return ""
     }
   }
 
   onServerSelect(e) {
-      const serverName = e.target.value;
-      this.setState({selectedServer: serverName});
-      if (serverName !== "") {
-          this.populateEntries(serverName)
-      }
+    const serverName = e.target.value;
+    this.setState({ selectedServer: serverName });
+    if (serverName !== "") {
+      this.populateEntries(serverName)
+    }
   }
 
   getServer(serverName) {
-      var i;
-      const servers = this.state.servers
-      for (i = 0; i < servers.length; i++) {
-        if (servers[i].name === serverName) {
-            return servers[i]
-        }
+    var i;
+    const servers = this.state.servers
+    for (i = 0; i < servers.length; i++) {
+      if (servers[i].name === serverName) {
+        return servers[i]
       }
-      return null
+    }
+    return null
   }
 
 
   render() {
 
-    let managerServerSelector =  (
-        <div id="server-dropdown-div">
+    let managerServerSelector = (
+      <div id="server-dropdown-div">
         <label id="server-dropdown">Choose a server:</label>
-        <br/>
+        <br />
         <select name="servers" id="servers" onChange={this.onServerSelect}>
           <optgroup label="Servers">
-            <option value=""/>
-                {this.serverDropdownList()}
+            <option value="" />
+            {this.serverDropdownList()}
           </optgroup>
         </select>
-        </div>
+      </div>
     )
 
     return (
       <div>
         <h3>Entry List</h3>
         <div className="alert alert-primary" role="alert">
-        <pre>
-           {this.state.message}
-        </pre>
+          <pre>
+            {this.state.message}
+          </pre>
         </div>
         {IsManager && managerServerSelector}
-        <br/><br/>
+        <br /><br />
 
-        <table className="table" style={{width : "100%"}}>
+        <table className="table" style={{ width: "100%" }}>
           <thead className="thead-light">
             <tr>
               <th>ID</th>

@@ -33,21 +33,21 @@ export default class CreateJoinToken extends Component {
     }
   }
 
-  
+
   componentDidMount() {
-      if (IsManager) {
-        this.populateServers()
-      } else {
-        // agent doesnt need to do anything
-        this.setState({})
-      }
+    if (IsManager) {
+      this.populateServers()
+    } else {
+      // agent doesnt need to do anything
+      this.setState({})
+    }
   }
 
   // Server dropdown populate
-  populateServers () {
+  populateServers() {
     axios.get(GetApiServerUri("/manager-api/server/list"), { crossdomain: true })
       .then(response => {
-        this.setState({ servers:response.data["servers"]} );
+        this.setState({ servers: response.data["servers"] });
       })
       .catch((error) => {
         console.log(error);
@@ -55,21 +55,21 @@ export default class CreateJoinToken extends Component {
   }
 
   serverDropdownList() {
-      //return this.state.entries.toString()
+    //return this.state.entries.toString()
     if (typeof this.state.servers !== 'undefined') {
-        return this.state.servers.map(server => {
-          return <ServerDropdown key={server.name}
-                    value={server.name}
-                    name={server.name} />
-        })
+      return this.state.servers.map(server => {
+        return <ServerDropdown key={server.name}
+          value={server.name}
+          name={server.name} />
+      })
     } else {
-        return ""
+      return ""
     }
   }
 
   onServerSelect(e) {
-      const serverName = e.target.value;
-      this.setState({selectedServer: serverName});
+    const serverName = e.target.value;
+    this.setState({ selectedServer: serverName });
   }
 
 
@@ -91,75 +91,75 @@ export default class CreateJoinToken extends Component {
     });
   }
 
-/*
- * const str1 = 'spiffe://example.org/abc/def/gew:';
-
-console.log(str1.startsWith('spiffe://'));
-// expected output: true
-
-var a = str1.substr("spiffe://".length);
-console.log(a)
-var sp = a.indexOf("/")
-console.log(a.substr(0,sp))
-console.log(a.substr(sp))*/
+  /*
+   * const str1 = 'spiffe://example.org/abc/def/gew:';
+  
+  console.log(str1.startsWith('spiffe://'));
+  // expected output: true
+  
+  var a = str1.substr("spiffe://".length);
+  console.log(a)
+  var sp = a.indexOf("/")
+  console.log(a.substr(0,sp))
+  console.log(a.substr(sp))*/
 
 
   parseSpiffeId(sid) {
     if (sid.startsWith('spiffe://')) {
-        var sub = sid.substr("spiffe://".length)
-        var sp = sub.indexOf("/")
-        if (sp > 0 && sp !== sub.length-1) {
-            var trustDomain = sub.substr(0,sp);
-            var path = sub.substr(sp);
-            return [true, trustDomain, path];
-        }
+      var sub = sid.substr("spiffe://".length)
+      var sp = sub.indexOf("/")
+      if (sp > 0 && sp !== sub.length - 1) {
+        var trustDomain = sub.substr(0, sp);
+        var path = sub.substr(sp);
+        return [true, trustDomain, path];
+      }
     }
-    return [ false, "", "" ];
+    return [false, "", ""];
   }
 
   onChangeSpiffeId(e) {
     var sid = e.target.value;
     if (sid.length === 0) {
-        this.setState({
-            spiffeId: sid,
-            trustDomain: "",
-            path: "",
-            message: "",
-        });
-        return
+      this.setState({
+        spiffeId: sid,
+        trustDomain: "",
+        path: "",
+        message: "",
+      });
+      return
     }
-/*
-    if (sid.startsWith('spiffe://')) {
-        var sub = sid.substr("spiffe://".length)
-        var sp = sub.indexOf("/")
-        if (sp > 0 && sp !== sub.length-1) {
-            this.setState({
-                message: "",
-                spiffeId: sid,
-                trust_domain: sub.substr(0,sp),
-                path: sub.substr(sp),
-            });
-            return
+    /*
+        if (sid.startsWith('spiffe://')) {
+            var sub = sid.substr("spiffe://".length)
+            var sp = sub.indexOf("/")
+            if (sp > 0 && sp !== sub.length-1) {
+                this.setState({
+                    message: "",
+                    spiffeId: sid,
+                    trust_domain: sub.substr(0,sp),
+                    path: sub.substr(sp),
+                });
+                return
+            }
         }
-    }
-      */
+          */
 
-    const [ validSpiffeId, trustDomain, path ] = this.parseSpiffeId(sid)
+    const [validSpiffeId, trustDomain, path] = this.parseSpiffeId(sid)
     if (validSpiffeId) {
-        this.setState({
-            message: "",
-            spiffeId: sid,
-            trustDomain: trustDomain,
-            path: path,
-        });
-        return
+      this.setState({
+        message: "",
+        spiffeId: sid,
+        trustDomain: trustDomain,
+        path: path,
+      });
+      return
     }
     // else invalid spiffe ID
     this.setState({
-        spiffeId: sid,
-        message: "Invalid Spiffe ID",
-        trustDomain: "",
-        path: "",
+      spiffeId: sid,
+      message: "Invalid Spiffe ID",
+      trustDomain: "",
+      path: "",
     });
     return
   }
@@ -190,14 +190,14 @@ console.log(a.substr(sp))*/
   }
 
   getApiTokenEndpoint() {
-      if (!IsManager) {
-          return GetApiServerUri('/api/agent/createjointoken')
-      } else if (IsManager && this.state.selectedServer !== "") {
-          return GetApiServerUri('/manager-api/agent/createjointoken') + "/" + this.state.selectedServer
-      } else {
-          this.setState({message:"Error: No server selected"})
-          return ""
-      }
+    if (!IsManager) {
+      return GetApiServerUri('/api/agent/createjointoken')
+    } else if (IsManager && this.state.selectedServer !== "") {
+      return GetApiServerUri('/manager-api/agent/createjointoken') + "/" + this.state.selectedServer
+    } else {
+      this.setState({ message: "Error: No server selected" })
+      return ""
+    }
 
 
   }
@@ -205,44 +205,44 @@ console.log(a.substr(sp))*/
     e.preventDefault();
 
     if (this.state.spiffeId !== "") {
-        const validSpiffeId = (this.parseSpiffeId(this.state.spiffeId))[0];
-        if (!validSpiffeId) {
-            this.setState({ message: "ERROR: invalid spiffe ID specified"});
-            return
-        }
+      const validSpiffeId = (this.parseSpiffeId(this.state.spiffeId))[0];
+      if (!validSpiffeId) {
+        this.setState({ message: "ERROR: invalid spiffe ID specified" });
+        return
+      }
     }
     var cjtData = {
-        "ttl": this.state.ttl,
+      "ttl": this.state.ttl,
     };
     if (this.state.trustDomain !== "" && this.state.path !== "") {
-        cjtData["trust_domain"] = this.state.trustDomain;
-        cjtData["path"] = this.state.path;
+      cjtData["trust_domain"] = this.state.trustDomain;
+      cjtData["path"] = this.state.path;
     }
     if (this.state.token !== "") {
-        cjtData["token"] = this.state.token;
+      cjtData["token"] = this.state.token;
     }
     let endpoint = this.getApiTokenEndpoint();
     if (endpoint === "") {
-        return
+      return
     }
     axios.post(endpoint, cjtData)
-      .then(res => this.setState({ message: "Requst:" + JSON.stringify(cjtData,null, ' ')+ "\n\nSuccess:" + JSON.stringify(res.data, null, ' ')}))
-      .catch(err => this.setState({ message: "ERROR:" + err + (typeof (err.response) !== "undefined" ? err.response.data : "")}))
+      .then(res => this.setState({ message: "Requst:" + JSON.stringify(cjtData, null, ' ') + "\n\nSuccess:" + JSON.stringify(res.data, null, ' ') }))
+      .catch(err => this.setState({ message: "ERROR:" + err + (typeof (err.response) !== "undefined" ? err.response.data : "") }))
     //window.location = '/';
   }
 
   render() {
-    let managerServerSelector =  (
-        <div id="server-dropdown-div">
+    let managerServerSelector = (
+      <div id="server-dropdown-div">
         <label id="server-dropdown">Choose a server:</label>
-        <br/>
+        <br />
         <select name="servers" id="servers" onChange={this.onServerSelect}>
           <optgroup label="Servers">
-            <option value=""/>
-                {this.serverDropdownList()}
+            <option value="" />
+            {this.serverDropdownList()}
           </optgroup>
         </select>
-        </div>
+      </div>
     )
 
     return (
@@ -250,12 +250,12 @@ console.log(a.substr(sp))*/
         <h3>Create New Agent Join Token</h3>
         <form onSubmit={this.onSubmit}>
           <div className="alert alert-primary" role="alert">
-          <pre>
-            {this.state.message}
-          </pre>
+            <pre>
+              {this.state.message}
+            </pre>
           </div>
           {IsManager && managerServerSelector}
-          <br/><br/>
+          <br /><br />
 
           <div className="form-group">
             <label>Time to live (TTL): </label>
