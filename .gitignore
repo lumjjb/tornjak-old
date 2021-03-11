@@ -28,6 +28,9 @@ yarn-error.log*
 
 localdb
 
+# npm vendor
+node_modules/
+
 # build artifacts
 bin/
 ui/
