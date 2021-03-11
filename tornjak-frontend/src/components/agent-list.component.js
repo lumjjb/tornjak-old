@@ -74,6 +74,7 @@ export default class AgentList extends Component {
               agents: [],
           });
       });
+
   }
 
   populateLocalAgents() {
@@ -89,24 +90,27 @@ export default class AgentList extends Component {
   getAgent(id) {
     var endpoint = ""
     if (IsManager) {
-      endpoint = GetApiServerUri('/manager-api/agent/get') + "/" + this.state.selectedServer
+        endpoint = GetApiServerUri('/manager-api/agent/get') + "/" + this.state.   selectedServer
     } else {
-      endpoint = GetApiServerUri('/api/agent/get')
+        endpoint = GetApiServerUri('/api/agent/get')
     }
 
     axios.post(endpoint, {
-      "id": {
-        "trust_domain": id.trust_domain,
-        "path": id.path,
-      }
+        "id": {
+              "trust_domain": id.trust_domain,
+              "path": id.path,
+        }
     })
-      .then(alert("Executing getAgent"));
+      .then(res => alert(res.data), alert("Executing getAgent"), this.componentDidMount());
+    this.setState({
+      agents: this.state.agents.filter(el => el._id === id)
+    })
   }
 
   banAgent(id) {
     var endpoint = ""
     if (IsManager) {
-        endpoint = GetApiServerUri('/manager-api/agent/ban') + "/" + this.state.selectedServer
+        endpoint = GetApiServerUri('/manager-api/agent/ban') + "/" + this.state.   selectedServer
     } else {
         endpoint = GetApiServerUri('/api/agent/ban')
     }
@@ -126,7 +130,7 @@ export default class AgentList extends Component {
   deleteAgent(id) {
     var endpoint = ""
     if (IsManager) {
-        endpoint = GetApiServerUri('/manager-api/agent/delete') + "/" + this.state.selectedServer
+        endpoint = GetApiServerUri('/manager-api/agent/delete') + "/" + this.state.   selectedServer
     } else {
         endpoint = GetApiServerUri('/api/agent/delete')
     }

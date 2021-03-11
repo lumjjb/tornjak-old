@@ -108,15 +108,14 @@ export default class EntryList extends Component {
   getEntry(id) {
     var endpoint = ""
     if (IsManager) {
-      endpoint = GetApiServerUri('/manager-api/entry/get') + "/" + this.state.selectedServer
+        endpoint = GetApiServerUri('/manager-api/entry/get') + "/" + this.state.selectedServer
     } else {
-      endpoint = GetApiServerUri('/api/entry/get')
+        endpoint = GetApiServerUri('/api/entry/get')
     }
     axios.post(endpoint, {
-      "ids": [id]
+        "ids": [id]
     })
-      .then(res => {
-        console.log(res.data)
+      .then(res => { console.log(res.data)
         this.setState({
           entries: this.state.entries.filter(el => el.id === id)
         })
