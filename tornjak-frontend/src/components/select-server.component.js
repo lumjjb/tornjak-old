@@ -19,7 +19,6 @@ class SelectServer extends Component {
         this.onServerSelect = this.onServerSelect.bind(this);
         this.state = {
             servers: [],
-            selectedServer: "",
         };
     }
 
@@ -53,7 +52,6 @@ class SelectServer extends Component {
 
     onServerSelect(e) {
         const serverName = e.target.value;
-        this.setState({ selectedServer: serverName })
         if (serverName !== "") {
             this.props.serverSelected(serverName);
         }
@@ -94,7 +92,7 @@ class SelectServer extends Component {
 }
 
 const mapStateToProps = (state) => ({
-    globalServerSelected: state.serverInfo.globalServerSelected,
+    globalServerSelected: state.server.globalServerSelected,
 })
 
 export default connect(

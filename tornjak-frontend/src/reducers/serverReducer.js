@@ -3,10 +3,10 @@ import {
 } from '../actions/types';
 
 const initialState = {
-    globalServerSelected: ""
+    globalServerSelected: "",
 };
 
-export default function (state = initialState, action) {
+export default function serverReducer(state = initialState, action) {
     switch (action.type) {
         case GLOBAL_SERVER_SELECTED:
             return {
