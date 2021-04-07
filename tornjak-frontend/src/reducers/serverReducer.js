@@ -1,9 +1,11 @@
 import {
     GLOBAL_SERVER_SELECTED,
+    GLOBAL_SERVER_INFO,
 } from '../actions/types';
 
 const initialState = {
     globalServerSelected: "",
+    globalServerInfo: [],
 };
 
 export default function serverReducer(state = initialState, action) {
@@ -12,6 +14,11 @@ export default function serverReducer(state = initialState, action) {
             return {
                 ...state,
                 globalServerSelected: action.payload
+            };
+        case GLOBAL_SERVER_INFO:
+            return {
+                ...state,
+                globalServerInfo: action.payload
             };
         default:
             return state;

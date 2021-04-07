@@ -5,7 +5,8 @@ import axios from 'axios';
 import GetApiServerUri from './helpers';
 import IsManager from './is_manager';
 import {
-  serverSelected
+  serverSelected,
+  serverInfoUpdate
 } from 'actions';
 
 const TornjakServerInfoDisplay = props => (
@@ -19,10 +20,7 @@ const TornjakServerInfoDisplay = props => (
 class TornjakServerInfo extends Component {
   constructor(props) {
     super(props);
-    this.state = { 
-        tornjakServerInfo: "",
-        servers: [],
-        selectedServer: "",
+    this.state = {
         message: "",
     };
   }
@@ -38,8 +36,10 @@ class TornjakServerInfo extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if(prevProps.globalServerSelected !== this.props.globalServerSelected){
-      this.populateTornjakServerInfo(this.props.globalServerSelected)
+    if (IsManager) {
+      if(prevProps.globalServerSelected !== this.props.globalServerSelected){
+        this.populateTornjakServerInfo(this.props.globalServerSelected)
+      }
     }
   }
 
@@ -47,7 +47,7 @@ class TornjakServerInfo extends Component {
       axios.get(GetApiServerUri('/manager-api/tornjak/serverinfo/') + serverName, {     crossdomain: true })
       .then(response =>{
         console.log(response);
-        this.setState({ tornjakServerInfo: response.data["serverinfo"]});
+        this.props.serverInfoUpdate(response.data["serverinfo"]);
       }).catch(error => {
           this.setState({
               message: "Error retrieving " + serverName + " : "+ error.message,
@@ -60,7 +60,7 @@ class TornjakServerInfo extends Component {
   populateLocalTornjakServerInfo() {
     axios.get(GetApiServerUri('/api/tornjak/serverinfo'), { crossdomain: true })
       .then(response => {
-        this.setState({ tornjakServerInfo:response.data["serverinfo"]});
+        this.props.serverInfoUpdate(response.data["serverinfo"]);
       })
       .catch((error) => {
         console.log(error);
@@ -68,10 +68,10 @@ class TornjakServerInfo extends Component {
   }
 
   tornjakServerInfo() {
-    if (this.state.tornjakServerInfo === "") {
+    if (this.props.globalServerInfo === "") {
         return ""
     } else {
-        return <TornjakServerInfoDisplay tornjakServerInfo={this.state.tornjakServerInfo} />
+        return <TornjakServerInfoDisplay tornjakServerInfo={this.props.globalServerInfo} />
     }
   }
 
@@ -95,9 +95,10 @@ class TornjakServerInfo extends Component {
 
 const mapStateToProps = (state) => ({
   globalServerSelected: state.server.globalServerSelected,
+  globalServerInfo: state.server.globalServerInfo,
 })
 
 export default connect(
   mapStateToProps,
-  { serverSelected }
+  { serverSelected, serverInfoUpdate }
 )(TornjakServerInfo)

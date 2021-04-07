@@ -51,8 +51,10 @@ class EntryList extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if(prevProps.globalServerSelected !== this.props.globalServerSelected){
-      this.populateEntriesUpdate(this.props.globalServerSelected)
+    if (IsManager) {
+      if(prevProps.globalServerSelected !== this.props.globalServerSelected){
+        this.populateEntriesUpdate(this.props.globalServerSelected)
+      }
     }
   }
 
