@@ -5,7 +5,8 @@ import axios from 'axios';
 import GetApiServerUri from './helpers';
 import IsManager from './is_manager';
 import {
-    serverSelected
+    serverSelected,
+    serversListUpdate
 } from 'actions';
 
 const ServerDropdown = props => (
@@ -18,7 +19,6 @@ class SelectServer extends Component {
         this.serverDropdownList = this.serverDropdownList.bind(this);
         this.onServerSelect = this.onServerSelect.bind(this);
         this.state = {
-            servers: [],
         };
     }
 
@@ -31,7 +31,7 @@ class SelectServer extends Component {
     populateServers() {
         axios.get(GetApiServerUri("/manager-api/server/list"), { crossdomain: true })
             .then(response => {
-                this.setState({ servers: response.data["servers"] });
+                this.props.serversListUpdate(response.data["servers"]);
             })
             .catch((error) => {
                 console.log(error);
@@ -39,8 +39,8 @@ class SelectServer extends Component {
     }
 
     serverDropdownList() {
-        if (typeof this.state.servers !== 'undefined') {
-            return this.state.servers.map(server => {
+        if (typeof this.props.globalServersList !== 'undefined') {
+            return this.props.globalServersList.map(server => {
                 return <ServerDropdown key={server.name}
                     value={server.name}
                     name={server.name} />
@@ -59,7 +59,7 @@ class SelectServer extends Component {
 
     getServer(serverName) {
         var i;
-        const servers = this.state.servers
+        const servers = this.props.globalServersList
         for (i = 0; i < servers.length; i++) {
             if (servers[i].name === serverName) {
                 return servers[i]
@@ -92,10 +92,11 @@ class SelectServer extends Component {
 }
 
 const mapStateToProps = (state) => ({
-    globalServerSelected: state.server.globalServerSelected,
+    globalServerSelected: state.servers.globalServerSelected,
+    globalServersList: state.servers.globalServersList
 })
 
 export default connect(
     mapStateToProps,
-    { serverSelected }
+    { serverSelected, serversListUpdate }
 )(SelectServer)

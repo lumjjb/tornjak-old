@@ -1,10 +1,10 @@
-import serverReducer from './serverReducer';
+import serversReducer from './serversReducer';
 import agentsReducer from './agentsReducer';
 import entriesReducer from './entriesReducer';
 import {combineReducers} from 'redux';
 
 const allReducers = combineReducers({
-    server : serverReducer,
+    servers : serversReducer,
     agents : agentsReducer,
     entries : entriesReducer,
 });

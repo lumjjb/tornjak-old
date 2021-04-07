@@ -2,7 +2,9 @@ import {
     GLOBAL_SERVER_SELECTED, 
     GLOBAL_ENTRIES_LIST, 
     GLOBAL_AGENTS_LIST, 
-    GLOBAL_SERVER_INFO } from './types';
+    GLOBAL_SERVER_INFO,
+    GLOBAL_SERVERS_LIST,
+ } from './types';
 
 
 export function serverSelected(globalServerSelected) {
@@ -19,6 +21,15 @@ export function serverInfoUpdate(globalServerInfo) {
         dispatch({
             type: GLOBAL_SERVER_INFO,
             payload: globalServerInfo
+        });
+    }   
+}
+
+export function serversListUpdate(globalServersList) {
+    return dispatch => {
+        dispatch({
+            type: GLOBAL_SERVERS_LIST,
+            payload: globalServersList
         });
     }   
 }

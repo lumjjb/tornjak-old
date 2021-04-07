@@ -340,7 +340,7 @@ class CreateEntry extends Component {
 
 
 const mapStateToProps = (state) => ({
-  globalServerSelected: state.server.globalServerSelected,
+  globalServerSelected: state.servers.globalServerSelected,
 })
 
 export default connect(

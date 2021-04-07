@@ -263,7 +263,7 @@ console.log(a.substr(sp))*/
 }
 
 const mapStateToProps = (state) => ({
-  globalServerSelected: state.server.globalServerSelected,
+  globalServerSelected: state.servers.globalServerSelected,
 })
 
 export default connect(

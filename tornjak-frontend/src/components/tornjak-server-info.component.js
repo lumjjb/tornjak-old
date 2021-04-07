@@ -94,8 +94,8 @@ class TornjakServerInfo extends Component {
 }
 
 const mapStateToProps = (state) => ({
-  globalServerSelected: state.server.globalServerSelected,
-  globalServerInfo: state.server.globalServerInfo,
+  globalServerSelected: state.servers.globalServerSelected,
+  globalServerInfo: state.servers.globalServerInfo,
 })
 
 export default connect(

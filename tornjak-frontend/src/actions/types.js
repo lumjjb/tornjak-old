@@ -1,6 +1,8 @@
 //servers
 export const GLOBAL_SERVER_SELECTED = 'GLOBAL_SERVER_SELECTED';
 export const GLOBAL_SERVER_INFO = 'GLOBAL_SERVER_INFO';
+export const GLOBAL_SERVERS_LIST = 'GLOBAL_SERVERS_LIST';
+
 //entries
 export const GLOBAL_ENTRIES_LIST = 'GLOBAL_ENTRIES_LIST';
 //agents

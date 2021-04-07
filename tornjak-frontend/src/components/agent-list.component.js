@@ -112,7 +112,7 @@ class AgentList extends Component {
 
 
 const mapStateToProps = (state) => ({
-  globalServerSelected: state.server.globalServerSelected,
+  globalServerSelected: state.servers.globalServerSelected,
   globalagentsList: state.agents.globalagentsList,
 })
 
