@@ -3,7 +3,9 @@ import {
     GLOBAL_ENTRIES_LIST, 
     GLOBAL_AGENTS_LIST, 
     GLOBAL_SERVER_INFO,
+    GLOBAL_TORNJAK_SERVER_INFO,
     GLOBAL_SERVERS_LIST,
+    GLOBAL_SELECTOR_INFO,
  } from './types';
 
 
@@ -12,6 +14,15 @@ export function serverSelected(globalServerSelected) {
         dispatch({
             type: GLOBAL_SERVER_SELECTED,
             payload: globalServerSelected
+        });
+    }   
+}
+
+export function tornjakServerInfoUpdate(globalTornjakServerInfo) {
+    return dispatch => {
+        dispatch({
+            type: GLOBAL_TORNJAK_SERVER_INFO,
+            payload: globalTornjakServerInfo
         });
     }   
 }
@@ -30,6 +41,15 @@ export function serversListUpdate(globalServersList) {
         dispatch({
             type: GLOBAL_SERVERS_LIST,
             payload: globalServersList
+        });
+    }   
+}
+
+export function selectorInfo(globalSelectorInfo) {
+    return dispatch => {
+        dispatch({
+            type: GLOBAL_SELECTOR_INFO,
+            payload: globalSelectorInfo
         });
     }   
 }

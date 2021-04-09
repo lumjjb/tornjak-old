@@ -4,7 +4,8 @@ import axios from 'axios';
 import GetApiServerUri from './helpers';
 import IsManager from './is_manager';
 import {
-  serverSelected
+  serverSelected,
+  selectorInfo
 } from 'actions';
 
 class CreateEntry extends Component {
@@ -16,6 +17,7 @@ class CreateEntry extends Component {
     this.onChangeSpiffeId = this.onChangeSpiffeId.bind(this);
     this.onChangeParentId = this.onChangeParentId.bind(this);
     this.onChangeAdminFlag = this.onChangeAdminFlag.bind(this);
+    this.setSelectorInfo = this.setSelectorInfo.bind(this);
     //this.onChangeTtl = this.onChangeTtl.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
 
@@ -47,9 +49,12 @@ class CreateEntry extends Component {
   }
 
   componentDidMount() {
+    this.setSelectorInfo();
     if (IsManager) {
       if (this.props.globalServerSelected !== "") {
         this.setState({ selectedServer: this.props.globalServerSelected });
+        //this.props.selectorInfo("dgd")
+        { console.log(this.props.globalSelectorInfo) }
       }
     } else {
       // agent doesnt need to do anything
@@ -65,6 +70,66 @@ class CreateEntry extends Component {
     }
   }
 
+  setSelectorInfo() {
+    const selectors =
+    {
+      "gcp_iit": [
+        {
+          "selector": "gcp_iit:project-id"
+        },
+        {
+          "selector": "gcp_iit:zone"
+        },
+        {
+          "selector": "gcp_iit:instance-name"
+        }
+      ],
+      "k8s_sat": [
+        {
+          "selector": "k8s_sat:cluster"
+        },
+        {
+          "selector": "k8s_sat:agent_ns"
+        },
+        {
+          "selector": "k8s_sat:agent_sa"
+        }
+      ],
+      "k8s_psat": [
+        {
+          "selector": "k8s_psat:cluster"
+        },
+        {
+          "selector": "k8s_psat:agent_ns"
+        },
+        {
+          "selector": "k8s_psat:agent_sa"
+        },
+        {
+          "selector": "k8s_psat:agent_pod_name"
+        },
+        {
+          "selector": "k8s_psat:agent_pod_uid"
+        },
+        {
+          "selector": "k8s_psat:agent_pod_label"
+        },
+        {
+          "selector": "k8s_psat:agent_node_ip"
+        },
+        {
+          "selector": "k8s_psat:agent_node_name"
+        },
+        {
+          "selector": "k8s_psat:agent_node_uid"
+        },
+        {
+          "selector": "k8s_psat:agent_node_label"
+        }
+      ],
+    };
+    this.props.selectorInfo(selectors)
+  }
   onChangeName(e) {
     this.setState({
       name: e.target.value
@@ -341,9 +406,10 @@ class CreateEntry extends Component {
 
 const mapStateToProps = (state) => ({
   globalServerSelected: state.servers.globalServerSelected,
+  globalSelectorInfo: state.servers.globalSelectorInfo,
 })
 
 export default connect(
   mapStateToProps,
-  { serverSelected }
+  { serverSelected, selectorInfo }
 )(CreateEntry)
