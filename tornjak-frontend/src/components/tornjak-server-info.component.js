@@ -63,17 +63,14 @@ class TornjakServerInfo extends Component {
     //node attestor plugin
     const nodeAttKeyWord = "NodeAttestor Plugin: ";
     var serverInfo = this.props.globalTornjakServerInfo;
-    console.log(serverInfo)
     var nodeAttStrtInd = serverInfo.search(nodeAttKeyWord) + nodeAttKeyWord.length;
     var nodeAttEndInd = serverInfo.indexOf('\n', nodeAttStrtInd)
     var nodeAtt = serverInfo.substr(nodeAttStrtInd, nodeAttEndInd - nodeAttStrtInd)
-    console.log(nodeAtt)
     //server trust domain
     const trustDomainKeyWord = "\"TrustDomain\": \"";
     var trustDomainStrtInd = serverInfo.search(trustDomainKeyWord) + trustDomainKeyWord.length;
     var trustDomainEndInd = serverInfo.indexOf("\"", trustDomainStrtInd)
     var trustDomain = serverInfo.substr(trustDomainStrtInd, trustDomainEndInd - trustDomainStrtInd)
-    console.log(trustDomain)
     var reqInfo = 
       {
         "data": 

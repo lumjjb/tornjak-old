@@ -1,13 +1,36 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import axios from 'axios';
+import 'carbon-components/css/carbon-components.min.css';
+import { Dropdown } from 'carbon-components-react';
+import { TextInput } from 'carbon-components-react';
 import GetApiServerUri from './helpers';
 import IsManager from './is_manager';
+import './style.css';
 import {
   serverSelected,
-  selectorInfo
+  selectorInfo,
+  agentsListUpdate,
 } from 'actions';
 
+const items = [
+  {
+    id: 'option-1',
+    label: 'Option 1',
+  },
+  {
+    id: 'option-2',
+    label: 'Option 2',
+  },
+  {
+    id: 'option-3',
+    label: 'Option 3',
+  },
+  {
+    id: 'option-4',
+    label: 'Option 4',
+  },
+];
 class CreateEntry extends Component {
   constructor(props) {
     super(props);
@@ -18,6 +41,8 @@ class CreateEntry extends Component {
     this.onChangeParentId = this.onChangeParentId.bind(this);
     this.onChangeAdminFlag = this.onChangeAdminFlag.bind(this);
     this.setSelectorInfo = this.setSelectorInfo.bind(this);
+    this.prepareParentIdAgentsList = this.prepareParentIdAgentsList.bind(this);
+
     //this.onChangeTtl = this.onChangeTtl.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
 
@@ -45,16 +70,17 @@ class CreateEntry extends Component {
       message: "",
       servers: [],
       selectedServer: "",
+      agentsIdList: [],
+      spiffeIdPrefix: "",
     }
   }
 
   componentDidMount() {
     this.setSelectorInfo();
+    this.prepareParentIdAgentsList();
     if (IsManager) {
       if (this.props.globalServerSelected !== "") {
         this.setState({ selectedServer: this.props.globalServerSelected });
-        //this.props.selectorInfo("dgd")
-        { console.log(this.props.globalSelectorInfo) }
       }
     } else {
       // agent doesnt need to do anything
@@ -130,6 +156,24 @@ class CreateEntry extends Component {
     };
     this.props.selectorInfo(selectors)
   }
+
+  prepareParentIdAgentsList() {
+    var i = 0, prefix = "spiffe://";;
+    let localAgentsIdList = [];
+    //default option
+    localAgentsIdList[0] = prefix + this.props.globalServerInfo.data.trustDomain + "/spire/server";
+    //agents
+    for (i = 0; i < this.props.globalagentsList.length; i++) {
+      localAgentsIdList[i + 1] = prefix + this.props.globalagentsList[i].id.trust_domain + this.props.globalagentsList[i].id.path;
+    }
+    this.setState({
+      agentsIdList: localAgentsIdList
+    });
+  }
+
+  spiffeIdSelected = selected => {
+    console.log(selected.selectedItem)
+  }
   onChangeName(e) {
     this.setState({
       name: e.target.value
@@ -155,19 +199,6 @@ class CreateEntry extends Component {
   }
 
 
-  /*
-   * const str1 = 'spiffe://example.org/abc/def/gew:';
-  
-  console.log(str1.startsWith('spiffe://'));
-  // expected output: true
-  
-  var a = str1.substr("spiffe://".length);
-  console.log(a)
-  var sp = a.indexOf("/")
-  console.log(a.substr(0,sp))
-  console.log(a.substr(sp))*/
-
-
   parseSpiffeId(sid) {
     if (sid.startsWith('spiffe://')) {
       var sub = sid.substr("spiffe://".length)
@@ -183,6 +214,8 @@ class CreateEntry extends Component {
 
   onChangeSpiffeId(e) {
     var sid = e.target.value;
+    console.log(sid)
+    console.log(sid)
     if (sid.length === 0) {
       this.setState({
         spiffeId: sid,
@@ -213,8 +246,8 @@ class CreateEntry extends Component {
     return
   }
 
-  onChangeParentId(e) {
-    var sid = e.target.value;
+  onChangeParentId = selected => {
+    var prefix = "spiffe://", sid = selected.selectedItem;
     if (sid.length === 0) {
       this.setState({
         parentId: sid,
@@ -224,14 +257,15 @@ class CreateEntry extends Component {
       });
       return
     }
-
     const [validSpiffeId, trustDomain, path] = this.parseSpiffeId(sid)
+    var spiffeIdPrefix = prefix + trustDomain + "/";
     if (validSpiffeId) {
       this.setState({
         message: "",
         parentId: sid,
         parentIdTrustDomain: trustDomain,
         parentIdPath: path,
+        spiffeIdPrefix: spiffeIdPrefix,
       });
       return
     }
@@ -339,7 +373,7 @@ class CreateEntry extends Component {
   }
 
   render() {
-
+    const ParentIdList = this.state.agentsIdList;
     return (
       <div>
         <h3>Create New Entry</h3>
@@ -351,52 +385,85 @@ class CreateEntry extends Component {
           </div>
           {IsManager}
           <br /><br />
+          <div className="entry-form">
+            <div className="parentId-drop-down">
+              <Dropdown
+                ariaLabel="Dropdown"
+                id="carbon-dropdown-example"
+                items={ParentIdList}
+                label="Select Parent ID"
+                titleText="Parent ID"
+                //value={this.state.parentId}
+                onChange={this.onChangeParentId}
+              />
+              <p className="parentId-helper">i.e. spiffe://example.org/agent/myagent1For node entries, specify spiffe server as parent i.e. spiffe://example.org/spire/server</p>
+            </div>
+            <div className="spiffeId-input-field">
+              <TextInput
+                helperText="i.e. spiffe://example.org/sample/spiffe/id"
+                id="spiffeIdInputField"
+                invalidText="A valid value is required"
+                labelText="SPIFFE ID"
+                placeholder="i.e. spiffe://example.org/sample/spiffe/id"
+                //value={this.state.spiffeId}
+                defaultValue={this.state.spiffeIdPrefix}
+                onChange={(e)=>{
+                  const input = e.target.value
+                  e.target.value = this.state.spiffeIdPrefix + input.substr(this.state.spiffeIdPrefix.length);
+                  this.onChangeSpiffeId(e);
+                }}
+                //onChange={this.onChangeSpiffeId}
+              />
+            </div>
+            {/* <div className="form-group">
+              <label>SPIFFE ID: i.e. spiffe://example.org/sample/spiffe/id</label>
+              <input type="text"
+                className="form-control"
+                // ref={(target)=>{
+                //   target.value = "hghg"
+                // }}
+                value={this.state.spiffeId}
+                onChange={this.onChangeSpiffeId}
+              /></div>
 
-          <div className="form-group">
-            <label>SPIFFE ID: i.e. spiffe://example.org/sample/spiffe/id</label>
-            <input type="text"
-              className="form-control"
-              value={this.state.spiffeId}
-              onChange={this.onChangeSpiffeId}
-            /></div>
-
-          <div className="form-group">
-            <label>Parent ID: i.e. spiffe://example.org/agent/myagent1</label>
-            <label>For node entries, specify spiffe server as parent i.e. spiffe://example.org/spire/server </label>
-            <input type="text"
-              className="form-control"
-              value={this.state.parentId}
-              onChange={this.onChangeParentId}
-            /></div>
+            <div className="form-group">
+              <label>Parent ID: i.e. spiffe://example.org/agent/myagent1</label>
+              <label>For node entries, specify spiffe server as parent i.e. spiffe://example.org/spire/server </label>
+              <input type="text"
+                className="form-control"
+                //value={this.state.parentId}
+                onChange={this.onChangeParentId}
+              /></div> */}
 
 
 
 
-          <div className="form-group">
-            <label>Selectors: k8s_sat:cluster:demo-cluster,...</label>
-            <input type="text"
-              required
-              className="form-control"
-              value={this.state.token}
-              onChange={this.onChangeSelectors}
-            /></div>
+            <div className="form-group">
+              <label>Selectors: k8s_sat:cluster:demo-cluster,...</label>
+              <input type="text"
+                required
+                className="form-control"
+                value={this.state.token}
+                onChange={this.onChangeSelectors}
+              /></div>
 
-          <div className="form-group">
-            <input
-              type="checkbox"
-              checked={this.state.adminFlag}
-              onChange={this.onChangeAdminFlag}
-            />
-            Admin Flag
+            <div className="form-group">
+              <input
+                type="checkbox"
+                checked={this.state.adminFlag}
+                onChange={this.onChangeAdminFlag}
+              />
+              Admin Flag
+            </div>
+
+
+
+
+            <div className="form-group">
+              <input type="submit" value="Create Entry" className="btn btn-primary" />
+            </div>
+            <div>TODO: Add other API fields</div>
           </div>
-
-
-
-
-          <div className="form-group">
-            <input type="submit" value="Create Entry" className="btn btn-primary" />
-          </div>
-          <div>TODO: Add other API fields</div>
         </form>
       </div>
     )
@@ -407,9 +474,11 @@ class CreateEntry extends Component {
 const mapStateToProps = (state) => ({
   globalServerSelected: state.servers.globalServerSelected,
   globalSelectorInfo: state.servers.globalSelectorInfo,
+  globalagentsList: state.agents.globalagentsList,
+  globalServerInfo: state.servers.globalServerInfo,
 })
 
 export default connect(
   mapStateToProps,
-  { serverSelected, selectorInfo }
+  { serverSelected, selectorInfo, agentsListUpdate }
 )(CreateEntry)

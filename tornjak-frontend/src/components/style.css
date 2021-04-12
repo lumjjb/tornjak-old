@@ -38,3 +38,19 @@
     width: 98%;
     margin-bottom: 20px;
   }
+
+  .entry-form {
+    width: 70%;
+  }
+  .parentId-drop-down {
+    margin-bottom: 20px;
+  }
+
+  .spiffeId-input-field {
+    margin-bottom: 20px;
+  }
+
+  .parentId-helper {
+    font-size: 12px;
+    color:rgb(82, 79, 79)
+  }
