@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import axios from 'axios';
 //import 'carbon-components/css/carbon-components.min.css';
-import { Dropdown, TextInput, MultiSelect } from 'carbon-components-react';
+import { Dropdown, TextInput, MultiSelect, Checkbox } from 'carbon-components-react';
 import GetApiServerUri from './helpers';
 import IsManager from './is_manager';
 import './style.css';
@@ -43,7 +43,7 @@ class CreateEntry extends Component {
     this.setSelectorInfo = this.setSelectorInfo.bind(this);
     this.prepareParentIdAgentsList = this.prepareParentIdAgentsList.bind(this);
     this.prepareSelectorsList = this.prepareSelectorsList.bind(this);
-    
+
 
     //this.onChangeTtl = this.onChangeTtl.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
@@ -201,15 +201,15 @@ class CreateEntry extends Component {
     });
   }
 
-  onChangeSelectors= selected => {
+  onChangeSelectors = selected => {
     var i = 0, sid = selected.selectedItems, selectors = "";
-    for(i=0;i < sid.length; i++) {
-      if(i != sid.length-1)
+    for (i = 0; i < sid.length; i++) {
+      if (i != sid.length - 1)
         selectors = selectors + sid[i].label + ",";
       else
         selectors = selectors + sid[i].label
     }
-    if(selectors.length == 0)
+    if (selectors.length == 0)
       selectors = "Select Selectors"
     this.setState({
       selectors: selectors,
@@ -217,9 +217,10 @@ class CreateEntry extends Component {
     });
   }
 
-  onChangeAdminFlag(e) {
+  onChangeAdminFlag = selected => {
+    var sid = selected;
     this.setState({
-      adminFlag: e.target.checked,
+      adminFlag: sid,
     });
   }
 
@@ -509,6 +510,20 @@ class CreateEntry extends Component {
                 onChange={this.onChangeSelectors}
               />
             </div>
+            <div className="admin-flag-checkbox">
+              <fieldset className="bx--fieldset">
+                <legend className="bx--label">Advanced</legend>
+                <Checkbox 
+                  labelText="Admin Flag" 
+                  id="admin-flag" 
+                  onChange={this.onChangeAdminFlag}
+                />
+                <Checkbox 
+                  labelText="Down Stream" 
+                  id="down-steam" 
+                />
+              </fieldset>
+            </div>
             {/* <div className="form-group">
               <label>SPIFFE ID: i.e. spiffe://example.org/sample/spiffe/id</label>
               <input type="text"
@@ -541,14 +556,14 @@ class CreateEntry extends Component {
                 onChange={this.onChangeSelectors}
               /></div> */}
 
-            <div className="form-group">
+            {/* <div className="form-group">
               <input
                 type="checkbox"
                 checked={this.state.adminFlag}
                 onChange={this.onChangeAdminFlag}
               />
               Admin Flag
-            </div>
+            </div> */}
 
 
 
