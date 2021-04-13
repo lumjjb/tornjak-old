@@ -40,12 +40,20 @@
   }
 
   .entry-form {
-    width: 70%;
+    width: 80%;
+    border-width:1px;
+    border-style:solid;
+    border-color: rgb(180, 178, 178);
+    padding: 30px 30px 30px 30px;
   }
   .parentId-drop-down {
     margin-bottom: 20px;
   }
-
+  
+  .parentId-manual-input-field {
+    margin-bottom: 20px;
+    margin-left: 40px;
+  }
   .spiffeId-input-field {
     margin-bottom: 20px;
   }
@@ -53,4 +61,8 @@
   .parentId-helper {
     font-size: 12px;
     color:rgb(82, 79, 79)
+  }
+
+  .selectors-multiselect {
+    margin-bottom: 20px;
   }

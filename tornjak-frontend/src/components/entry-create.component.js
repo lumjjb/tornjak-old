@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import axios from 'axios';
-import 'carbon-components/css/carbon-components.min.css';
-import { Dropdown } from 'carbon-components-react';
-import { TextInput } from 'carbon-components-react';
+//import 'carbon-components/css/carbon-components.min.css';
+import { Dropdown, TextInput, MultiSelect } from 'carbon-components-react';
 import GetApiServerUri from './helpers';
 import IsManager from './is_manager';
 import './style.css';
@@ -39,9 +38,12 @@ class CreateEntry extends Component {
     this.onChangeSelectors = this.onChangeSelectors.bind(this);
     this.onChangeSpiffeId = this.onChangeSpiffeId.bind(this);
     this.onChangeParentId = this.onChangeParentId.bind(this);
+    this.onChangeManualParentId = this.onChangeManualParentId.bind(this);
     this.onChangeAdminFlag = this.onChangeAdminFlag.bind(this);
     this.setSelectorInfo = this.setSelectorInfo.bind(this);
     this.prepareParentIdAgentsList = this.prepareParentIdAgentsList.bind(this);
+    this.prepareSelectorsList = this.prepareSelectorsList.bind(this);
+    
 
     //this.onChangeTtl = this.onChangeTtl.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
@@ -72,12 +74,17 @@ class CreateEntry extends Component {
       selectedServer: "",
       agentsIdList: [],
       spiffeIdPrefix: "",
+      parentIdManualEntryOption: "----Select this option and Enter Custom Parent ID Below----",
+      parentIDManualEntry: false,
+      selectorsList: [],
+      selectorsListDisplay: "Select Selectors",
     }
   }
 
   componentDidMount() {
     this.setSelectorInfo();
     this.prepareParentIdAgentsList();
+    this.prepareSelectorsList();
     if (IsManager) {
       if (this.props.globalServerSelected !== "") {
         this.setState({ selectedServer: this.props.globalServerSelected });
@@ -101,56 +108,56 @@ class CreateEntry extends Component {
     {
       "gcp_iit": [
         {
-          "selector": "gcp_iit:project-id"
+          "label": "gcp_iit:project-id"
         },
         {
-          "selector": "gcp_iit:zone"
+          "label": "gcp_iit:zone"
         },
         {
-          "selector": "gcp_iit:instance-name"
+          "label": "gcp_iit:instance-name"
         }
       ],
       "k8s_sat": [
         {
-          "selector": "k8s_sat:cluster"
+          "label": "k8s_sat:cluster"
         },
         {
-          "selector": "k8s_sat:agent_ns"
+          "label": "k8s_sat:agent_ns"
         },
         {
-          "selector": "k8s_sat:agent_sa"
+          "label": "k8s_sat:agent_sa"
         }
       ],
       "k8s_psat": [
         {
-          "selector": "k8s_psat:cluster"
+          "label": "k8s_psat:cluster"
         },
         {
-          "selector": "k8s_psat:agent_ns"
+          "label": "k8s_psat:agent_ns"
         },
         {
-          "selector": "k8s_psat:agent_sa"
+          "label": "k8s_psat:agent_sa"
         },
         {
-          "selector": "k8s_psat:agent_pod_name"
+          "label": "k8s_psat:agent_pod_name"
         },
         {
-          "selector": "k8s_psat:agent_pod_uid"
+          "label": "k8s_psat:agent_pod_uid"
         },
         {
-          "selector": "k8s_psat:agent_pod_label"
+          "label": "k8s_psat:agent_pod_label"
         },
         {
-          "selector": "k8s_psat:agent_node_ip"
+          "label": "k8s_psat:agent_node_ip"
         },
         {
-          "selector": "k8s_psat:agent_node_name"
+          "label": "k8s_psat:agent_node_name"
         },
         {
-          "selector": "k8s_psat:agent_node_uid"
+          "label": "k8s_psat:agent_node_uid"
         },
         {
-          "selector": "k8s_psat:agent_node_label"
+          "label": "k8s_psat:agent_node_label"
         }
       ],
     };
@@ -160,17 +167,25 @@ class CreateEntry extends Component {
   prepareParentIdAgentsList() {
     var i = 0, prefix = "spiffe://";;
     let localAgentsIdList = [];
+    //user prefered option
+    localAgentsIdList[0] = this.state.parentIdManualEntryOption;
     //default option
-    localAgentsIdList[0] = prefix + this.props.globalServerInfo.data.trustDomain + "/spire/server";
+    localAgentsIdList[1] = prefix + this.props.globalServerInfo.data.trustDomain + "/spire/server";
     //agents
     for (i = 0; i < this.props.globalagentsList.length; i++) {
-      localAgentsIdList[i + 1] = prefix + this.props.globalagentsList[i].id.trust_domain + this.props.globalagentsList[i].id.path;
+      localAgentsIdList[i + 2] = prefix + this.props.globalagentsList[i].id.trust_domain + this.props.globalagentsList[i].id.path;
     }
     this.setState({
       agentsIdList: localAgentsIdList
     });
   }
 
+  prepareSelectorsList() {
+    let serverNodeAtt = this.props.globalServerInfo.data.nodeAttestorPlugin;
+    this.setState({
+      selectorsList: this.props.globalSelectorInfo[serverNodeAtt]
+    });
+  }
   spiffeIdSelected = selected => {
     console.log(selected.selectedItem)
   }
@@ -186,9 +201,19 @@ class CreateEntry extends Component {
     });
   }
 
-  onChangeSelectors(e) {
+  onChangeSelectors= selected => {
+    var i = 0, sid = selected.selectedItems, selectors = "";
+    for(i=0;i < sid.length; i++) {
+      if(i != sid.length-1)
+        selectors = selectors + sid[i].label + ",";
+      else
+        selectors = selectors + sid[i].label
+    }
+    if(selectors.length == 0)
+      selectors = "Select Selectors"
     this.setState({
-      selectors: e.target.value
+      selectors: selectors,
+      selectorsListDisplay: selectors,
     });
   }
 
@@ -257,6 +282,16 @@ class CreateEntry extends Component {
       });
       return
     }
+    if (sid === this.state.parentIdManualEntryOption) {
+      this.setState({
+        parentIDManualEntry: true,
+        spiffeIdPrefix: "",
+      });
+      return
+    }
+    this.setState({
+      parentIDManualEntry: false
+    });
     const [validSpiffeId, trustDomain, path] = this.parseSpiffeId(sid)
     var spiffeIdPrefix = prefix + trustDomain + "/";
     if (validSpiffeId) {
@@ -279,7 +314,38 @@ class CreateEntry extends Component {
     return
   }
 
-
+  onChangeManualParentId(e) {
+    var prefix = "spiffe://", sid = e.target.value;
+    if (sid.length === 0) {
+      this.setState({
+        parentId: sid,
+        parentIdTrustDomain: "",
+        parentIdPath: "",
+        message: "",
+      });
+      return
+    }
+    const [validSpiffeId, trustDomain, path] = this.parseSpiffeId(sid)
+    var spiffeIdPrefix = prefix + trustDomain + "/";
+    if (validSpiffeId) {
+      this.setState({
+        message: "",
+        parentId: sid,
+        parentIdTrustDomain: trustDomain,
+        parentIdPath: path,
+        spiffeIdPrefix: spiffeIdPrefix,
+      });
+      return
+    }
+    // else invalid spiffe ID
+    this.setState({
+      parentId: sid,
+      message: "Invalid Parent ID",
+      parentIdTrustDomain: "",
+      parentIdPath: "",
+    });
+    return
+  }
 
   // Tag related things
 
@@ -388,31 +454,59 @@ class CreateEntry extends Component {
           <div className="entry-form">
             <div className="parentId-drop-down">
               <Dropdown
-                ariaLabel="Dropdown"
-                id="carbon-dropdown-example"
+                ariaLabel="parentId-drop-down"
+                id="parentId-drop-down"
                 items={ParentIdList}
                 label="Select Parent ID"
                 titleText="Parent ID"
                 //value={this.state.parentId}
                 onChange={this.onChangeParentId}
               />
-              <p className="parentId-helper">i.e. spiffe://example.org/agent/myagent1For node entries, specify spiffe server as parent i.e. spiffe://example.org/spire/server</p>
+              {/* <p className="parentId-helper">i.e. spiffe://example.org/agent/myagent1For node entries, specify spiffe server as parent i.e. spiffe://example.org/spire/server</p> */}
             </div>
+            {this.state.parentIDManualEntry == true &&
+              <div className="parentId-manual-input-field">
+                <TextInput
+                  helperText="For node entries, specify spiffe server as parent i.e. spiffe://example.org/spire/server"
+                  id="parentIdManualInputField"
+                  invalidText="A valid value is required - refer to helper text below"
+                  labelText="Parent ID - Manual Entry"
+                  placeholder="i.e. spiffe://example.org/agent/myagent1"
+                  //value={this.state.spiffeId}
+                  //defaultValue={this.state.spiffeIdPrefix}
+                  onChange={(e) => {
+                    this.onChangeManualParentId(e);
+                  }}
+                />
+              </div>}
             <div className="spiffeId-input-field">
               <TextInput
                 helperText="i.e. spiffe://example.org/sample/spiffe/id"
                 id="spiffeIdInputField"
-                invalidText="A valid value is required"
+                invalidText="A valid value is required - refer to helper text below"
                 labelText="SPIFFE ID"
                 placeholder="i.e. spiffe://example.org/sample/spiffe/id"
                 //value={this.state.spiffeId}
                 defaultValue={this.state.spiffeIdPrefix}
-                onChange={(e)=>{
+                onChange={(e) => {
                   const input = e.target.value
                   e.target.value = this.state.spiffeIdPrefix + input.substr(this.state.spiffeIdPrefix.length);
                   this.onChangeSpiffeId(e);
                 }}
-                //onChange={this.onChangeSpiffeId}
+              //onChange={this.onChangeSpiffeId}
+              />
+            </div>
+            <div className="selectors-multiselect">
+              <MultiSelect.Filterable
+                required
+                titleText="Selectors"
+                helperText="i.e. k8s_sat:cluster:demo-cluster,..."
+                placeholder={this.state.selectorsListDisplay}
+                ariaLabel="selectors-multiselect"
+                id="selectors-multiselect"
+                items={this.state.selectorsList}
+                label={this.state.selectorsListDisplay}
+                onChange={this.onChangeSelectors}
               />
             </div>
             {/* <div className="form-group">
@@ -438,14 +532,14 @@ class CreateEntry extends Component {
 
 
 
-            <div className="form-group">
+            {/* <div className="form-group">
               <label>Selectors: k8s_sat:cluster:demo-cluster,...</label>
               <input type="text"
                 required
                 className="form-control"
                 value={this.state.token}
                 onChange={this.onChangeSelectors}
-              /></div>
+              /></div> */}
 
             <div className="form-group">
               <input
