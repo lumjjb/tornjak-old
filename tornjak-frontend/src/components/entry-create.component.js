@@ -106,6 +106,20 @@ class CreateEntry extends Component {
   setSelectorInfo() {
     const selectors =
     {
+      "aws_iid": [
+        {
+          "label": "aws_iid:tag:name"
+        },
+        {
+          "label": "aws_iid:sg:id"
+        },
+        {
+          "label": "aws_iid:sg:name"
+        },
+        {
+          "label": "aws_iid:iamrole:arn:aws:iam"
+        }
+      ],
       "gcp_iit": [
         {
           "label": "gcp_iit:project-id"
