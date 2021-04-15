@@ -12,24 +12,6 @@ import {
   agentsListUpdate,
 } from 'actions';
 
-const items = [
-  {
-    id: 'option-1',
-    label: 'Option 1',
-  },
-  {
-    id: 'option-2',
-    label: 'Option 2',
-  },
-  {
-    id: 'option-3',
-    label: 'Option 3',
-  },
-  {
-    id: 'option-4',
-    label: 'Option 4',
-  },
-];
 class CreateEntry extends Component {
   constructor(props) {
     super(props);
@@ -509,16 +491,16 @@ class CreateEntry extends Component {
                 //value={this.state.parentId}
                 onChange={this.onChangeParentId}
               />
-              {/* <p className="parentId-helper">i.e. spiffe://example.org/agent/myagent1For node entries, specify spiffe server as parent i.e. spiffe://example.org/spire/server</p> */}
+              <p className="parentId-helper">i.e. spiffe://example.org/agent/myagent1 - For node entries, select spiffe server as parent i.e. spiffe://example.org/spire/server</p>
             </div>
             {this.state.parentIDManualEntry == true &&
               <div className="parentId-manual-input-field">
                 <TextInput
-                  helperText="For node entries, specify spiffe server as parent i.e. spiffe://example.org/spire/server"
+                  helperText="i.e. spiffe://example.org/agent/myagent1 - For node entries, specify spiffe server as parent i.e. spiffe://example.org/spire/server"
                   id="parentIdManualInputField"
                   invalidText="A valid value is required - refer to helper text below"
                   labelText="Parent ID - Manual Entry"
-                  placeholder="i.e. spiffe://example.org/agent/myagent1"
+                  placeholder="Enter Parent ID"
                   //value={this.state.spiffeId}
                   //defaultValue={this.state.spiffeIdPrefix}
                   onChange={(e) => {
@@ -532,7 +514,7 @@ class CreateEntry extends Component {
                 id="spiffeIdInputField"
                 invalidText="A valid value is required - refer to helper text below"
                 labelText="SPIFFE ID"
-                placeholder="i.e. spiffe://example.org/sample/spiffe/id"
+                placeholder="Enter SPIFFE ID"
                 //value={this.state.spiffeId}
                 defaultValue={this.state.spiffeIdPrefix}
                 onChange={(e) => {
@@ -563,7 +545,7 @@ class CreateEntry extends Component {
                 id="selectors-textArea"
                 invalidText="A valid value is required"
                 labelText="Selectors"
-                placeholder="i.e. k8s_sat:cluster:demo-cluster,..."
+                placeholder="Enter Selectors - Refer to Selectors Recommendation"
                 defaultValue={this.state.selectorsRecommendationList}
                 rows={8}
                 onChange={this.onChangeSelectors}
