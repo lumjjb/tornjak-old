@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import axios from 'axios';
 //import 'carbon-components/css/carbon-components.min.css';
-import { Dropdown, TextInput, MultiSelect, Checkbox } from 'carbon-components-react';
+import { Dropdown, TextInput, MultiSelect, Checkbox, TextArea } from 'carbon-components-react';
 import GetApiServerUri from './helpers';
 import IsManager from './is_manager';
 import './style.css';
@@ -43,6 +43,7 @@ class CreateEntry extends Component {
     this.setSelectorInfo = this.setSelectorInfo.bind(this);
     this.prepareParentIdAgentsList = this.prepareParentIdAgentsList.bind(this);
     this.prepareSelectorsList = this.prepareSelectorsList.bind(this);
+    this.onChangeSelectorsRecommended = this.onChangeSelectorsRecommended.bind(this);
 
 
     //this.onChangeTtl = this.onChangeTtl.bind(this);
@@ -63,12 +64,11 @@ class CreateEntry extends Component {
 
       // ',' delimetered selectors
       selectors: "",
+      selectorsRecommendationList: "",
       adminFlag: false,
 
       //ttl: 500,
       //token: "",
-
-
       message: "",
       servers: [],
       selectedServer: "",
@@ -83,15 +83,17 @@ class CreateEntry extends Component {
 
   componentDidMount() {
     this.setSelectorInfo();
-    this.prepareParentIdAgentsList();
-    this.prepareSelectorsList();
     if (IsManager) {
       if (this.props.globalServerSelected !== "") {
         this.setState({ selectedServer: this.props.globalServerSelected });
+        this.prepareParentIdAgentsList();
+        this.prepareSelectorsList();
       }
     } else {
       // agent doesnt need to do anything
       this.setState({})
+      this.prepareParentIdAgentsList();
+      this.prepareSelectorsList();
     }
   }
 
@@ -99,6 +101,11 @@ class CreateEntry extends Component {
     if (IsManager) {
       if (prevProps.globalServerSelected !== this.props.globalServerSelected) {
         this.setState({ selectedServer: this.props.globalServerSelected });
+        console.log("this.props.globalServerInfo.length", this.props.globalServerInfo)
+        if (this.props.globalServerInfo.length !== 0) {
+          this.prepareParentIdAgentsList();
+          this.prepareSelectorsList();
+        }
       }
     }
   }
@@ -129,6 +136,18 @@ class CreateEntry extends Component {
         },
         {
           "label": "gcp_iit:instance-name"
+        },
+        {
+          "label": "gcp_iit:tag"
+        },
+        {
+          "label": "gcp_iit:sa"
+        },
+        {
+          "label": "gcp_iit:label"
+        },
+        {
+          "label": "gcp_iit:metadata"
         }
       ],
       "k8s_sat": [
@@ -189,9 +208,11 @@ class CreateEntry extends Component {
     for (i = 0; i < this.props.globalagentsList.length; i++) {
       localAgentsIdList[i + 2] = prefix + this.props.globalagentsList[i].id.trust_domain + this.props.globalagentsList[i].id.path;
     }
+    console.log(localAgentsIdList)
     this.setState({
       agentsIdList: localAgentsIdList
     });
+    //window.location.reload();
   }
 
   prepareSelectorsList() {
@@ -215,19 +236,31 @@ class CreateEntry extends Component {
     });
   }
 
-  onChangeSelectors = selected => {
-    var i = 0, sid = selected.selectedItems, selectors = "";
+  onChangeSelectorsRecommended = selected => {
+    var i = 0, sid = selected.selectedItems, selectors = "", selectorsDisplay = "";
     for (i = 0; i < sid.length; i++) {
-      if (i != sid.length - 1)
-        selectors = selectors + sid[i].label + ",";
-      else
-        selectors = selectors + sid[i].label
+      if (i != sid.length - 1) {
+        selectors = selectors + sid[i].label + ":" + '\n';
+        selectorsDisplay = selectorsDisplay + sid[i].label + ",";
+      }
+      else {
+        selectors = selectors + sid[i].label + ":"
+        selectorsDisplay = selectorsDisplay + sid[i].label
+      }
     }
-    if (selectors.length == 0)
-      selectors = "Select Selectors"
+    if (selectorsDisplay.length == 0)
+      selectorsDisplay = "Select Selectors"
+    this.setState({
+      selectorsRecommendationList: selectors,
+      selectorsListDisplay: selectorsDisplay,
+    });
+  }
+
+  onChangeSelectors(e) {
+    var sid = e.target.value, selectors = "";
+    selectors = sid.replace(/\n/g, ",");
     this.setState({
       selectors: selectors,
-      selectorsListDisplay: selectors,
     });
   }
 
@@ -237,7 +270,6 @@ class CreateEntry extends Component {
       adminFlag: sid,
     });
   }
-
 
   parseSpiffeId(sid) {
     if (sid.startsWith('spiffe://')) {
@@ -514,78 +546,46 @@ class CreateEntry extends Component {
             <div className="selectors-multiselect">
               <MultiSelect.Filterable
                 required
-                titleText="Selectors"
-                helperText="i.e. k8s_sat:cluster:demo-cluster,..."
+                titleText="Selectors Recommendation"
+                helperText="i.e. k8s_sat:cluster,..."
                 placeholder={this.state.selectorsListDisplay}
                 ariaLabel="selectors-multiselect"
                 id="selectors-multiselect"
                 items={this.state.selectorsList}
                 label={this.state.selectorsListDisplay}
+                onChange={this.onChangeSelectorsRecommended}
+              />
+            </div>
+            <div className="selectors-textArea">
+              <TextArea
+                cols={50}
+                helperText="i.e. k8s_sat:cluster:demo-cluster,..."
+                id="selectors-textArea"
+                invalidText="A valid value is required"
+                labelText="Selectors"
+                placeholder="i.e. k8s_sat:cluster:demo-cluster,..."
+                defaultValue={this.state.selectorsRecommendationList}
+                rows={8}
                 onChange={this.onChangeSelectors}
               />
             </div>
             <div className="admin-flag-checkbox">
               <fieldset className="bx--fieldset">
                 <legend className="bx--label">Advanced</legend>
-                <Checkbox 
-                  labelText="Admin Flag" 
-                  id="admin-flag" 
+                <Checkbox
+                  labelText="Admin Flag"
+                  id="admin-flag"
                   onChange={this.onChangeAdminFlag}
                 />
-                <Checkbox 
-                  labelText="Down Stream" 
-                  id="down-steam" 
+                <Checkbox
+                  labelText="Down Stream"
+                  id="down-steam"
                 />
               </fieldset>
             </div>
-            {/* <div className="form-group">
-              <label>SPIFFE ID: i.e. spiffe://example.org/sample/spiffe/id</label>
-              <input type="text"
-                className="form-control"
-                // ref={(target)=>{
-                //   target.value = "hghg"
-                // }}
-                value={this.state.spiffeId}
-                onChange={this.onChangeSpiffeId}
-              /></div>
-
-            <div className="form-group">
-              <label>Parent ID: i.e. spiffe://example.org/agent/myagent1</label>
-              <label>For node entries, specify spiffe server as parent i.e. spiffe://example.org/spire/server </label>
-              <input type="text"
-                className="form-control"
-                //value={this.state.parentId}
-                onChange={this.onChangeParentId}
-              /></div> */}
-
-
-
-
-            {/* <div className="form-group">
-              <label>Selectors: k8s_sat:cluster:demo-cluster,...</label>
-              <input type="text"
-                required
-                className="form-control"
-                value={this.state.token}
-                onChange={this.onChangeSelectors}
-              /></div> */}
-
-            {/* <div className="form-group">
-              <input
-                type="checkbox"
-                checked={this.state.adminFlag}
-                onChange={this.onChangeAdminFlag}
-              />
-              Admin Flag
-            </div> */}
-
-
-
-
             <div className="form-group">
               <input type="submit" value="Create Entry" className="btn btn-primary" />
             </div>
-            <div>TODO: Add other API fields</div>
           </div>
         </form>
       </div>

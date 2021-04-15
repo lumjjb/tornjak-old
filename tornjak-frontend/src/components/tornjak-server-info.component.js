@@ -29,12 +29,13 @@ class TornjakServerInfo extends Component {
   componentDidMount() {
     if (IsManager) {
       if (this.props.globalServerSelected !== "") {
-        this.populateTornjakServerInfo(this.props.globalServerSelected)
+        this.populateTornjakServerInfo(this.props.globalServerSelected);
+        this.populateServerInfo();
       }
     } else {
-      this.populateLocalTornjakServerInfo()
+      this.populateLocalTornjakServerInfo();
+      this.populateServerInfo();
     }
-    this.populateServerInfo()
   }
 
   componentDidUpdate(prevProps) {
