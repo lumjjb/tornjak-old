@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import axios from 'axios';
 //import 'carbon-components/css/carbon-components.min.css';
-import { Dropdown, TextInput, MultiSelect, Checkbox, TextArea } from 'carbon-components-react';
+import { Dropdown, TextInput, MultiSelect, Checkbox, TextArea, NumberInput } from 'carbon-components-react';
 import GetApiServerUri from './helpers';
 import IsManager from './is_manager';
 import './style.css';
@@ -554,6 +554,48 @@ class CreateEntry extends Component {
             <div className="admin-flag-checkbox">
               <fieldset className="bx--fieldset">
                 <legend className="bx--label">Advanced</legend>
+                <div className="ttl-input">
+                  <NumberInput
+                    helperText="Ttl for identities issued for this entry (In seconds)"
+                    id="ttl-input"
+                    invalidText="Number is not valid"
+                    label="Time to Leave (Ttl)"
+                    //max={100}
+                    min={0}
+                    step={1}
+                    value={50}
+                  />
+                </div>
+                <div className="expiresAt-input">
+                  <NumberInput
+                    helperText="Entry expires at (seconds since Unix epoch)"
+                    id="expiresAt-input"
+                    invalidText="Number is not valid"
+                    label="Expires At"
+                    //max={100}
+                    min={0}
+                    step={1}
+                    value={50}
+                  />
+                </div>
+                <div className="federates-with-input-field">
+                  <TextInput
+                    helperText="i.e. "
+                    id="federates-with-input-field"
+                    invalidText="A valid value is required - refer to helper text below"
+                    labelText="Federates With"
+                    placeholder="Enter Names of trust domains the identity described by this entry federates with"
+                  />
+                </div>
+                <div className="dnsnames-input-field">
+                  <TextInput
+                    helperText="i.e. "
+                    id="dnsnames-input-field"
+                    invalidText="A valid value is required - refer to helper text below"
+                    labelText="DNS Names"
+                    placeholder="Enter DNS Names associated with the identity described by this entry"
+                  />
+                </div>
                 <Checkbox
                   labelText="Admin Flag"
                   id="admin-flag"
