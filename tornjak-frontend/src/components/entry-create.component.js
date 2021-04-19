@@ -16,7 +16,6 @@ class CreateEntry extends Component {
   constructor(props) {
     super(props);
 
-    this.onChangeName = this.onChangeName.bind(this);
     this.onChangeSelectors = this.onChangeSelectors.bind(this);
     this.onChangeSpiffeId = this.onChangeSpiffeId.bind(this);
     this.onChangeParentId = this.onChangeParentId.bind(this);
@@ -26,9 +25,11 @@ class CreateEntry extends Component {
     this.prepareParentIdAgentsList = this.prepareParentIdAgentsList.bind(this);
     this.prepareSelectorsList = this.prepareSelectorsList.bind(this);
     this.onChangeSelectorsRecommended = this.onChangeSelectorsRecommended.bind(this);
-
-
-    //this.onChangeTtl = this.onChangeTtl.bind(this);
+    this.onChangeTtl = this.onChangeTtl.bind(this);
+    this.onChangeExpiresAt = this.onChangeExpiresAt.bind(this);
+    this.onChangeFederatesWith = this.onChangeFederatesWith.bind(this);
+    this.onChangeDownStream = this.onChangeDownStream.bind(this);
+    this.onChangeDnsNames = this.onChangeDnsNames.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
 
     this.state = {
@@ -49,7 +50,11 @@ class CreateEntry extends Component {
       selectorsRecommendationList: "",
       adminFlag: false,
 
-      //ttl: 500,
+      ttl: 0,
+      expiresAt: 0,
+      dnsNames: [],
+      federatesWith: [],
+      downstream: false,
       //token: "",
       message: "",
       servers: [],
@@ -83,11 +88,13 @@ class CreateEntry extends Component {
     if (IsManager) {
       if (prevProps.globalServerSelected !== this.props.globalServerSelected) {
         this.setState({ selectedServer: this.props.globalServerSelected });
-        console.log("this.props.globalServerInfo.length", this.props.globalServerInfo)
-        if (this.props.globalServerInfo.length !== 0) {
-          this.prepareParentIdAgentsList();
-          this.prepareSelectorsList();
-        }
+      }
+      if (prevProps.globalServerInfo !== this.props.globalServerInfo) {
+        this.prepareParentIdAgentsList();
+        this.prepareSelectorsList();
+      }
+      if (prevProps.globalagentsList !== this.props.globalagentsList) {
+        this.prepareParentIdAgentsList();
       }
     }
   }
@@ -190,7 +197,6 @@ class CreateEntry extends Component {
     for (i = 0; i < this.props.globalagentsList.length; i++) {
       localAgentsIdList[i + 2] = prefix + this.props.globalagentsList[i].id.trust_domain + this.props.globalagentsList[i].id.path;
     }
-    console.log(localAgentsIdList)
     this.setState({
       agentsIdList: localAgentsIdList
     });
@@ -203,18 +209,37 @@ class CreateEntry extends Component {
       selectorsList: this.props.globalSelectorInfo[serverNodeAtt]
     });
   }
-  spiffeIdSelected = selected => {
-    console.log(selected.selectedItem)
-  }
-  onChangeName(e) {
-    this.setState({
-      name: e.target.value
-    });
-  }
 
   onChangeTtl(e) {
     this.setState({
-      ttl: Number(e.target.value)
+      ttl: Number(e.imaginaryTarget.value)
+    });
+  }
+
+  onChangeExpiresAt(e) {
+    this.setState({
+      expiresAt: Number(e.imaginaryTarget.value)
+    });
+  }
+
+  onChangeDownStream= selected => {
+    var sid = selected;
+    this.setState({
+      downstream: sid,
+    });
+  }
+
+  onChangeDnsNames(e) {
+    var sid = e.target.value;
+    this.setState({
+      dnsNames: sid,
+    });
+  }
+
+  onChangeFederatesWith(e) {
+    var sid = e.target.value;
+    this.setState({
+      federatesWith: sid,
     });
   }
 
@@ -268,8 +293,6 @@ class CreateEntry extends Component {
 
   onChangeSpiffeId(e) {
     var sid = e.target.value;
-    console.log(sid)
-    console.log(sid)
     if (sid.length === 0) {
       this.setState({
         spiffeId: sid,
@@ -436,11 +459,14 @@ class CreateEntry extends Component {
         "type": x.substr(0, x.indexOf(":")),
         "value": x.substr(x.indexOf(":") + 1)
       } : null)
-
+    
     if (selectorEntries.some(x => x == null || x["value"].length === 0)) {
       this.setState({ message: "ERROR: Selectors not in the correct format should be type:value" })
       return
     }
+
+    const federatedWithList = this.state.federatesWith.split(',').map(x => x.trim())
+    const dnsNamesWithList = this.state.dnsNames.split(',').map(x => x.trim())
 
     var cjtData = {
       "entries": [{
@@ -454,6 +480,11 @@ class CreateEntry extends Component {
         },
         "selectors": selectorEntries,
         "admin": this.state.adminFlag,
+        "ttl": this.state.ttl,
+        "expires_at": this.state.expiresAt,
+        "downstream": this.state.downstream,
+        "federates_with": federatedWithList,
+        "dns_names": dnsNamesWithList,
       }]
     }
 
@@ -551,7 +582,7 @@ class CreateEntry extends Component {
                 onChange={this.onChangeSelectors}
               />
             </div>
-            <div className="admin-flag-checkbox">
+            <div className="advanced">
               <fieldset className="bx--fieldset">
                 <legend className="bx--label">Advanced</legend>
                 <div className="ttl-input">
@@ -563,7 +594,8 @@ class CreateEntry extends Component {
                     //max={100}
                     min={0}
                     step={1}
-                    value={50}
+                    value={0}
+                    onChange={this.onChangeTtl}
                   />
                 </div>
                 <div className="expiresAt-input">
@@ -575,36 +607,44 @@ class CreateEntry extends Component {
                     //max={100}
                     min={0}
                     step={1}
-                    value={50}
+                    value={0}
+                    onChange={this.onChangeExpiresAt}
                   />
                 </div>
                 <div className="federates-with-input-field">
                   <TextInput
-                    helperText="i.e. "
+                    helperText="i.e. example.org,abc.com (Separated By Commas)"
                     id="federates-with-input-field"
                     invalidText="A valid value is required - refer to helper text below"
                     labelText="Federates With"
                     placeholder="Enter Names of trust domains the identity described by this entry federates with"
+                    onChange={this.onChangeFederatesWith}
                   />
                 </div>
                 <div className="dnsnames-input-field">
                   <TextInput
-                    helperText="i.e. "
+                    helperText="i.e. example.org,abc.com (Separated By Commas)"
                     id="dnsnames-input-field"
                     invalidText="A valid value is required - refer to helper text below"
                     labelText="DNS Names"
                     placeholder="Enter DNS Names associated with the identity described by this entry"
+                    onChange={this.onChangeDnsNames}
                   />
                 </div>
-                <Checkbox
-                  labelText="Admin Flag"
-                  id="admin-flag"
-                  onChange={this.onChangeAdminFlag}
-                />
-                <Checkbox
-                  labelText="Down Stream"
-                  id="down-steam"
-                />
+                <div className="admin-flag-checkbox">
+                  <Checkbox
+                    labelText="Admin Flag"
+                    id="admin-flag"
+                    onChange={this.onChangeAdminFlag}
+                  />
+                </div>
+                <div className="down-stream-checkbox">
+                  <Checkbox
+                    labelText="Down Stream"
+                    id="down-steam"
+                    onChange={this.onChangeDownStream}
+                  />
+                </div>
               </fieldset>
             </div>
             <div className="form-group">

@@ -89,7 +89,6 @@ class SelectServer extends Component {
     populateTornjakServerInfo(serverName) {
         axios.get(GetApiServerUri('/manager-api/tornjak/serverinfo/') + serverName, { crossdomain: true })
           .then(response => {
-            console.log(response);
             this.props.tornjakServerInfoUpdate(response.data["serverinfo"]);
           }).catch(error => {
             this.setState({
@@ -114,7 +113,6 @@ class SelectServer extends Component {
         //node attestor plugin
         const nodeAttKeyWord = "NodeAttestor Plugin: ";
         var serverInfo = "";
-        console.log("this.props.globalTornjakServerInfo", this.props.globalTornjakServerInfo)
         if(this.props.globalTornjakServerInfo.length == 0)
             return
         serverInfo = this.props.globalTornjakServerInfo;
@@ -140,7 +138,6 @@ class SelectServer extends Component {
     populateAgentsUpdate(serverName) {
         axios.get(GetApiServerUri('/manager-api/agent/list/') + serverName, { crossdomain: true })
           .then(response => {
-            console.log(response);
             this.props.agentsListUpdate(response.data["agents"]);
           }).catch(error => {
             this.setState({
