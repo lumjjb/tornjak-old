@@ -34,7 +34,9 @@ class TornjakServerInfo extends Component {
       }
     } else {
       this.populateLocalTornjakServerInfo();
-      this.populateServerInfo();
+      if(this.props.globalTornjakServerInfo !== "")
+        console.log(this.props.globalTornjakServerInfo !== "")
+        this.populateServerInfo();
     }
   }
 

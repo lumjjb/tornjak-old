@@ -8,7 +8,7 @@ import {
 
 const initialState = {
     globalServerSelected: "",
-    globalTornjakServerInfo: [],
+    globalTornjakServerInfo: "",
     globalServerInfo: [],
     globalServersList: [],
     globalSelectorInfo:[],

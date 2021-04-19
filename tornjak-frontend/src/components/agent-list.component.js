@@ -7,7 +7,9 @@ import IsManager from './is_manager';
 import Table from "tables/agentsListTable";
 import {
   serverSelected,
-  agentsListUpdate
+  agentsListUpdate,
+  tornjakServerInfoUpdate,
+  serverInfoUpdate
 } from 'actions';
 
 const Agent = props => (
@@ -44,6 +46,10 @@ class AgentList extends Component {
       }
     } else {
       this.populateLocalAgentsUpdate()
+      this.populateLocalTornjakServerInfo();
+      if(this.props.globalTornjakServerInfo !== "")
+        console.log(this.props.globalTornjakServerInfo !== "")
+        this.populateServerInfo();
     }
   }
 
@@ -53,6 +59,39 @@ class AgentList extends Component {
         this.populateAgentsUpdate(this.props.globalServerSelected)
       }
     }
+  }
+
+  populateLocalTornjakServerInfo() {
+    axios.get(GetApiServerUri('/api/tornjak/serverinfo'), { crossdomain: true })
+      .then(response => {
+        this.props.tornjakServerInfoUpdate(response.data["serverinfo"]);
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+  }
+
+  populateServerInfo() {
+    //node attestor plugin
+    const nodeAttKeyWord = "NodeAttestor Plugin: ";
+    var serverInfo = this.props.globalTornjakServerInfo;
+    var nodeAttStrtInd = serverInfo.search(nodeAttKeyWord) + nodeAttKeyWord.length;
+    var nodeAttEndInd = serverInfo.indexOf('\n', nodeAttStrtInd)
+    var nodeAtt = serverInfo.substr(nodeAttStrtInd, nodeAttEndInd - nodeAttStrtInd)
+    //server trust domain
+    const trustDomainKeyWord = "\"TrustDomain\": \"";
+    var trustDomainStrtInd = serverInfo.search(trustDomainKeyWord) + trustDomainKeyWord.length;
+    var trustDomainEndInd = serverInfo.indexOf("\"", trustDomainStrtInd)
+    var trustDomain = serverInfo.substr(trustDomainStrtInd, trustDomainEndInd - trustDomainStrtInd)
+    var reqInfo = 
+      {
+        "data": 
+          {
+            "trustDomain": trustDomain,
+            "nodeAttestorPlugin": nodeAtt
+          }
+      }
+    this.props.serverInfoUpdate(reqInfo);
   }
 
   populateAgentsUpdate(serverName) {
@@ -114,9 +153,10 @@ class AgentList extends Component {
 const mapStateToProps = (state) => ({
   globalServerSelected: state.servers.globalServerSelected,
   globalagentsList: state.agents.globalagentsList,
+  globalTornjakServerInfo: state.servers.globalTornjakServerInfo,
 })
 
 export default connect(
   mapStateToProps,
-  { serverSelected, agentsListUpdate }
+  { serverSelected, agentsListUpdate, tornjakServerInfoUpdate, serverInfoUpdate }
 )(AgentList)
