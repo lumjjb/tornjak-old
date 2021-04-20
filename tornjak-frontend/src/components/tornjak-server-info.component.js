@@ -26,17 +26,16 @@ class TornjakServerInfo extends Component {
     };
   }
 
-  componentDidMount() {
+  componentDidMount(prevProps) {
     if (IsManager) {
       if (this.props.globalServerSelected !== "") {
         this.populateTornjakServerInfo(this.props.globalServerSelected);
-        this.populateServerInfo();
+        populateServerInfo(this.props);
       }
     } else {
       this.populateLocalTornjakServerInfo();
-      if(this.props.globalTornjakServerInfo !== "")
-        console.log(this.props.globalTornjakServerInfo !== "")
-        this.populateServerInfo();
+      if(this.props.globalTornjakServerInfo !== "") 
+        populateServerInfo(this.props);
     }
   }
 
@@ -45,6 +44,9 @@ class TornjakServerInfo extends Component {
       if (prevProps.globalServerSelected !== this.props.globalServerSelected) {
         this.populateTornjakServerInfo(this.props.globalServerSelected)
       }
+    } else {
+      if(prevProps.globalTornjakServerInfo !== this.props.globalTornjakServerInfo) 
+        populateServerInfo(this.props);
     }
   }
 
@@ -62,28 +64,28 @@ class TornjakServerInfo extends Component {
 
   }
 
-  populateServerInfo() {
-    //node attestor plugin
-    const nodeAttKeyWord = "NodeAttestor Plugin: ";
-    var serverInfo = this.props.globalTornjakServerInfo;
-    var nodeAttStrtInd = serverInfo.search(nodeAttKeyWord) + nodeAttKeyWord.length;
-    var nodeAttEndInd = serverInfo.indexOf('\n', nodeAttStrtInd)
-    var nodeAtt = serverInfo.substr(nodeAttStrtInd, nodeAttEndInd - nodeAttStrtInd)
-    //server trust domain
-    const trustDomainKeyWord = "\"TrustDomain\": \"";
-    var trustDomainStrtInd = serverInfo.search(trustDomainKeyWord) + trustDomainKeyWord.length;
-    var trustDomainEndInd = serverInfo.indexOf("\"", trustDomainStrtInd)
-    var trustDomain = serverInfo.substr(trustDomainStrtInd, trustDomainEndInd - trustDomainStrtInd)
-    var reqInfo = 
-      {
-        "data": 
-          {
-            "trustDomain": trustDomain,
-            "nodeAttestorPlugin": nodeAtt
-          }
-      }
-    this.props.serverInfoUpdate(reqInfo);
-  }
+  // populateServerInfo() {
+  //   //node attestor plugin
+  //   const nodeAttKeyWord = "NodeAttestor Plugin: ";
+  //   var serverInfo = this.props.globalTornjakServerInfo;
+  //   var nodeAttStrtInd = serverInfo.search(nodeAttKeyWord) + nodeAttKeyWord.length;
+  //   var nodeAttEndInd = serverInfo.indexOf('\n', nodeAttStrtInd)
+  //   var nodeAtt = serverInfo.substr(nodeAttStrtInd, nodeAttEndInd - nodeAttStrtInd)
+  //   //server trust domain
+  //   const trustDomainKeyWord = "\"TrustDomain\": \"";
+  //   var trustDomainStrtInd = serverInfo.search(trustDomainKeyWord) + trustDomainKeyWord.length;
+  //   var trustDomainEndInd = serverInfo.indexOf("\"", trustDomainStrtInd)
+  //   var trustDomain = serverInfo.substr(trustDomainStrtInd, trustDomainEndInd - trustDomainStrtInd)
+  //   var reqInfo = 
+  //     {
+  //       "data": 
+  //         {
+  //           "trustDomain": trustDomain,
+  //           "nodeAttestorPlugin": nodeAtt
+  //         }
+  //     }
+  //   this.props.serverInfoUpdate(reqInfo);
+  // }
 
   populateLocalTornjakServerInfo() {
     axios.get(GetApiServerUri('/api/tornjak/serverinfo'), { crossdomain: true })
@@ -121,12 +123,44 @@ class TornjakServerInfo extends Component {
   }
 }
 
+function populateServerInfo(props) {
+  //node attestor plugin
+  const nodeAttKeyWord = "NodeAttestor Plugin: ";
+  console.log(props)
+  var serverInfo = props.globalTornjakServerInfo;
+  var nodeAttStrtInd = serverInfo.search(nodeAttKeyWord) + nodeAttKeyWord.length;
+  var nodeAttEndInd = serverInfo.indexOf('\n', nodeAttStrtInd)
+  var nodeAtt = serverInfo.substr(nodeAttStrtInd, nodeAttEndInd - nodeAttStrtInd)
+  //server trust domain
+  const trustDomainKeyWord = "\"TrustDomain\": \"";
+  var trustDomainStrtInd = serverInfo.search(trustDomainKeyWord) + trustDomainKeyWord.length;
+  var trustDomainEndInd = serverInfo.indexOf("\"", trustDomainStrtInd)
+  var trustDomain = serverInfo.substr(trustDomainStrtInd, trustDomainEndInd - trustDomainStrtInd)
+  var reqInfo = 
+    {
+      "data": 
+        {
+          "trustDomain": trustDomain,
+          "nodeAttestorPlugin": nodeAtt
+        }
+    }
+  props.serverInfoUpdate(reqInfo);
+}
+
 const mapStateToProps = (state) => ({
   globalServerSelected: state.servers.globalServerSelected,
   globalServerInfo: state.servers.globalServerInfo,
   globalTornjakServerInfo: state.servers.globalTornjakServerInfo,
 })
+// const mapStateToProps = function(state) {
+//   return {
+//     globalServerSelected: state.servers.globalServerSelected,
+//     globalServerInfo: state.servers.globalServerInfo,
+//     globalTornjakServerInfo: state.servers.globalTornjakServerInfo,
+//   }
+// }
 
+export { populateServerInfo };
 export default connect(
   mapStateToProps,
   { serverSelected, tornjakServerInfoUpdate, serverInfoUpdate }

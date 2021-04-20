@@ -5,6 +5,7 @@ import axios from 'axios';
 import GetApiServerUri from './helpers';
 import IsManager from './is_manager';
 import Table from "tables/agentsListTable";
+import { populateServerInfo } from "./tornjak-server-info.component";
 import {
   serverSelected,
   agentsListUpdate,
@@ -48,8 +49,7 @@ class AgentList extends Component {
       this.populateLocalAgentsUpdate()
       this.populateLocalTornjakServerInfo();
       if(this.props.globalTornjakServerInfo !== "")
-        console.log(this.props.globalTornjakServerInfo !== "")
-        this.populateServerInfo();
+        populateServerInfo(this.props);
     }
   }
 
@@ -58,6 +58,9 @@ class AgentList extends Component {
       if (prevProps.globalServerSelected !== this.props.globalServerSelected) {
         this.populateAgentsUpdate(this.props.globalServerSelected)
       }
+    } else {
+        if(prevProps.globalTornjakServerInfo !== this.props.globalTornjakServerInfo)
+          populateServerInfo(this.props);
     }
   }
 
@@ -69,29 +72,6 @@ class AgentList extends Component {
       .catch((error) => {
         console.log(error);
       })
-  }
-
-  populateServerInfo() {
-    //node attestor plugin
-    const nodeAttKeyWord = "NodeAttestor Plugin: ";
-    var serverInfo = this.props.globalTornjakServerInfo;
-    var nodeAttStrtInd = serverInfo.search(nodeAttKeyWord) + nodeAttKeyWord.length;
-    var nodeAttEndInd = serverInfo.indexOf('\n', nodeAttStrtInd)
-    var nodeAtt = serverInfo.substr(nodeAttStrtInd, nodeAttEndInd - nodeAttStrtInd)
-    //server trust domain
-    const trustDomainKeyWord = "\"TrustDomain\": \"";
-    var trustDomainStrtInd = serverInfo.search(trustDomainKeyWord) + trustDomainKeyWord.length;
-    var trustDomainEndInd = serverInfo.indexOf("\"", trustDomainStrtInd)
-    var trustDomain = serverInfo.substr(trustDomainStrtInd, trustDomainEndInd - trustDomainStrtInd)
-    var reqInfo = 
-      {
-        "data": 
-          {
-            "trustDomain": trustDomain,
-            "nodeAttestorPlugin": nodeAtt
-          }
-      }
-    this.props.serverInfoUpdate(reqInfo);
   }
 
   populateAgentsUpdate(serverName) {

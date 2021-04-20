@@ -96,6 +96,10 @@ class CreateEntry extends Component {
       if (prevProps.globalagentsList !== this.props.globalagentsList) {
         this.prepareParentIdAgentsList();
       }
+    } else {
+      if (prevProps.globalServerInfo !== this.props.globalServerInfo) {
+        this.prepareSelectorsList();
+      }
     }
   }
 
@@ -200,7 +204,6 @@ class CreateEntry extends Component {
     this.setState({
       agentsIdList: localAgentsIdList
     });
-    //window.location.reload();
   }
 
   prepareSelectorsList() {
