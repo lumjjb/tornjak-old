@@ -26,75 +26,32 @@ class TornjakServerInfo extends Component {
     };
   }
 
-  componentDidMount(prevProps) {
+  componentDidMount() {
     if (IsManager) {
       if (this.props.globalServerSelected !== "") {
-        this.populateTornjakServerInfo(this.props.globalServerSelected);
+        populateTornjakServerInfo(this.props.globalServerSelected, this.props);
         populateServerInfo(this.props);
       }
     } else {
-      this.populateLocalTornjakServerInfo();
+      populateLocalTornjakServerInfo(this.props);
       if(this.props.globalTornjakServerInfo !== "") 
+      {
         populateServerInfo(this.props);
+      }
     }
   }
 
   componentDidUpdate(prevProps) {
     if (IsManager) {
       if (prevProps.globalServerSelected !== this.props.globalServerSelected) {
-        this.populateTornjakServerInfo(this.props.globalServerSelected)
+        populateTornjakServerInfo(this.props.globalServerSelected, this.props)
       }
     } else {
       if(prevProps.globalTornjakServerInfo !== this.props.globalTornjakServerInfo) 
+      {
         populateServerInfo(this.props);
+      }
     }
-  }
-
-  populateTornjakServerInfo(serverName) {
-    axios.get(GetApiServerUri('/manager-api/tornjak/serverinfo/') + serverName, { crossdomain: true })
-      .then(response => {
-        console.log(response);
-        this.props.tornjakServerInfoUpdate(response.data["serverinfo"]);
-      }).catch(error => {
-        this.setState({
-          message: "Error retrieving " + serverName + " : " + error.message,
-          agents: [],
-        });
-      });
-
-  }
-
-  // populateServerInfo() {
-  //   //node attestor plugin
-  //   const nodeAttKeyWord = "NodeAttestor Plugin: ";
-  //   var serverInfo = this.props.globalTornjakServerInfo;
-  //   var nodeAttStrtInd = serverInfo.search(nodeAttKeyWord) + nodeAttKeyWord.length;
-  //   var nodeAttEndInd = serverInfo.indexOf('\n', nodeAttStrtInd)
-  //   var nodeAtt = serverInfo.substr(nodeAttStrtInd, nodeAttEndInd - nodeAttStrtInd)
-  //   //server trust domain
-  //   const trustDomainKeyWord = "\"TrustDomain\": \"";
-  //   var trustDomainStrtInd = serverInfo.search(trustDomainKeyWord) + trustDomainKeyWord.length;
-  //   var trustDomainEndInd = serverInfo.indexOf("\"", trustDomainStrtInd)
-  //   var trustDomain = serverInfo.substr(trustDomainStrtInd, trustDomainEndInd - trustDomainStrtInd)
-  //   var reqInfo = 
-  //     {
-  //       "data": 
-  //         {
-  //           "trustDomain": trustDomain,
-  //           "nodeAttestorPlugin": nodeAtt
-  //         }
-  //     }
-  //   this.props.serverInfoUpdate(reqInfo);
-  // }
-
-  populateLocalTornjakServerInfo() {
-    axios.get(GetApiServerUri('/api/tornjak/serverinfo'), { crossdomain: true })
-      .then(response => {
-        this.props.tornjakServerInfoUpdate(response.data["serverinfo"]);
-      })
-      .catch((error) => {
-        console.log(error);
-      })
   }
 
   tornjakServerInfo() {
@@ -106,7 +63,6 @@ class TornjakServerInfo extends Component {
   }
 
   render() {
-
     return (
       <div>
         <h3>Server Info</h3>
@@ -121,6 +77,29 @@ class TornjakServerInfo extends Component {
       </div>
     )
   }
+}
+
+function populateTornjakServerInfo(serverName, props) {
+  axios.get(GetApiServerUri('/manager-api/tornjak/serverinfo/') + serverName, { crossdomain: true })
+    .then(response => {
+      console.log(response);
+      props.tornjakServerInfoUpdate(response.data["serverinfo"]);
+    }).catch(error => {
+      this.setState({
+        message: "Error retrieving " + serverName + " : " + error.message,
+        agents: [],
+      });
+    });
+}
+
+function populateLocalTornjakServerInfo(props) {
+  axios.get(GetApiServerUri('/api/tornjak/serverinfo'), { crossdomain: true })
+    .then(response => {
+      props.tornjakServerInfoUpdate(response.data["serverinfo"]);
+    })
+    .catch((error) => {
+      console.log(error);
+    })
 }
 
 function populateServerInfo(props) {
@@ -152,15 +131,8 @@ const mapStateToProps = (state) => ({
   globalServerInfo: state.servers.globalServerInfo,
   globalTornjakServerInfo: state.servers.globalTornjakServerInfo,
 })
-// const mapStateToProps = function(state) {
-//   return {
-//     globalServerSelected: state.servers.globalServerSelected,
-//     globalServerInfo: state.servers.globalServerInfo,
-//     globalTornjakServerInfo: state.servers.globalTornjakServerInfo,
-//   }
-// }
 
-export { populateServerInfo };
+export { populateServerInfo, populateTornjakServerInfo, populateLocalTornjakServerInfo };
 export default connect(
   mapStateToProps,
   { serverSelected, tornjakServerInfoUpdate, serverInfoUpdate }

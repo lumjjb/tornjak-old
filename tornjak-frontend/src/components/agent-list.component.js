@@ -5,7 +5,7 @@ import axios from 'axios';
 import GetApiServerUri from './helpers';
 import IsManager from './is_manager';
 import Table from "tables/agentsListTable";
-import { populateServerInfo } from "./tornjak-server-info.component";
+import { populateServerInfo, populateLocalTornjakServerInfo } from "./tornjak-server-info.component";
 import {
   serverSelected,
   agentsListUpdate,
@@ -43,59 +43,29 @@ class AgentList extends Component {
   componentDidMount() {
     if (IsManager) {
       if (this.props.globalServerSelected !== "") {
-        this.populateAgentsUpdate(this.props.globalServerSelected)
+        populateAgentsUpdate(this.props.globalServerSelected, this.props)
       }
     } else {
-      this.populateLocalAgentsUpdate()
-      this.populateLocalTornjakServerInfo();
+      populateLocalAgentsUpdate(this.props);
+      populateLocalTornjakServerInfo(this.props);
       if(this.props.globalTornjakServerInfo !== "")
+      {
         populateServerInfo(this.props);
+      }
     }
   }
 
   componentDidUpdate(prevProps) {
     if (IsManager) {
       if (prevProps.globalServerSelected !== this.props.globalServerSelected) {
-        this.populateAgentsUpdate(this.props.globalServerSelected)
+        populateAgentsUpdate(this.props.globalServerSelected, this.props)
       }
     } else {
         if(prevProps.globalTornjakServerInfo !== this.props.globalTornjakServerInfo)
+        {
           populateServerInfo(this.props);
+        }
     }
-  }
-
-  populateLocalTornjakServerInfo() {
-    axios.get(GetApiServerUri('/api/tornjak/serverinfo'), { crossdomain: true })
-      .then(response => {
-        this.props.tornjakServerInfoUpdate(response.data["serverinfo"]);
-      })
-      .catch((error) => {
-        console.log(error);
-      })
-  }
-
-  populateAgentsUpdate(serverName) {
-    axios.get(GetApiServerUri('/manager-api/agent/list/') + serverName, { crossdomain: true })
-      .then(response => {
-        console.log(response);
-        this.props.agentsListUpdate(response.data["agents"]);
-      }).catch(error => {
-        this.setState({
-          message: "Error retrieving " + serverName + " : " + error.message
-        });
-        this.props.agentsListUpdate([]);
-      });
-
-  }
-
-  populateLocalAgentsUpdate() {
-    axios.get(GetApiServerUri('/api/agent/list'), { crossdomain: true })
-      .then(response => {
-        this.props.agentsListUpdate(response.data["agents"]);
-      })
-      .catch((error) => {
-        console.log(error);
-      })
   }
 
   agentList() {
@@ -110,6 +80,7 @@ class AgentList extends Component {
       return ""
     }
   }
+  
   render() {
     return (
       <div>
@@ -129,6 +100,29 @@ class AgentList extends Component {
   }
 }
 
+function populateAgentsUpdate(serverName, props) {
+  axios.get(GetApiServerUri('/manager-api/agent/list/') + serverName, { crossdomain: true })
+    .then(response => {
+      console.log(response);
+      props.agentsListUpdate(response.data["agents"]);
+    }).catch(error => {
+      this.setState({
+        message: "Error retrieving " + serverName + " : " + error.message
+      });
+      props.agentsListUpdate([]);
+    });
+
+}
+
+function populateLocalAgentsUpdate(props) {
+  axios.get(GetApiServerUri('/api/agent/list'), { crossdomain: true })
+    .then(response => {
+      props.agentsListUpdate(response.data["agents"]);
+    })
+    .catch((error) => {
+      console.log(error);
+    })
+}
 
 const mapStateToProps = (state) => ({
   globalServerSelected: state.servers.globalServerSelected,
@@ -136,6 +130,7 @@ const mapStateToProps = (state) => ({
   globalTornjakServerInfo: state.servers.globalTornjakServerInfo,
 })
 
+export { populateAgentsUpdate, populateLocalAgentsUpdate };
 export default connect(
   mapStateToProps,
   { serverSelected, agentsListUpdate, tornjakServerInfoUpdate, serverInfoUpdate }
