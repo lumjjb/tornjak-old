@@ -121,6 +121,7 @@ class CreateEntry extends Component {
 
   prepareSelectorsList() {
     let serverNodeAtt = this.props.globalServerInfo.data.nodeAttestorPlugin;
+    console.log("this.props.globalSelectorInfo[serverNodeAtt]", this.props.globalSelectorInfo)
     this.setState({
       selectorsList: this.props.globalSelectorInfo[serverNodeAtt]
     });
@@ -416,6 +417,7 @@ class CreateEntry extends Component {
 
   render() {
     const ParentIdList = this.state.agentsIdList;
+    console.log(this.state.selectorsList)
     return (
       <div>
         <h3>Create New Entry</h3>
@@ -579,6 +581,7 @@ const mapStateToProps = (state) => ({
   globalSelectorInfo: state.servers.globalSelectorInfo,
   globalagentsList: state.agents.globalagentsList,
   globalServerInfo: state.servers.globalServerInfo,
+  globalTornjakServerInfo: state.servers.globalTornjakServerInfo,
 })
 
 export default connect(

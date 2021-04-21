@@ -5,12 +5,14 @@ import axios from 'axios';
 import GetApiServerUri from './helpers';
 import IsManager from './is_manager';
 import Table from "tables/agentsListTable";
+import { setSelectorInfo } from './selector-info';
 import { populateServerInfo, populateLocalTornjakServerInfo } from "./tornjak-server-info.component";
 import {
   serverSelected,
   agentsListUpdate,
   tornjakServerInfoUpdate,
-  serverInfoUpdate
+  serverInfoUpdate,
+  selectorInfo,
 } from 'actions';
 
 const Agent = props => (
@@ -41,6 +43,7 @@ class AgentList extends Component {
   }
 
   componentDidMount() {
+    setSelectorInfo(this.props);
     if (IsManager) {
       if (this.props.globalServerSelected !== "") {
         populateAgentsUpdate(this.props.globalServerSelected, this.props)
@@ -80,7 +83,7 @@ class AgentList extends Component {
       return ""
     }
   }
-  
+
   render() {
     return (
       <div>
@@ -133,5 +136,5 @@ const mapStateToProps = (state) => ({
 export { populateAgentsUpdate, populateLocalAgentsUpdate };
 export default connect(
   mapStateToProps,
-  { serverSelected, agentsListUpdate, tornjakServerInfoUpdate, serverInfoUpdate }
+  { serverSelected, agentsListUpdate, tornjakServerInfoUpdate, serverInfoUpdate, selectorInfo }
 )(AgentList)

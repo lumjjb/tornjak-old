@@ -24,7 +24,7 @@ class SelectServer extends Component {
         super(props);
         this.serverDropdownList = this.serverDropdownList.bind(this);
         this.onServerSelect = this.onServerSelect.bind(this);
-        
+
         this.state = {
         };
     }
@@ -39,18 +39,15 @@ class SelectServer extends Component {
         if (IsManager) {
             if (this.props.globalServerSelected !== "") {
                 populateTornjakServerInfo(this.props.globalServerSelected, this.props);
-                if(this.props.globalTornjakServerInfo !== "") {
+                if (this.props.globalTornjakServerInfo !== "") {
                     populateServerInfo(this.props);
                     populateAgentsUpdate(this.props.globalServerSelected, this.props)
                 }
             }
         } else {
-            if (this.props.globalServerSelected !== "") {
-                populateLocalTornjakServerInfo(this.props);
-                if(this.props.globalTornjakServerInfo !== "") {
-                    populateServerInfo(this.props);
-                    populateLocalAgentsUpdate(this.props)
-                }
+            if (this.props.globalTornjakServerInfo !== "") {
+                populateServerInfo(this.props);
+                populateLocalAgentsUpdate(this.props)
             }
         }
     }
@@ -102,8 +99,8 @@ class SelectServer extends Component {
                 <div className="servers-drp-dwn">
                     <select name="servers" id="servers" onChange={this.onServerSelect}>
                         <optgroup label="Servers">
-                        <option value="none" selected disabled>Select an Option </option>
-                        <option value="none" selected disabled>{this.props.globalServerSelected} </option>
+                            <option value="none" selected disabled>Select an Option </option>
+                            <option value="none" selected disabled>{this.props.globalServerSelected} </option>
                             {this.serverDropdownList()}
                         </optgroup>
                     </select>

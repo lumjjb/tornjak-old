@@ -105,7 +105,6 @@ function populateLocalTornjakServerInfo(props) {
 function populateServerInfo(props) {
   //node attestor plugin
   const nodeAttKeyWord = "NodeAttestor Plugin: ";
-  console.log(props)
   var serverInfo = props.globalTornjakServerInfo;
   var nodeAttStrtInd = serverInfo.search(nodeAttKeyWord) + nodeAttKeyWord.length;
   var nodeAttEndInd = serverInfo.indexOf('\n', nodeAttStrtInd)
