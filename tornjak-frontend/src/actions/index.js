@@ -117,6 +117,7 @@ export function selectorInfo(globalSelectorInfo) {
 }
 
 //Expected input - List of entries with their info
+//json representation from SPIFFE golang documentation - https://github.com/spiffe/spire/blob/v0.12.0/proto/spire/types/entry.pb.go#L28-L67
 //Function - Sets/ updates the list of entries with their info
 export function entriesListUpdate(globalentriesList) {
     return dispatch => {
@@ -128,6 +129,7 @@ export function entriesListUpdate(globalentriesList) {
 }
 
 //Expected input - List of agents with their info
+//json representation from SPIFFE golang documentation - https://github.com/spiffe/spire/blob/v0.12.0/proto/spire/types/agent.pb.go#L28-L45
 //Function - Sets/ updates the list of agents with their info
 export function agentsListUpdate(globalagentsList) {
     return dispatch => {
