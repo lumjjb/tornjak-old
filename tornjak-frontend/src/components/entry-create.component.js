@@ -71,7 +71,7 @@ class CreateEntry extends Component {
   componentDidMount() {
     setSelectorInfo(this.props);
     if (IsManager) {
-      if (this.props.globalServerSelected !== "") {
+      if (this.props.globalServerSelected !== "" && (this.props.globalErrorMessege === "OK" || this.props.globalErrorMessege === "")) {
         this.setState({ selectedServer: this.props.globalServerSelected });
         this.prepareParentIdAgentsList();
         this.prepareSelectorsList();
@@ -352,6 +352,7 @@ class CreateEntry extends Component {
   }
 
   onSubmit(e) {
+    let selectorStrings = [], federatedWithList = [], dnsNamesWithList = [];
     e.preventDefault();
 
     const validSpiffeId = (this.parseSpiffeId(this.state.spiffeId))[0];
@@ -366,7 +367,8 @@ class CreateEntry extends Component {
       return
     }
 
-    const selectorStrings = this.state.selectors.split(',').map(x => x.trim())
+    if(this.state.selectors.length !== 0)
+      selectorStrings = this.state.selectors.split(',').map(x => x.trim())
     if (selectorStrings.length === 0) {
       this.setState({ message: "ERROR: Selectors cannot be empty" })
       return
@@ -382,8 +384,10 @@ class CreateEntry extends Component {
       return
     }
 
-    const federatedWithList = this.state.federatesWith.split(',').map(x => x.trim())
-    const dnsNamesWithList = this.state.dnsNames.split(',').map(x => x.trim())
+    if(this.state.federatesWith.length !== 0)
+      federatedWithList = this.state.federatesWith.split(',').map(x => x.trim())
+    if(this.state.dnsNames.length !== 0)
+      dnsNamesWithList = this.state.dnsNames.split(',').map(x => x.trim())
 
     var cjtData = {
       "entries": [{
@@ -412,12 +416,10 @@ class CreateEntry extends Component {
     axios.post(endpoint, cjtData)
       .then(res => this.setState({ message: "Requst:" + JSON.stringify(cjtData, null, ' ') + "\n\nSuccess:" + JSON.stringify(res.data, null, ' ') }))
       .catch(err => this.setState({ message: "ERROR:" + err }))
-    //window.location = '/';
   }
 
   render() {
     const ParentIdList = this.state.agentsIdList;
-    console.log(this.state.selectorsList)
     return (
       <div>
         <h3>Create New Entry</h3>

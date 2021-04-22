@@ -1,3 +1,6 @@
+//tornjak
+export const GLOBAL_MESSEGE = 'GLOBAL_MESSEGE';
+
 //servers
 export const GLOBAL_SERVER_SELECTED = 'GLOBAL_SERVER_SELECTED';
 export const GLOBAL_SERVER_INFO = 'GLOBAL_SERVER_INFO';

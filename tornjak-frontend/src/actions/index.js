@@ -6,7 +6,19 @@ import {
     GLOBAL_TORNJAK_SERVER_INFO,
     GLOBAL_SERVERS_LIST,
     GLOBAL_SELECTOR_INFO,
+    GLOBAL_MESSEGE,
 } from './types';
+
+//Expected input - "Error Messege/ Success Messege"
+//Function - Sets the Error Messege/ Success Messege of an executed function
+export function tornjakMessege(globalErrorMessege) {
+    return dispatch => {
+        dispatch({
+            type: GLOBAL_MESSEGE,
+            payload: globalErrorMessege
+        });
+    }
+}
 
 //Expected input - "ServerName"
 //Function - Sets the server selected in the redux state

@@ -125,7 +125,6 @@ class ServerManagement extends Component {
         "cert": this.state.formCertData,
         "key": this.state.formKeyData,
     };
-    console.log(cjtData);
     axios.post(GetApiServerUri('/manager-api/server/register'), cjtData)
       .then(res => {
           this.setState({ message: "Requst:" + JSON.stringify(cjtData,null,  ' ')+ "\n\nSuccess:" + JSON.stringify(res.data, null, ' ')});

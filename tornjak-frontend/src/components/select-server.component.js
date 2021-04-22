@@ -4,15 +4,15 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import GetApiServerUri from './helpers';
 import IsManager from './is_manager';
-import { populateTornjakServerInfo, populateLocalTornjakServerInfo, populateServerInfo } from './tornjak-server-info.component';
-import { populateLocalAgentsUpdate, populateAgentsUpdate } from './agent-list.component';
+import { populateLocalAgentsUpdate, populateAgentsUpdate, populateTornjakServerInfo, populateLocalTornjakServerInfo, populateServerInfo } from './tornjak-api-helpers';
 
 import {
     serverSelected,
     serversListUpdate,
     tornjakServerInfoUpdate,
     serverInfoUpdate,
-    agentsListUpdate
+    agentsListUpdate,
+    tornjakMessege
 } from 'actions';
 
 const ServerDropdown = props => (
@@ -37,15 +37,15 @@ class SelectServer extends Component {
 
     componentDidUpdate() {
         if (IsManager) {
-            if (this.props.globalServerSelected !== "") {
+            if ((this.props.globalServerSelected !== "") && (this.props.globalErrorMessege === "OK" || this.props.globalErrorMessege === "")) {
                 populateTornjakServerInfo(this.props.globalServerSelected, this.props);
-                if (this.props.globalTornjakServerInfo !== "") {
-                    populateServerInfo(this.props);
-                    populateAgentsUpdate(this.props.globalServerSelected, this.props)
-                }
+            }
+            if ((this.props.globalTornjakServerInfo !== "") && (this.props.globalErrorMessege === "OK" || this.props.globalErrorMessege === "")) {
+                populateServerInfo(this.props);
+                populateAgentsUpdate(this.props.globalServerSelected, this.props)
             }
         } else {
-            if (this.props.globalTornjakServerInfo !== "") {
+            if ((this.props.globalTornjakServerInfo !== "") && (this.props.globalErrorMessege === "OK" || this.props.globalErrorMessege === "")) {
                 populateServerInfo(this.props);
                 populateLocalAgentsUpdate(this.props)
             }
@@ -119,9 +119,10 @@ const mapStateToProps = (state) => ({
     globalServerSelected: state.servers.globalServerSelected,
     globalServersList: state.servers.globalServersList,
     globalTornjakServerInfo: state.servers.globalTornjakServerInfo,
+    globalErrorMessege: state.tornjak.globalErrorMessege,
 })
 
 export default connect(
     mapStateToProps,
-    { serverSelected, serversListUpdate, tornjakServerInfoUpdate, serverInfoUpdate, agentsListUpdate }
+    { serverSelected, serversListUpdate, tornjakServerInfoUpdate, serverInfoUpdate, agentsListUpdate, tornjakMessege }
 )(SelectServer)
