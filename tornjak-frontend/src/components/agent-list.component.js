@@ -6,7 +6,7 @@ import GetApiServerUri from './helpers';
 import IsManager from './is_manager';
 import Table from "tables/agentsListTable";
 import { setSelectorInfo } from './selector-info';
-import { populateLocalAgentsUpdate, populateAgentsUpdate, populateTornjakServerInfo, populateLocalTornjakServerInfo, populateServerInfo } from './tornjak-api-helpers';
+import { populateLocalAgentsUpdate, populateAgentsUpdate, populateLocalTornjakServerInfo, populateServerInfo } from './tornjak-api-helpers';
 import {
   serverSelected,
   agentsListUpdate,
@@ -53,9 +53,7 @@ class AgentList extends Component {
       populateLocalAgentsUpdate(this.props);
       populateLocalTornjakServerInfo(this.props);
       if(this.props.globalTornjakServerInfo !== "")
-      {
         populateServerInfo(this.props);
-      }
     }
   }
 

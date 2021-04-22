@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import GetApiServerUri from './helpers';
 import IsManager from './is_manager';
-import { populateLocalAgentsUpdate, populateAgentsUpdate, populateTornjakServerInfo, populateLocalTornjakServerInfo, populateServerInfo } from './tornjak-api-helpers';
+import { populateAgentsUpdate, populateTornjakServerInfo, populateServerInfo } from './tornjak-api-helpers';
 
 import {
     serverSelected,
@@ -45,12 +45,6 @@ class SelectServer extends Component {
                 populateAgentsUpdate(this.props.globalServerSelected, this.props)
             }
         }
-        // } else {
-        //     if ((this.props.globalTornjakServerInfo !== "") && (this.props.globalErrorMessege === "OK" || this.props.globalErrorMessege === "")) {
-        //         populateServerInfo(this.props);
-        //         populateLocalAgentsUpdate(this.props)
-        //     }
-        // }
     }
 
     populateServers() {
