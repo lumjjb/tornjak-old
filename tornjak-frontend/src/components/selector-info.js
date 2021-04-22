@@ -1,15 +1,4 @@
-import React, { Component } from 'react';
-
-class SelectorInfo extends Component {
-    constructor(props) {
-        super(props);
-        this.setSelectorInfo = this.setSelectorInfo.bind(this);
-        this.state = {};
-    }
-}
-
-function setSelectorInfo(props) {
-    const selectors =
+const selectors =
     {
       "aws_iid": [
         {
@@ -92,9 +81,4 @@ function setSelectorInfo(props) {
         }
       ],
     };
-    props.selectorInfo(selectors)
-  }
-
-  export {setSelectorInfo};
-
-  export default SelectorInfo;
+  export {selectors};

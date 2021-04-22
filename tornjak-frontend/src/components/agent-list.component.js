@@ -1,11 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
-import axios from 'axios';
-import GetApiServerUri from './helpers';
 import IsManager from './is_manager';
 import Table from "tables/agentsListTable";
-import { setSelectorInfo } from './selector-info';
+import { selectors } from './selector-info';
 import { populateLocalAgentsUpdate, populateAgentsUpdate, populateLocalTornjakServerInfo, populateServerInfo } from './tornjak-api-helpers';
 import {
   serverSelected,
@@ -44,7 +41,7 @@ class AgentList extends Component {
   }
 
   componentDidMount() {
-    setSelectorInfo(this.props);
+    this.props.selectorInfo(selectors); //set selector info
     if (IsManager) {
       if (this.props.globalServerSelected !== "") {
         populateAgentsUpdate(this.props.globalServerSelected, this.props)

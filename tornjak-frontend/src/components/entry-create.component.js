@@ -1,11 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import axios from 'axios';
-//import 'carbon-components/css/carbon-components.min.css';
 import { Dropdown, TextInput, MultiSelect, Checkbox, TextArea, NumberInput } from 'carbon-components-react';
 import GetApiServerUri from './helpers';
 import IsManager from './is_manager';
-import { setSelectorInfo } from './selector-info';
 import './style.css';
 import {
   serverSelected,
@@ -69,7 +67,6 @@ class CreateEntry extends Component {
   }
 
   componentDidMount() {
-    setSelectorInfo(this.props);
     if (IsManager) {
       if (this.props.globalServerSelected !== "" && (this.props.globalErrorMessege === "OK" || this.props.globalErrorMessege === "")) {
         this.setState({ selectedServer: this.props.globalServerSelected });
