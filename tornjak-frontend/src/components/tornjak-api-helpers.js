@@ -31,7 +31,7 @@ function populateLocalTornjakServerInfo(props) {
     })
     .catch((error) => {
       console.log(error);
-      props.tornjakMessege(error);
+      props.tornjakMessege("Error retrieving " + " : " + error.message);
     })
 }
 
@@ -80,7 +80,7 @@ function populateLocalAgentsUpdate(props) {
     })
     .catch((error) => {
       console.log(error);
-      props.tornjakMessege(error.message);
+      props.tornjakMessege("Error retrieving " + " : " + error.message);
     })
 }
 

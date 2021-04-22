@@ -106,6 +106,8 @@ class CreateEntry extends Component {
   prepareParentIdAgentsList() {
     var i = 0, prefix = "spiffe://";;
     let localAgentsIdList = [];
+    if(this.props.globalServerInfo.length === 0)
+      return
     //user prefered option
     localAgentsIdList[0] = this.state.parentIdManualEntryOption;
     //default option
@@ -120,8 +122,9 @@ class CreateEntry extends Component {
   }
 
   prepareSelectorsList() {
+    if(this.props.globalServerInfo.length === 0)
+      return
     let serverNodeAtt = this.props.globalServerInfo.data.nodeAttestorPlugin;
-    console.log("this.props.globalSelectorInfo[serverNodeAtt]", this.props.globalSelectorInfo)
     this.setState({
       selectorsList: this.props.globalSelectorInfo[serverNodeAtt]
     });

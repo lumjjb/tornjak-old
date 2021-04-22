@@ -74,11 +74,11 @@ class EntryList extends Component {
       axios.get(GetApiServerUri('/api/entry/list'), { crossdomain: true })
       .then(response => {
         this.props.entriesListUpdate(response.data["entries"]);
-        props.tornjakMessege(response.statusText);
+        this.props.tornjakMessege(response.statusText);
       })
       .catch((error) => {
         console.log(error);
-        props.tornjakMessege(error.message);
+        this.props.tornjakMessege(error.message);
       })
   }
 

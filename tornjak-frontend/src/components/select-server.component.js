@@ -44,12 +44,13 @@ class SelectServer extends Component {
                 populateServerInfo(this.props);
                 populateAgentsUpdate(this.props.globalServerSelected, this.props)
             }
-        } else {
-            if ((this.props.globalTornjakServerInfo !== "") && (this.props.globalErrorMessege === "OK" || this.props.globalErrorMessege === "")) {
-                populateServerInfo(this.props);
-                populateLocalAgentsUpdate(this.props)
-            }
         }
+        // } else {
+        //     if ((this.props.globalTornjakServerInfo !== "") && (this.props.globalErrorMessege === "OK" || this.props.globalErrorMessege === "")) {
+        //         populateServerInfo(this.props);
+        //         populateLocalAgentsUpdate(this.props)
+        //     }
+        // }
     }
 
     populateServers() {
