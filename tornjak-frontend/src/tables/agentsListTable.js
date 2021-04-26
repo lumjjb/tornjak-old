@@ -216,7 +216,14 @@ class DataTableRender extends React.Component {
                                     <TableRow key={row.id}>
                                         <TableSelectRow {...getSelectionProps({ row })} />
                                         {row.cells.map((cell) => (
-                                            <TableCell key={cell.id}>{cell.value}</TableCell>
+                                            <TableCell key={cell.id}>
+                                                {cell.info.header === "info" ? (
+                                                <div style={{ overflowX: 'auto', width: "400px" }}>
+                                                    <pre>{cell.value}</pre>
+                                                </div>
+                                                ) : (
+                                                cell.value)}
+                                            </TableCell>
                                         ))}
                                     </TableRow>
                                 ))}
