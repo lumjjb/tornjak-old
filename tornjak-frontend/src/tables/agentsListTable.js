@@ -57,7 +57,8 @@ class DataTableRender extends React.Component {
             listtabledata[i]["id"] = i + 1;
             listtabledata[i]["trustdomain"] = listData[i].props.agent.id.trust_domain;
             listtabledata[i]["spiffeid"] = "spiffe://" + listData[i].props.agent.id.trust_domain + listData[i].props.agent.id.path;
-            listtabledata[i]["info"] = <div style={{ overflowX: 'auto', width: "400px" }}><pre>{JSON.stringify(listData[i].props.agent, null, ' ')}</pre></div>;
+            listtabledata[i]["info"] = JSON.stringify(listData[i].props.agent, null, ' ')
+            // listtabledata[i]["info"] = <div style={{ overflowX: 'auto', width: "400px" }}><pre>{JSON.stringify(listData[i].props.agent, null, ' ')}</pre></div>;
             // listtabledata[i]["actions"] = <div><a href="#" onClick={() => { listData[i].props.banAgent(listData[i].props.agent.id) }}>Ban</a> <br /> <a href="#" onClick={() => { listData[i].props.deleteAgent(listData[i].props.agent.id) }}>Delete</a></div>;
         }
         this.setState({
