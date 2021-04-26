@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import IsManager from './is_manager';
-import { populateTornjakServerInfo, populateLocalTornjakServerInfo, populateServerInfo } from './tornjak-api-helpers';
+import { populateTornjakServerInfo, populateLocalTornjakServerInfo } from './tornjak-api-helpers';
 import {
   serverSelected,
   serverInfoUpdate,
@@ -26,17 +26,17 @@ class TornjakServerInfo extends Component {
   componentDidMount() {
     if (IsManager) {
       if (this.props.globalServerSelected !== "") {
-        populateTornjakServerInfo(this.props.globalServerSelected, this.props);
+        populateTornjakServerInfo(this.props.globalServerSelected, this.props.tornjakServerInfoUpdate, this.props.tornjakMessege);
       }
     } else {
-      populateLocalTornjakServerInfo(this.props);
+      populateLocalTornjakServerInfo(this.props.tornjakServerInfoUpdate, this.props.tornjakMessege);
     }
   }
 
   componentDidUpdate(prevProps) {
     if (IsManager) {
       if (prevProps.globalServerSelected !== this.props.globalServerSelected) {
-        populateTornjakServerInfo(this.props.globalServerSelected, this.props)
+        populateTornjakServerInfo(this.props.globalServerSelected, this.props.tornjakServerInfoUpdate, this.props.tornjakMessege)
       }
     } 
   }

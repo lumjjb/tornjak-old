@@ -44,25 +44,26 @@ class AgentList extends Component {
     this.props.selectorInfo(selectors); //set selector info
     if (IsManager) {
       if (this.props.globalServerSelected !== "") {
-        populateAgentsUpdate(this.props.globalServerSelected, this.props)
+        populateAgentsUpdate(this.props.globalServerSelected, this.props.agentsListUpdate, this.props.tornjakMessege)
       }
     } else {
-      populateLocalAgentsUpdate(this.props);
-      populateLocalTornjakServerInfo(this.props);
+      // populateLocalAgentsUpdate(this.props);
+      populateLocalAgentsUpdate(this.props.agentsListUpdate, this.props.tornjakMessege);
+      populateLocalTornjakServerInfo(this.props.tornjakServerInfoUpdate, this.props.tornjakMessege);
       if(this.props.globalTornjakServerInfo !== "")
-        populateServerInfo(this.props);
+        populateServerInfo(this.props.globalTornjakServerInfo, this.props.serverInfoUpdate);
     }
   }
 
   componentDidUpdate(prevProps) {
     if (IsManager) {
       if (prevProps.globalServerSelected !== this.props.globalServerSelected) {
-        populateAgentsUpdate(this.props.globalServerSelected, this.props)
+        populateAgentsUpdate(this.props.globalServerSelected, this.props.agentsListUpdate, this.props.tornjakMessege)
       }
     } else {
         if(prevProps.globalTornjakServerInfo !== this.props.globalTornjakServerInfo)
         {
-          populateServerInfo(this.props);
+          populateServerInfo(this.props.globalTornjakServerInfo, this.props.serverInfoUpdate);
         }
     }
   }

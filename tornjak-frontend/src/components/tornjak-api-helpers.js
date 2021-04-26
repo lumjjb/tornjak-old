@@ -12,35 +12,33 @@ import {
 class TornjakApi extends Component {
 }
 
-function populateTornjakServerInfo(serverName, props) {
+function populateTornjakServerInfo(serverName, tornjakServerInfoUpdate, tornjakMessege) {
   axios.get(GetApiServerUri('/manager-api/tornjak/serverinfo/') + serverName, { crossdomain: true })
     .then(response => {
-      props.tornjakServerInfoUpdate(response.data["serverinfo"]);
-      props.tornjakMessege(response.statusText);
+      tornjakServerInfoUpdate(response.data["serverinfo"]);
+      tornjakMessege(response.statusText);
     }).catch(error => {
-      props.tornjakMessege("Error retrieving " + serverName + " : " + error.message);
-      props.tornjakServerInfoUpdate([]);
+      tornjakServerInfoUpdate([]);
+      tornjakMessege("Error retrieving " + serverName + " : " + error.message);
     });
 }
 
-function populateLocalTornjakServerInfo(props) {
+function populateLocalTornjakServerInfo(tornjakServerInfoUpdate, tornjakMessege) {
   axios.get(GetApiServerUri('/api/tornjak/serverinfo'), { crossdomain: true })
     .then(response => {
-      props.tornjakServerInfoUpdate(response.data["serverinfo"]);
-      props.tornjakMessege(response.statusText);
+      tornjakServerInfoUpdate(response.data["serverinfo"]);
+      tornjakMessege(response.statusText);
     })
     .catch((error) => {
-      console.log(error);
-      props.tornjakMessege("Error retrieving " + " : " + error.message);
+      tornjakMessege("Error retrieving " + " : " + error.message);
     })
 }
 
-function populateServerInfo(props) {
+function populateServerInfo(serverInfo, serverInfoUpdate) {
   //node attestor plugin
   const nodeAttKeyWord = "NodeAttestor Plugin: ";
-  if (props.globalTornjakServerInfo === "" || props.globalTornjakServerInfo.length === 0)
+  if (serverInfo === "" || serverInfo == undefined)
     return
-  var serverInfo = props.globalTornjakServerInfo;
   var nodeAttStrtInd = serverInfo.search(nodeAttKeyWord) + nodeAttKeyWord.length;
   var nodeAttEndInd = serverInfo.indexOf('\n', nodeAttStrtInd)
   var nodeAtt = serverInfo.substr(nodeAttStrtInd, nodeAttEndInd - nodeAttStrtInd)
@@ -57,30 +55,29 @@ function populateServerInfo(props) {
       "nodeAttestorPlugin": nodeAtt
     }
   }
-  props.serverInfoUpdate(reqInfo);
+  serverInfoUpdate(reqInfo);
 }
 
-function populateAgentsUpdate(serverName, props) {
+function populateAgentsUpdate(serverName, agentsListUpdate, tornjakMessege) {
   axios.get(GetApiServerUri('/manager-api/agent/list/') + serverName, { crossdomain: true })
     .then(response => {
-      props.agentsListUpdate(response.data["agents"]);
-      props.tornjakMessege(response.statusText);
+      agentsListUpdate(response.data["agents"]);
+      tornjakMessege(response.statusText);
     }).catch(error => {
-      props.tornjakMessege("Error retrieving " + serverName + " : " + error.message);
-      props.agentsListUpdate([]);
+      agentsListUpdate([]);
+      tornjakMessege("Error retrieving " + serverName + " : " + error.message);
     });
 
 }
 
-function populateLocalAgentsUpdate(props) {
+function populateLocalAgentsUpdate(agentsListUpdate, tornjakMessege) {
   axios.get(GetApiServerUri('/api/agent/list'), { crossdomain: true })
     .then(response => {
-      props.agentsListUpdate(response.data["agents"]);
-      props.tornjakMessege(response.statusText);
+      agentsListUpdate(response.data["agents"]);
+      tornjakMessege(response.statusText);
     })
     .catch((error) => {
-      console.log(error);
-      props.tornjakMessege("Error retrieving " + " : " + error.message);
+      tornjakMessege("Error retrieving " + " : " + error.message);
     })
 }
 

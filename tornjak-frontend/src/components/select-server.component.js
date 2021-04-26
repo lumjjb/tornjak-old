@@ -38,11 +38,11 @@ class SelectServer extends Component {
     componentDidUpdate() {
         if (IsManager) {
             if ((this.props.globalServerSelected !== "") && (this.props.globalErrorMessege === "OK" || this.props.globalErrorMessege === "")) {
-                populateTornjakServerInfo(this.props.globalServerSelected, this.props);
+                populateTornjakServerInfo(this.props.globalServerSelected, this.props.tornjakServerInfoUpdate, this.props.tornjakMessege);
             }
             if ((this.props.globalTornjakServerInfo !== "") && (this.props.globalErrorMessege === "OK" || this.props.globalErrorMessege === "")) {
-                populateServerInfo(this.props);
-                populateAgentsUpdate(this.props.globalServerSelected, this.props)
+                populateServerInfo(this.props.globalTornjakServerInfo, this.props.serverInfoUpdate);
+                populateAgentsUpdate(this.props.globalServerSelected, this.props.agentsListUpdate, this.props.tornjakMessege)
             }
         }
     }
