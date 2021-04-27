@@ -69,19 +69,6 @@ class CreateJoinToken extends Component {
     });
   }
 
-/*
- * const str1 = 'spiffe://example.org/abc/def/gew:';
-
-console.log(str1.startsWith('spiffe://'));
-// expected output: true
-
-var a = str1.substr("spiffe://".length);
-console.log(a)
-var sp = a.indexOf("/")
-console.log(a.substr(0,sp))
-console.log(a.substr(sp))*/
-
-
   parseSpiffeId(sid) {
     if (sid.startsWith('spiffe://')) {
         var sub = sid.substr("spiffe://".length)
@@ -106,21 +93,6 @@ console.log(a.substr(sp))*/
         });
         return
     }
-/*
-    if (sid.startsWith('spiffe://')) {
-        var sub = sid.substr("spiffe://".length)
-        var sp = sub.indexOf("/")
-        if (sp > 0 && sp !== sub.length-1) {
-            this.setState({
-                message: "",
-                spiffeId: sid,
-                trust_domain: sub.substr(0,sp),
-                path: sub.substr(sp),
-            });
-            return
-        }
-    }
-      */
 
     const [ validSpiffeId, trustDomain, path ] = this.parseSpiffeId(sid)
     if (validSpiffeId) {

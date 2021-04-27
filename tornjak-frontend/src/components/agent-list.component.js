@@ -35,6 +35,7 @@ const Agent = props => (
 class AgentList extends Component {
   constructor(props) {
     super(props);
+    this.TornjakApi = new TornjakApi();
     this.state = {
       message: "",
     };
@@ -44,13 +45,13 @@ class AgentList extends Component {
     this.props.selectorInfoFunc(selectors); //set selector info
     if (IsManager) {
       if (this.props.globalServerSelected !== "") {
-        new TornjakApi().populateAgentsUpdate(this.props.globalServerSelected, this.props.agentsListUpdateFunc, this.props.tornjakMessegeFunc)
+        this.TornjakApi.populateAgentsUpdate(this.props.globalServerSelected, this.props.agentsListUpdateFunc, this.props.tornjakMessegeFunc)
       }
     } else {
       populateLocalAgentsUpdate(this.props.agentsListUpdateFunc, this.props.tornjakMessegeFunc);
       populateLocalTornjakServerInfo(this.props.tornjakServerInfoUpdateFunc, this.props.tornjakMessegeFunc);
       if(this.props.globalTornjakServerInfo !== "") {
-        new TornjakApi().populateServerInfo(this.props.globalTornjakServerInfo, this.props.serverInfoUpdateFunc);
+        this.TornjakApi.populateServerInfo(this.props.globalTornjakServerInfo, this.props.serverInfoUpdateFunc);
       }
     }
   }
@@ -58,12 +59,12 @@ class AgentList extends Component {
   componentDidUpdate(prevProps) {
     if (IsManager) {
       if (prevProps.globalServerSelected !== this.props.globalServerSelected) {
-        new TornjakApi().populateAgentsUpdate(this.props.globalServerSelected, this.props.agentsListUpdateFunc, this.props.tornjakMessegeFunc)
+        this.TornjakApi.populateAgentsUpdate(this.props.globalServerSelected, this.props.agentsListUpdateFunc, this.props.tornjakMessegeFunc)
       }
     } else {
         if(prevProps.globalTornjakServerInfo !== this.props.globalTornjakServerInfo)
         {
-          new TornjakApi().populateServerInfo(this.props.globalTornjakServerInfo, this.props.serverInfoUpdateFunc);
+          this.TornjakApi.populateServerInfo(this.props.globalTornjakServerInfo, this.props.serverInfoUpdateFunc);
         }
     }
   }

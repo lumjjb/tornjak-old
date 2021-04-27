@@ -22,6 +22,7 @@ const ServerDropdown = props => (
 class SelectServer extends Component {
     constructor(props) {
         super(props);
+        this.TornjakApi = new TornjakApi();
         this.serverDropdownList = this.serverDropdownList.bind(this);
         this.onServerSelect = this.onServerSelect.bind(this);
 
@@ -38,11 +39,11 @@ class SelectServer extends Component {
     componentDidUpdate() {
         if (IsManager) {
             if ((this.props.globalServerSelected !== "") && (this.props.globalErrorMessege === "OK" || this.props.globalErrorMessege === "")) {
-                new TornjakApi().populateTornjakServerInfo(this.props.globalServerSelected, this.props.tornjakServerInfoUpdateFunc, this.props.tornjakMessegeFunc);
+                this.TornjakApi.populateTornjakServerInfo(this.props.globalServerSelected, this.props.tornjakServerInfoUpdateFunc, this.props.tornjakMessegeFunc);
             }
             if ((this.props.globalTornjakServerInfo !== "") && (this.props.globalErrorMessege === "OK" || this.props.globalErrorMessege === "")) {
-                new TornjakApi().populateServerInfo(this.props.globalTornjakServerInfo, this.props.serverInfoUpdateFunc);
-                new TornjakApi().populateAgentsUpdate(this.props.globalServerSelected, this.props.agentsListUpdateFunc, this.props.tornjakMessegeFunc)
+                this.TornjakApi.populateServerInfo(this.props.globalTornjakServerInfo, this.props.serverInfoUpdateFunc);
+                this.TornjakApi.populateAgentsUpdate(this.props.globalServerSelected, this.props.agentsListUpdateFunc, this.props.tornjakMessegeFunc)
             }
         }
     }
