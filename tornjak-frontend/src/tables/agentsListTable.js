@@ -6,7 +6,7 @@ import GetApiServerUri from 'components/helpers';
 import IsManager from 'components/is_manager';
 import axios from 'axios'
 import {
-    agentsListUpdate
+    agentsListUpdateFunc
 } from 'actions';
 const {
     TableContainer,
@@ -90,7 +90,7 @@ class DataTableRender extends React.Component {
         Promise.all(promises)
             .then(responses => {
                 for (i = 0; i < responses.length; i++) {
-                    this.props.agentsListUpdate(this.props.globalagentsList.filter(el =>
+                    this.props.agentsListUpdateFunc(this.props.globalagentsList.filter(el =>
                         el.id.trust_domain !== id[i].trust_domain ||
                         el.id.path !== id[i].path));
                 }
@@ -236,5 +236,5 @@ const mapStateToProps = (state) => ({
 
 export default connect(
     mapStateToProps,
-    { agentsListUpdate }
+    { agentsListUpdateFunc }
 )(DataTableRender)

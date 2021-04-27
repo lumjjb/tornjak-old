@@ -6,9 +6,9 @@ import GetApiServerUri from './helpers';
 import IsManager from './is_manager';
 import './style.css';
 import {
-  serverSelected,
-  selectorInfo,
-  agentsListUpdate,
+  serverSelectedFunc,
+  selectorInfoFunc,
+  agentsListUpdateFunc,
 } from 'actions';
 
 class CreateEntry extends Component {
@@ -588,5 +588,5 @@ const mapStateToProps = (state) => ({
 
 export default connect(
   mapStateToProps,
-  { serverSelected, selectorInfo, agentsListUpdate }
+  { serverSelectedFunc, selectorInfoFunc, agentsListUpdateFunc }
 )(CreateEntry)

@@ -4,15 +4,16 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import GetApiServerUri from './helpers';
 import IsManager from './is_manager';
-import { populateAgentsUpdate, populateTornjakServerInfo, populateServerInfo } from './tornjak-api-helpers';
+//import { populateAgentsUpdate, populateTornjakServerInfo, populateServerInfo } from './tornjak-api-helpers';
+import TornjakApi from './tornjak-api-helpers';
 
 import {
-    serverSelected,
-    serversListUpdate,
-    tornjakServerInfoUpdate,
-    serverInfoUpdate,
-    agentsListUpdate,
-    tornjakMessege
+    serverSelectedFunc,
+    serversListUpdateFunc,
+    tornjakServerInfoUpdateFunc,
+    serverInfoUpdateFunc,
+    agentsListUpdateFunc,
+    tornjakMessegeFunc
 } from 'actions';
 
 const ServerDropdown = props => (
@@ -38,11 +39,11 @@ class SelectServer extends Component {
     componentDidUpdate() {
         if (IsManager) {
             if ((this.props.globalServerSelected !== "") && (this.props.globalErrorMessege === "OK" || this.props.globalErrorMessege === "")) {
-                populateTornjakServerInfo(this.props.globalServerSelected, this.props.tornjakServerInfoUpdate, this.props.tornjakMessege);
+                new TornjakApi().populateTornjakServerInfo(this.props.globalServerSelected, this.props.tornjakServerInfoUpdateFunc, this.props.tornjakMessegeFunc);
             }
             if ((this.props.globalTornjakServerInfo !== "") && (this.props.globalErrorMessege === "OK" || this.props.globalErrorMessege === "")) {
-                populateServerInfo(this.props.globalTornjakServerInfo, this.props.serverInfoUpdate);
-                populateAgentsUpdate(this.props.globalServerSelected, this.props.agentsListUpdate, this.props.tornjakMessege)
+                new TornjakApi().populateServerInfo(this.props.globalTornjakServerInfo, this.props.serverInfoUpdateFunc);
+                new TornjakApi().populateAgentsUpdate(this.props.globalServerSelected, this.props.agentsListUpdateFunc, this.props.tornjakMessegeFunc)
             }
         }
     }
@@ -50,7 +51,7 @@ class SelectServer extends Component {
     populateServers() {
         axios.get(GetApiServerUri("/manager-api/server/list"), { crossdomain: true })
             .then(response => {
-                this.props.serversListUpdate(response.data["servers"]);
+                this.props.serversListUpdateFunc(response.data["servers"]);
             })
             .catch((error) => {
                 console.log(error);
@@ -72,7 +73,7 @@ class SelectServer extends Component {
     onServerSelect(e) {
         const serverName = e.target.value;
         if (serverName !== "") {
-            this.props.serverSelected(serverName);
+            this.props.serverSelectedFunc(serverName);
         }
     }
 
@@ -119,5 +120,5 @@ const mapStateToProps = (state) => ({
 
 export default connect(
     mapStateToProps,
-    { serverSelected, serversListUpdate, tornjakServerInfoUpdate, serverInfoUpdate, agentsListUpdate, tornjakMessege }
+    { serverSelectedFunc, serversListUpdateFunc, tornjakServerInfoUpdateFunc, serverInfoUpdateFunc, agentsListUpdateFunc, tornjakMessegeFunc }
 )(SelectServer)

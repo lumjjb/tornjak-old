@@ -11,7 +11,7 @@ import {
 
 //Expected input - "Error Messege/ Success Messege"
 //Function - Sets the Error Messege/ Success Messege of an executed function
-export function tornjakMessege(globalErrorMessege) {
+export function tornjakMessegeFunc(globalErrorMessege) {
     return dispatch => {
         dispatch({
             type: GLOBAL_MESSEGE,
@@ -22,7 +22,7 @@ export function tornjakMessege(globalErrorMessege) {
 
 //Expected input - "ServerName"
 //Function - Sets the server selected in the redux state
-export function serverSelected(globalServerSelected) {
+export function serverSelectedFunc(globalServerSelected) {
     return dispatch => {
         dispatch({
             type: GLOBAL_SERVER_SELECTED,
@@ -33,7 +33,7 @@ export function serverSelected(globalServerSelected) {
 
 //Expected input - "TornjakServerInfo" [Saved as a large String]
 //Function - Sets the torjak server info of the selected server
-export function tornjakServerInfoUpdate(globalTornjakServerInfo) {
+export function tornjakServerInfoUpdateFunc(globalTornjakServerInfo) {
     return dispatch => {
         dispatch({
             type: GLOBAL_TORNJAK_SERVER_INFO,
@@ -51,7 +51,7 @@ export function tornjakServerInfoUpdate(globalTornjakServerInfo) {
 //     }
 // }
 //Function - Sets the server trust domain and nodeAttestorPlugin
-export function serverInfoUpdate(globalServerInfo) {
+export function serverInfoUpdateFunc(globalServerInfo) {
     return dispatch => {
         dispatch({
             type: GLOBAL_SERVER_INFO,
@@ -78,7 +78,7 @@ export function serverInfoUpdate(globalServerInfo) {
 //     }
 // ]
 //Function - Sets the list of available servers and their basic info
-export function serversListUpdate(globalServersList) {
+export function serversListUpdateFunc(globalServersList) {
     return dispatch => {
         dispatch({
             type: GLOBAL_SERVERS_LIST,
@@ -107,7 +107,7 @@ export function serversListUpdate(globalServersList) {
 //   ]
 //]
 //Function - Sets the list of available selectors and their options
-export function selectorInfo(globalSelectorInfo) {
+export function selectorInfoFunc(globalSelectorInfo) {
     return dispatch => {
         dispatch({
             type: GLOBAL_SELECTOR_INFO,
@@ -119,7 +119,7 @@ export function selectorInfo(globalSelectorInfo) {
 //Expected input - List of entries with their info
 //json representation from SPIFFE golang documentation - https://github.com/spiffe/spire/blob/v0.12.0/proto/spire/types/entry.pb.go#L28-L67
 //Function - Sets/ updates the list of entries with their info
-export function entriesListUpdate(globalentriesList) {
+export function entriesListUpdateFunc(globalentriesList) {
     return dispatch => {
         dispatch({
             type: GLOBAL_ENTRIES_LIST,
@@ -131,7 +131,7 @@ export function entriesListUpdate(globalentriesList) {
 //Expected input - List of agents with their info
 //json representation from SPIFFE golang documentation - https://github.com/spiffe/spire/blob/v0.12.0/proto/spire/types/agent.pb.go#L28-L45
 //Function - Sets/ updates the list of agents with their info
-export function agentsListUpdate(globalagentsList) {
+export function agentsListUpdateFunc(globalagentsList) {
     return dispatch => {
         dispatch({
             type: GLOBAL_AGENTS_LIST,

@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import IsManager from './is_manager';
-import { populateTornjakServerInfo, populateLocalTornjakServerInfo } from './tornjak-api-helpers';
+//import { populateTornjakServerInfo, populateLocalTornjakServerInfo } from './tornjak-api-helpers';
+import TornjakApi from './tornjak-api-helpers';
 import {
-  serverSelected,
-  serverInfoUpdate,
-  tornjakServerInfoUpdate,
-  tornjakMessege,
+  serverSelectedFunc,
+  serverInfoUpdateFunc,
+  tornjakServerInfoUpdateFunc,
+  tornjakMessegeFunc,
 } from 'actions';
 
 const TornjakServerInfoDisplay = props => (
@@ -26,17 +27,17 @@ class TornjakServerInfo extends Component {
   componentDidMount() {
     if (IsManager) {
       if (this.props.globalServerSelected !== "") {
-        populateTornjakServerInfo(this.props.globalServerSelected, this.props.tornjakServerInfoUpdate, this.props.tornjakMessege);
+        TornjakApi.populateTornjakServerInfo(this.props.globalServerSelected, this.props.tornjakServerInfoUpdateFunc, this.props.tornjakMessegeFunc);
       }
     } else {
-      populateLocalTornjakServerInfo(this.props.tornjakServerInfoUpdate, this.props.tornjakMessege);
+      TornjakApi.populateLocalTornjakServerInfo(this.props.tornjakServerInfoUpdateFunc, this.props.tornjakMessegeFunc);
     }
   }
 
   componentDidUpdate(prevProps) {
     if (IsManager) {
       if (prevProps.globalServerSelected !== this.props.globalServerSelected) {
-        populateTornjakServerInfo(this.props.globalServerSelected, this.props.tornjakServerInfoUpdate, this.props.tornjakMessege)
+        TornjakApi.populateTornjakServerInfo(this.props.globalServerSelected, this.props.tornjakServerInfoUpdateFunc, this.props.tornjakMessegeFunc)
       }
     } 
   }
@@ -77,5 +78,5 @@ const mapStateToProps = (state) => ({
 
 export default connect(
   mapStateToProps,
-  { serverSelected, tornjakServerInfoUpdate, serverInfoUpdate, tornjakMessege }
+  { serverSelectedFunc, tornjakServerInfoUpdateFunc, serverInfoUpdateFunc, tornjakMessegeFunc }
 )(TornjakServerInfo)

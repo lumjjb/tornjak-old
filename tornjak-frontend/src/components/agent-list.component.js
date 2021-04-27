@@ -3,14 +3,15 @@ import { connect } from 'react-redux';
 import IsManager from './is_manager';
 import Table from "tables/agentsListTable";
 import { selectors } from './selector-info';
-import { populateLocalAgentsUpdate, populateAgentsUpdate, populateLocalTornjakServerInfo, populateServerInfo } from './tornjak-api-helpers';
+//import { populateLocalAgentsUpdate, populateAgentsUpdate, populateLocalTornjakServerInfo, populateServerInfo } from './tornjak-api-helpers';
+import TornjakApi from './tornjak-api-helpers';
 import {
-  serverSelected,
-  agentsListUpdate,
-  tornjakServerInfoUpdate,
-  serverInfoUpdate,
-  selectorInfo,
-  tornjakMessege
+  serverSelectedFunc,
+  agentsListUpdateFunc,
+  tornjakServerInfoUpdateFunc,
+  serverInfoUpdateFunc,
+  selectorInfoFunc,
+  tornjakMessegeFunc
 } from 'actions';
 
 const Agent = props => (
@@ -41,29 +42,29 @@ class AgentList extends Component {
   }
 
   componentDidMount() {
-    this.props.selectorInfo(selectors); //set selector info
+    this.props.selectorInfoFunc(selectors); //set selector info
     if (IsManager) {
       if (this.props.globalServerSelected !== "") {
-        populateAgentsUpdate(this.props.globalServerSelected, this.props.agentsListUpdate, this.props.tornjakMessege)
+        new TornjakApi().populateAgentsUpdate(this.props.globalServerSelected, this.props.agentsListUpdateFunc, this.props.tornjakMessegeFunc)
       }
     } else {
       // populateLocalAgentsUpdate(this.props);
-      populateLocalAgentsUpdate(this.props.agentsListUpdate, this.props.tornjakMessege);
-      populateLocalTornjakServerInfo(this.props.tornjakServerInfoUpdate, this.props.tornjakMessege);
+      populateLocalAgentsUpdate(this.props.agentsListUpdateFunc, this.props.tornjakMessegeFunc);
+      populateLocalTornjakServerInfo(this.props.tornjakServerInfoUpdateFunc, this.props.tornjakMessegeFunc);
       if(this.props.globalTornjakServerInfo !== "")
-        populateServerInfo(this.props.globalTornjakServerInfo, this.props.serverInfoUpdate);
+      new TornjakApi().populateServerInfo(this.props.globalTornjakServerInfo, this.props.serverInfoUpdateFunc);
     }
   }
 
   componentDidUpdate(prevProps) {
     if (IsManager) {
       if (prevProps.globalServerSelected !== this.props.globalServerSelected) {
-        populateAgentsUpdate(this.props.globalServerSelected, this.props.agentsListUpdate, this.props.tornjakMessege)
+        new TornjakApi().populateAgentsUpdate(this.props.globalServerSelected, this.props.agentsListUpdateFunc, this.props.tornjakMessegeFunc)
       }
     } else {
         if(prevProps.globalTornjakServerInfo !== this.props.globalTornjakServerInfo)
         {
-          populateServerInfo(this.props.globalTornjakServerInfo, this.props.serverInfoUpdate);
+          new TornjakApi().populateServerInfo(this.props.globalTornjakServerInfo, this.props.serverInfoUpdateFunc);
         }
     }
   }
@@ -111,5 +112,5 @@ const mapStateToProps = (state) => ({
 
 export default connect(
   mapStateToProps,
-  { serverSelected, agentsListUpdate, tornjakServerInfoUpdate, serverInfoUpdate, selectorInfo, tornjakMessege }
+  { serverSelectedFunc, agentsListUpdateFunc, tornjakServerInfoUpdateFunc, serverInfoUpdateFunc, selectorInfoFunc, tornjakMessegeFunc }
 )(AgentList)

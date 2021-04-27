@@ -6,9 +6,9 @@ import GetApiServerUri from './helpers';
 import IsManager from './is_manager';
 import Table from "tables/entriesListTable";
 import {
-  serverSelected,
-  entriesListUpdate,
-  tornjakMessege,
+  serverSelectedFunc,
+  entriesListUpdateFunc,
+  tornjakMessegeFunc,
 } from 'actions';
 
 const Entry = props => (
@@ -61,11 +61,11 @@ class EntryList extends Component {
   populateEntriesUpdate(serverName) {
       axios.get(GetApiServerUri('/manager-api/entry/list/') + serverName, {     crossdomain: true })
       .then(response =>{
-        this.props.entriesListUpdate(response.data["entries"]);
-        this.props.tornjakMessege(response.statusText);
+        this.props.entriesListUpdateFunc(response.data["entries"]);
+        this.props.tornjakMessegeFunc(response.statusText);
       }).catch(err => {
-          this.props.entriesListUpdate([]);
-          this.props.tornjakMessege("Error retrieving " + serverName + " : "+ err + (typeof (err.response) !== "undefined" ? ":" + err.response.data : ""));
+          this.props.entriesListUpdateFunc([]);
+          this.props.tornjakMessegeFunc("Error retrieving " + serverName + " : "+ err + (typeof (err.response) !== "undefined" ? ":" + err.response.data : ""));
       });
 
   }
@@ -73,12 +73,12 @@ class EntryList extends Component {
   populateLocalEntriesUpdate() {
       axios.get(GetApiServerUri('/api/entry/list'), { crossdomain: true })
       .then(response => {
-        this.props.entriesListUpdate(response.data["entries"]);
-        this.props.tornjakMessege(response.statusText);
+        this.props.entriesListUpdateFunc(response.data["entries"]);
+        this.props.tornjakMessegeFunc(response.statusText);
       })
       .catch((error) => {
         console.log(error);
-        this.props.tornjakMessege(error.message);
+        this.props.tornjakMessegeFunc(error.message);
       })
   }
 
@@ -125,5 +125,5 @@ const mapStateToProps = (state) => ({
 
 export default connect(
   mapStateToProps,
-  { serverSelected, entriesListUpdate, tornjakMessege }
+  { serverSelectedFunc, entriesListUpdateFunc, tornjakMessegeFunc }
 )(EntryList)

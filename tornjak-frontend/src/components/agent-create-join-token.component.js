@@ -4,7 +4,7 @@ import axios from 'axios';
 import GetApiServerUri from './helpers';
 import IsManager from './is_manager';
 import {
-  serverSelected
+  serverSelectedFunc
 } from 'actions';
 
 class CreateJoinToken extends Component {
@@ -268,5 +268,5 @@ const mapStateToProps = (state) => ({
 
 export default connect(
   mapStateToProps,
-  { serverSelected }
+  { serverSelectedFunc }
 )(CreateJoinToken)

@@ -5,7 +5,7 @@ import axios from 'axios'
 import GetApiServerUri from './helpers';
 import IsManager from './is_manager';
 import {
-  serversListUpdate
+  serversListUpdateFunc
 } from 'actions';
 
 const Server = props => (
@@ -46,7 +46,7 @@ class ServerManagement extends Component {
     axios.get(GetApiServerUri("/manager-api/server/list"), { crossdomain: true })
       .then(response => {
           console.log(response.data);
-          this.props.serversListUpdate(response.data["servers"]);
+          this.props.serversListUpdateFunc(response.data["servers"]);
       })
       .catch((error) => {
         console.log(error);
@@ -250,5 +250,5 @@ const mapStateToProps = (state) => ({
 
 export default connect(
   mapStateToProps,
-  { serversListUpdate }
+  { serversListUpdateFunc }
 )(ServerManagement)
