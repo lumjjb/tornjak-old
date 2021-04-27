@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import GetApiServerUri from './helpers';
 import IsManager from './is_manager';
-//import { populateAgentsUpdate, populateTornjakServerInfo, populateServerInfo } from './tornjak-api-helpers';
 import TornjakApi from './tornjak-api-helpers';
 
 import {

@@ -584,6 +584,7 @@ const mapStateToProps = (state) => ({
   globalagentsList: state.agents.globalagentsList,
   globalServerInfo: state.servers.globalServerInfo,
   globalTornjakServerInfo: state.servers.globalTornjakServerInfo,
+  globalErrorMessege: state.tornjak.globalErrorMessege,
 })
 
 export default connect(

@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import IsManager from './is_manager';
 import Table from "tables/agentsListTable";
 import { selectors } from './selector-info';
-//import { populateLocalAgentsUpdate, populateAgentsUpdate, populateLocalTornjakServerInfo, populateServerInfo } from './tornjak-api-helpers';
 import TornjakApi from './tornjak-api-helpers';
 import {
   serverSelectedFunc,
@@ -48,11 +47,11 @@ class AgentList extends Component {
         new TornjakApi().populateAgentsUpdate(this.props.globalServerSelected, this.props.agentsListUpdateFunc, this.props.tornjakMessegeFunc)
       }
     } else {
-      // populateLocalAgentsUpdate(this.props);
       populateLocalAgentsUpdate(this.props.agentsListUpdateFunc, this.props.tornjakMessegeFunc);
       populateLocalTornjakServerInfo(this.props.tornjakServerInfoUpdateFunc, this.props.tornjakMessegeFunc);
-      if(this.props.globalTornjakServerInfo !== "")
-      new TornjakApi().populateServerInfo(this.props.globalTornjakServerInfo, this.props.serverInfoUpdateFunc);
+      if(this.props.globalTornjakServerInfo !== "") {
+        new TornjakApi().populateServerInfo(this.props.globalTornjakServerInfo, this.props.serverInfoUpdateFunc);
+      }
     }
   }
 

@@ -2,12 +2,6 @@ import { Component } from 'react';
 import { connect } from 'react-redux';
 import axios from 'axios';
 import GetApiServerUri from './helpers';
-// import {
-//   serverSelectedFunc,
-//   serverInfoUpdateFunc,
-//   tornjakServerInfoUpdateFunc,
-//   tornjakMessegeFunc,
-// } from 'actions';
 
 class TornjakApi extends Component {
   constructor(props) {
@@ -174,17 +168,5 @@ class TornjakApi extends Component {
 //   globalTornjakServerInfo: state.servers.globalTornjakServerInfo,
 //   globalErrorMessege: state.tornjak.globalErrorMessege,
 // })
-
-// export {
-//   populateServerInfo,
-//   populateTornjakServerInfo,
-//   populateLocalTornjakServerInfo,
-//   populateAgentsUpdate,
-//   populateLocalAgentsUpdate,
-// };
-// export default connect(
-//   mapStateToProps,
-//   { serverSelectedFunc, tornjakServerInfoUpdateFunc, serverInfoUpdateFunc, tornjakMessegeFunc }
-// )(TornjakApi)
 
 export default TornjakApi;
