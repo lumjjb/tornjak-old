@@ -7,6 +7,8 @@ import {
     GLOBAL_SERVERS_LIST,
     GLOBAL_SELECTOR_INFO,
     GLOBAL_MESSEGE,
+    GLOBAL_WORKLOAD_SELECTOR_INFO,
+    GLOBAL_AGENTS_WORKLOADATTESTOR_INFO,
 } from './types';
 
 // Expected input - "Error Messege/ Success Messege"
@@ -137,6 +139,62 @@ export function agentsListUpdateFunc(globalagentsList) {
         dispatch({
             type: GLOBAL_AGENTS_LIST,
             payload: globalagentsList
+        });
+    }
+}
+
+//Expected input - 
+//[
+// "workloadselector1": [
+//     {
+//       "label": "workloadselector1:...."
+//     },
+//     {
+//       "label": "workloadselector1:...."
+//     },
+//   ],
+//   "workloadselector2": [
+//     {
+//       "label": "workloadselector2:...."
+//     },
+//     {
+//       "label": "workloadselector2:...."
+//     },
+//   ]
+//]
+//Function - Sets the list of available workload selectors and their options
+export function workloadSelectorInfoFunc(globalWorkloadSelectorInfo) {
+    return dispatch => {
+        dispatch({
+            type: GLOBAL_WORKLOAD_SELECTOR_INFO,
+            payload: globalWorkloadSelectorInfo
+        });
+    }
+}
+
+//Expected input - 
+//[
+// "agent1workloadselectorinfo": [
+//     {
+//       "id": "agentid",
+//       "spiffeid": "agentspiffeeid",  
+//       "selectors": "agentworkloadselectors"
+//     }
+//   ],
+//   "agent2workloadselectorinfo": [
+//     {
+//       "id": "agentid",
+//       "spiffeid": "agentspiffeeid",  
+//       "selectors": "agentworkloadselectors"  
+//     }
+//   ]
+//]
+//Function - Sets the work load selector info for the agents
+export function agentworkloadSelectorInfoFunc(globalagentsworkloadattestorinfo) {
+    return dispatch => {
+        dispatch({
+            type: GLOBAL_AGENTS_WORKLOADATTESTOR_INFO,
+            payload: globalagentsworkloadattestorinfo
         });
     }
 }

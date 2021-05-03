@@ -1,9 +1,13 @@
 import React from "react";
-import { DataTable } from "carbon-components-react";
+import { DataTable, OverflowMenu, OverflowMenuItem, ModalWrapper } from "carbon-components-react";
 import { connect } from 'react-redux';
+import {
+    Delete16 as Delete,
+} from '@carbon/icons-react';
 import ResetIcon from "@carbon/icons-react/es/reset--alt/20";
 import GetApiServerUri from 'components/helpers';
 import IsManager from 'components/is_manager';
+import WorkLoadAttestor from './workLoadAttestorModal';
 import axios from 'axios'
 import {
     agentsListUpdateFunc
@@ -33,6 +37,7 @@ class DataTableRender extends React.Component {
             listTableData: [{}]
         };
         this.prepareTableData = this.prepareTableData.bind(this);
+        //this.getAgentData = this.getAgentData.bind(this);
     }
 
     componentDidMount() {
@@ -47,17 +52,28 @@ class DataTableRender extends React.Component {
         }
     }
 
+    // getAgentData(row){
+    //     console.log(row)
+    // }
     prepareTableData() {
         const { data } = this.props;
         let listData = [...data];
         let listtabledata = [];
-        let i = 0;
-        for (i = 0; i < listData.length; i++) {
+        for (let i = 0; i < listData.length; i++) {
             listtabledata[i] = {};
             listtabledata[i]["id"] = i + 1;
             listtabledata[i]["trustdomain"] = listData[i].props.agent.id.trust_domain;
             listtabledata[i]["spiffeid"] = "spiffe://" + listData[i].props.agent.id.trust_domain + listData[i].props.agent.id.path;
             listtabledata[i]["info"] = JSON.stringify(listData[i].props.agent, null, ' ');
+            if (this.props.globalagentsworkloadattestorinfo !== undefined) {
+                var check_id = this.props.globalagentsworkloadattestorinfo.filter(agent => (parseInt(agent.id) === i + 1));
+                if (check_id.length !== 0) {
+                    listtabledata[i]["plugin"] = check_id[0].plugin;
+                }
+                else {
+                    listtabledata[i]["plugin"] = "No Plugin Configured For Agent";
+                }
+            } else { listtabledata[i]["plugin"] = "No Plugin Configured For Agent"; }
         }
         this.setState({
             listTableData: listtabledata
@@ -146,6 +162,10 @@ class DataTableRender extends React.Component {
                 header: 'Info',
                 key: 'info',
             },
+            {
+                header: 'Workload Attestor Plugin',
+                key: 'plugin',
+            }
         ];
         return (
             <DataTable
@@ -174,10 +194,11 @@ class DataTableRender extends React.Component {
                                 {...getBatchActionProps()}
                             >
                                 <TableBatchAction
-                                    renderIcon={ResetIcon}
+                                    renderIcon={Delete}
                                     iconDescription="Delete"
                                     onClick={() => {
                                         this.deleteAgent(selectedRows);
+                                        getBatchActionProps().onCancel();
                                     }}
                                 >
                                     Delete
@@ -187,6 +208,7 @@ class DataTableRender extends React.Component {
                                     iconDescription="Ban"
                                     onClick={() => {
                                         this.banAgent(selectedRows);
+                                        getBatchActionProps().onCancel();
                                     }}
                                 >
                                     Ban
@@ -196,7 +218,8 @@ class DataTableRender extends React.Component {
                         <Table size="short" useZebraStyles>
                             <TableHead>
                                 <TableRow>
-                                    <TableSelectAll {...getSelectionProps()} />
+                                    <TableSelectAll
+                                        {...getSelectionProps()} />
                                     {headers.map((header) => (
                                         <TableHeader {...getHeaderProps({ header })}>
                                             {header.header}
@@ -207,17 +230,28 @@ class DataTableRender extends React.Component {
                             <TableBody>
                                 {rows.map((row) => (
                                     <TableRow key={row.id}>
-                                        <TableSelectRow {...getSelectionProps({ row })} />
+                                        <TableSelectRow
+                                            {...getSelectionProps({ row })} />
                                         {row.cells.map((cell) => (
                                             <TableCell key={cell.id}>
                                                 {cell.info.header === "info" ? (
-                                                <div style={{ overflowX: 'auto', width: "400px" }}>
-                                                    <pre>{cell.value}</pre>
-                                                </div>
+                                                    <div style={{ overflowX: 'auto', width: "400px" }}>
+                                                        <pre>{cell.value}</pre>
+                                                    </div>
                                                 ) : (
-                                                cell.value)}
+                                                    cell.value)}
                                             </TableCell>
                                         ))}
+                                        <TableCell>
+                                            <div>
+                                                <OverflowMenu flipped>
+                                                    {/* onClick={() => {this.getAgentData(row)}}> */}
+                                                    <WorkLoadAttestor
+                                                        agentData={row}
+                                                    />
+                                                </OverflowMenu>
+                                            </div>
+                                        </TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
@@ -231,7 +265,8 @@ class DataTableRender extends React.Component {
 
 const mapStateToProps = (state) => ({
     globalServerSelected: state.servers.globalServerSelected,
-    globalagentsList: state.agents.globalagentsList
+    globalagentsList: state.agents.globalagentsList,
+    globalagentsworkloadattestorinfo: state.agents.globalagentsworkloadattestorinfo,
 })
 
 export default connect(
