@@ -1,9 +1,10 @@
 package db
 
 import (
-	"github.com/lumjjb/tornjak/manager/types"
 	"os"
 	"testing"
+
+	"github.com/lumjjb/tornjak/pkg/managerdb/types"
 )
 
 func cleanup() {

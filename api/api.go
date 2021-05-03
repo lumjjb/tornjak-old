@@ -2,11 +2,15 @@ package api
 
 import (
 	"context"
+	"errors"
+
 	grpc "google.golang.org/grpc"
 
 	agent "github.com/spiffe/spire/proto/spire/api/server/agent/v1"
 	entry "github.com/spiffe/spire/proto/spire/api/server/entry/v1"
 	types "github.com/spiffe/spire/proto/spire/types"
+
+	selectortypes "github.com/lumjjb/tornjak/pkg/agentsdb/types"
 )
 
 type ListAgentsRequest agent.ListAgentsRequest
@@ -180,4 +184,27 @@ GetEntry(GetEntryRequest) returns (spire.types.Entry);
 
 */
 
-// types
+type ListSelectorsRequest struct{}
+type ListSelectorsResponse selectortypes.SelectorInfoList
+
+//Get's list of agents from the loacal DB with the following info
+//id       string
+//spiffeid string
+//plugin   string
+func (s *Server) ListSelectors(inp ListSelectorsRequest) (*ListSelectorsResponse, error) {
+	resp, err := s.Db.GetAgents()
+	if err != nil {
+		return nil, err
+	}
+	return (*ListSelectorsResponse)(&resp), nil
+}
+
+type RegisterSelectorRequest selectortypes.SelectorInfo
+
+func (s *Server) DefineSelectors(inp RegisterSelectorRequest) error {
+	sinfo := selectortypes.SelectorInfo(inp)
+	if len(sinfo.Id) == 0 || len(sinfo.Spiffeid) == 0 {
+		return errors.New("agents's selector info missing mandatory fields")
+	}
+	return s.Db.CreateAgentEntry(sinfo)
+}

@@ -81,7 +81,7 @@ class CreateEntry extends Component {
     }
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState) {
     if (IsManager) {
       if (prevProps.globalServerSelected !== this.props.globalServerSelected) {
         this.setState({ selectedServer: this.props.globalServerSelected });
@@ -93,8 +93,14 @@ class CreateEntry extends Component {
       if (prevProps.globalagentsList !== this.props.globalagentsList) {
         this.prepareParentIdAgentsList();
       }
+      if (prevState.parentId !== this.state.parentId) {
+        this.prepareSelectorsList();
+      }
     } else {
       if (prevProps.globalServerInfo !== this.props.globalServerInfo) {
+        this.prepareSelectorsList();
+      }
+      if (prevState.parentId !== this.state.parentId) {
         this.prepareSelectorsList();
       }
     }
@@ -103,7 +109,7 @@ class CreateEntry extends Component {
   prepareParentIdAgentsList() {
     var i = 0, prefix = "spiffe://";;
     let localAgentsIdList = [];
-    if(this.props.globalServerInfo.length === 0)
+    if (this.props.globalServerInfo.length === 0)
       return
     //user prefered option
     localAgentsIdList[0] = this.state.parentIdManualEntryOption;
@@ -119,12 +125,30 @@ class CreateEntry extends Component {
   }
 
   prepareSelectorsList() {
-    if(this.props.globalServerInfo.length === 0)
-      return
-    let serverNodeAtt = this.props.globalServerInfo.data.nodeAttestorPlugin;
-    this.setState({
-      selectorsList: this.props.globalSelectorInfo[serverNodeAtt]
-    });
+    var prefix = "spiffe://", parentId = this.state.parentId, defaultServer = prefix + this.props.globalServerInfo.data.trustDomain + "/spire/server", globalagentsworkloadattestorinfo = this.props.globalagentsworkloadattestorinfo, agentSelectorSet = false;
+    if (parentId !== "" && parentId === defaultServer) {
+      if (this.props.globalServerInfo.length === 0)
+        return
+      let serverNodeAtt = this.props.globalServerInfo.data.nodeAttestorPlugin;
+      this.setState({
+        selectorsList: this.props.globalSelectorInfo[serverNodeAtt]
+      });
+    } else if (parentId !== "") {
+      for (let i = 0; i < globalagentsworkloadattestorinfo.length; i++) {
+        if (parentId === globalagentsworkloadattestorinfo[i].spiffeid) {
+          this.setState({
+            selectorsList: this.props.globalWorkloadSelectorInfo[globalagentsworkloadattestorinfo[i].plugin]
+          });
+          agentSelectorSet = true;
+        }
+      }
+      if (!agentSelectorSet) {
+        this.setState({
+          selectorsList: [],
+          selectorsListDisplay: "Select Selectors",
+        });
+      }
+    } 
   }
 
   onChangeTtl(e) {
@@ -139,7 +163,7 @@ class CreateEntry extends Component {
     });
   }
 
-  onChangeDownStream= selected => {
+  onChangeDownStream = selected => {
     var sid = selected;
     this.setState({
       downstream: sid,
@@ -255,6 +279,7 @@ class CreateEntry extends Component {
       this.setState({
         parentIDManualEntry: true,
         spiffeIdPrefix: "",
+        parentId: sid,
       });
       return
     }
@@ -367,7 +392,7 @@ class CreateEntry extends Component {
       return
     }
 
-    if(this.state.selectors.length !== 0)
+    if (this.state.selectors.length !== 0)
       selectorStrings = this.state.selectors.split(',').map(x => x.trim())
     if (selectorStrings.length === 0) {
       this.setState({ message: "ERROR: Selectors cannot be empty" })
@@ -378,15 +403,15 @@ class CreateEntry extends Component {
         "type": x.substr(0, x.indexOf(":")),
         "value": x.substr(x.indexOf(":") + 1)
       } : null)
-    
+
     if (selectorEntries.some(x => x == null || x["value"].length === 0)) {
       this.setState({ message: "ERROR: Selectors not in the correct format should be type:value" })
       return
     }
 
-    if(this.state.federatesWith.length !== 0)
+    if (this.state.federatesWith.length !== 0)
       federatedWithList = this.state.federatesWith.split(',').map(x => x.trim())
-    if(this.state.dnsNames.length !== 0)
+    if (this.state.dnsNames.length !== 0)
       dnsNamesWithList = this.state.dnsNames.split(',').map(x => x.trim())
 
     var cjtData = {
@@ -422,7 +447,9 @@ class CreateEntry extends Component {
     const ParentIdList = this.state.agentsIdList;
     return (
       <div>
-        <h3>Create New Entry</h3>
+        <div className="create-entry-title">
+          <h3>Create New Entry</h3>
+        </div>
         <form onSubmit={this.onSubmit}>
           <div className="alert-primary" role="alert">
             <pre>
@@ -585,6 +612,8 @@ const mapStateToProps = (state) => ({
   globalServerInfo: state.servers.globalServerInfo,
   globalTornjakServerInfo: state.servers.globalTornjakServerInfo,
   globalErrorMessege: state.tornjak.globalErrorMessege,
+  globalWorkloadSelectorInfo: state.servers.globalWorkloadSelectorInfo,
+  globalagentsworkloadattestorinfo: state.agents.globalagentsworkloadattestorinfo,
 })
 
 export default connect(

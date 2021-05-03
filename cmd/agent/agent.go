@@ -3,14 +3,17 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
+	"os"
+	"os/exec"
+
 	"github.com/lumjjb/tornjak/api"
 	"github.com/pkg/errors"
 	"github.com/spiffe/spire/cmd/spire-server/cli/run"
 	"github.com/spiffe/spire/pkg/common/catalog"
 	"github.com/urfave/cli/v2"
-	"log"
-	"os"
-	"os/exec"
+
+	agentapi "github.com/lumjjb/tornjak/api"
 )
 
 type cliOptions struct {
@@ -32,7 +35,7 @@ type cliOptions struct {
 
 func main() {
 	var opt cliOptions
-
+	var dbString = "./agentlocaldb"
 	app := &cli.App{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
@@ -87,7 +90,7 @@ func main() {
 				},
 
 				Action: func(c *cli.Context) error {
-					return runTornjakCmd("http", opt)
+					return runTornjakCmd("http", opt, dbString)
 				},
 			},
 			{
@@ -95,14 +98,14 @@ func main() {
 				Usage: "Utilize the SPIRE api through tornjak",
 				Action: func(c *cli.Context) error {
 					opt.apiOptions.args = c.Args().Slice()
-					return runTornjakCmd("api", opt)
+					return runTornjakCmd("api", opt, dbString)
 				},
 			},
 			{
 				Name:  "serverinfo",
 				Usage: "Get the serverinfo of the SPIRE server where tornjak resides",
 				Action: func(c *cli.Context) error {
-					return runTornjakCmd("serverinfo", opt)
+					return runTornjakCmd("serverinfo", opt, dbString)
 				},
 			},
 		},
@@ -114,7 +117,11 @@ func main() {
 	}
 }
 
-func runTornjakCmd(cmd string, opt cliOptions) error {
+func runTornjakCmd(cmd string, opt cliOptions, dbString string) error {
+	s, err := agentapi.NewAgentsDB(dbString)
+	if err != nil {
+		log.Fatalf("err: %v", err)
+	}
 	config, err := run.ParseFile(opt.genericOptions.configFile, false)
 	if err != nil {
 		// Hide internal error since it is specific to arguments of originating library
@@ -146,6 +153,7 @@ func runTornjakCmd(cmd string, opt cliOptions) error {
 			TlsEnabled:      opt.httpOptions.tls,
 			MTlsEnabled:     opt.httpOptions.mtls,
 			SpireServerInfo: serverInfo,
+			Db:              s,
 		}
 		apiServer.HandleRequests()
 	default:
