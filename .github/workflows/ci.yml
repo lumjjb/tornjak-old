@@ -16,8 +16,6 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: '15'
-      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
-      - run: echo "🖥️ The workflow is now ready to test your code on the runner."
       - name: Run make all
         run: make all
       - run: echo "🍏 This job's status is ${{ job.status }}."
