@@ -43,7 +43,7 @@ container-agent-push: container-agent
 	docker push ${CONTAINER_TAG}
 
 container-manager: bin/tornjak-manager ui-manager
-	docker build --no-cache -f Dockerfile.tornjak-manager -t ${CONTAINER_MANAGER_TAG} . && docker push ${CONTAINER_MANAGER_TAG}
+	docker build --no-cache -f Dockerfile.tornjak-manager -t ${CONTAINER_MANAGER_TAG} .
 
 container-manager-push: container-manager
 	 docker push ${CONTAINER_MANAGER_TAG}
