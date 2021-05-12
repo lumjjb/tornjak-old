@@ -53,7 +53,6 @@ func main() {
 				Value:       "./agentlocaldb",
 				Usage:       "Db string for agents",
 				Destination: &opt.dbOptions.dbString,
-				Required:    true,
 			},
 		},
 		Commands: []*cli.Command{

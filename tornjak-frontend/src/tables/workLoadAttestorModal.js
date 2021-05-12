@@ -17,8 +17,8 @@ class WorkLoadAttestor extends React.Component {
             selectorsList: "",
             selectors: "",
             wLoadAttdata: [{}],
-            agentid: "",
-            agentspiffeid: "",
+            agentId: "",
+            agentSpiffeId: "",
         };
         this.onChangeWorkloadPlugin = this.onChangeWorkloadPlugin.bind(this);
         this.prepareAgentData = this.prepareAgentData.bind(this);
@@ -40,15 +40,15 @@ class WorkLoadAttestor extends React.Component {
     prepareAgentData() {
         const { id,  spiffeid} = this.props;
         this.setState({
-            agentid: id.toString(),
-            agentspiffeid: spiffeid,
+            agentId: id.toString(),
+            agentSpiffeId: spiffeid,
         })
     }
 
     handleSubmit = () => {
         var wLoadAttdata = {
-            "id": this.state.agentid,
-            "spiffeid": this.state.agentspiffeid,
+            "id": this.state.agentId,
+            "spiffeid": this.state.agentSpiffeId,
             "plugin": this.state.workloadPlugin,
         };
         if (IsManager) {
@@ -60,15 +60,15 @@ class WorkLoadAttestor extends React.Component {
     };
 
     onChangeWorkloadPlugin = selected => {
-        var selectors = "", semiColon = ":";
+        var selectors = "";
         var sid = selected.selectedItem.label;
         var selectorsObject = this.props.globalWorkloadSelectorInfo[sid];
         for (let i = 0; i < selectorsObject.length; i++) {
             if (i != sid.length - 1) {
-                selectors = selectors + selectorsObject[i].label + semiColon + '\n';
+                selectors = selectors + selectorsObject[i].label + ":\n";
             }
             else {
-                selectors = selectors + selectorsObject[i].label + semiColon
+                selectors = selectors + selectorsObject[i].label + ":"
             }
         }
         this.setState({
@@ -134,9 +134,8 @@ class WorkLoadAttestor extends React.Component {
 
 const mapStateToProps = (state) => ({
     globalServerSelected: state.servers.globalServerSelected,
-    globalagentsList: state.agents.globalagentsList,
+    globalAgentsList: state.agents.globalAgentsList,
     globalWorkloadSelectorInfo: state.servers.globalWorkloadSelectorInfo,
-    globalagentsworkloadattestorinfo: state.agents.globalagentsworkloadattestorinfo,
 })
 
 export default connect(

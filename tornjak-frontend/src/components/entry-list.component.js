@@ -117,7 +117,7 @@ class EntryList extends Component {
 
 const mapStateToProps = (state) => ({
   globalServerSelected: state.servers.globalServerSelected,
-  globalentriesList: state.entries.globalentriesList,
+  globalEntriesList: state.entries.globalEntriesList,
   globalErrorMessege: state.tornjak.globalErrorMessege,
 })
 

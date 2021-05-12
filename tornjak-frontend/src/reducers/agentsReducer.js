@@ -4,8 +4,8 @@ import {
 } from '../actions/types';
 
 const initialState = {
-    globalagentsList: [],
-    globalagentsworkloadattestorinfo: [],
+    globalAgentsList: [],
+    globalAgentsWorkLoadAttestorInfo: [],
 };
 
 export default function agentsReducer(state = initialState, action) {
@@ -13,12 +13,12 @@ export default function agentsReducer(state = initialState, action) {
         case GLOBAL_AGENTS_LIST:
             return {
                 ...state,
-                globalagentsList: action.payload
+                globalAgentsList: action.payload
             };
         case GLOBAL_AGENTS_WORKLOADATTESTOR_INFO:
             return {
                 ...state,
-                globalagentsworkloadattestorinfo: action.payload
+                globalAgentsWorkLoadAttestorInfo: action.payload
             };
         default:
             return state;
