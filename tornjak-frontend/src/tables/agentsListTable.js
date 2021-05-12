@@ -1,5 +1,5 @@
 import React from "react";
-import { DataTable, OverflowMenu, OverflowMenuItem, ModalWrapper } from "carbon-components-react";
+import { DataTable, OverflowMenu} from "carbon-components-react";
 import { connect } from 'react-redux';
 import {
     Delete16 as Delete,
