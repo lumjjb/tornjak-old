@@ -27,7 +27,7 @@ yarn-debug.log*
 yarn-error.log*
 
 serverslocaldb
-agent
+agentlocaldb
 
 # build artifacts
 bin/
