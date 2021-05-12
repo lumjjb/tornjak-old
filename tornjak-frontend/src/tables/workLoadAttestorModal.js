@@ -64,7 +64,7 @@ class WorkLoadAttestor extends React.Component {
         var sid = selected.selectedItem.label;
         var selectorsObject = this.props.globalWorkloadSelectorInfo[sid];
         for (let i = 0; i < selectorsObject.length; i++) {
-            if (i != sid.length - 1) {
+            if (i !== sid.length - 1) {
                 selectors = selectors + selectorsObject[i].label + ":\n";
             }
             else {
