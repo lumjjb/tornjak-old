@@ -168,7 +168,7 @@ class DataTableRender extends React.Component {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {rows[0].id !== undefined && rows.map((row) => (
+                                {rows.map((row) => (
                                     <TableRow key={row.id}>
                                         <TableSelectRow {...getSelectionProps({ row })} />
                                         {row.cells.map((cell) => (
