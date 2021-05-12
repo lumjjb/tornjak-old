@@ -45,7 +45,7 @@ class DataTableRender extends React.Component {
     componentDidUpdate(prevProps, prevState) {
         if (prevProps !== this.props) {
             this.setState({
-                listData: this.props.globalagentsList
+                listData: this.props.globalAgentsList
             })
             this.prepareTableData();
         }
@@ -61,15 +61,17 @@ class DataTableRender extends React.Component {
             listtabledata[i]["trustdomain"] = listData[i].props.agent.id.trust_domain;
             listtabledata[i]["spiffeid"] = "spiffe://" + listData[i].props.agent.id.trust_domain + listData[i].props.agent.id.path;
             listtabledata[i]["info"] = JSON.stringify(listData[i].props.agent, null, ' ');
-            if (this.props.globalagentsworkloadattestorinfo !== undefined) {
-                var check_id = this.props.globalagentsworkloadattestorinfo.filter(agent => (parseInt(agent.id) === i + 1));
+            if (this.props.globalAgentsWorkLoadAttestorInfo !== undefined) {
+                var check_id = this.props.globalAgentsWorkLoadAttestorInfo.filter(agent => (parseInt(agent.id) === i + 1));
                 if (check_id.length !== 0) {
                     listtabledata[i]["plugin"] = check_id[0].plugin;
                 }
                 else {
                     listtabledata[i]["plugin"] = "No Plugin Configured For Agent";
                 }
-            } else { listtabledata[i]["plugin"] = "No Plugin Configured For Agent"; }
+            } else {
+                listtabledata[i]["plugin"] = "No Plugin Configured For Agent";
+            }
         }
         this.setState({
             listTableData: listtabledata
@@ -102,7 +104,7 @@ class DataTableRender extends React.Component {
         Promise.all(promises)
             .then(responses => {
                 for (let i = 0; i < responses.length; i++) {
-                    this.props.agentsListUpdateFunc(this.props.globalagentsList.filter(el =>
+                    this.props.agentsListUpdateFunc(this.props.globalAgentsList.filter(el =>
                         el.id.trust_domain !== id[i].trust_domain ||
                         el.id.path !== id[i].path));
                 }
@@ -242,8 +244,8 @@ class DataTableRender extends React.Component {
                                             <div>
                                                 <OverflowMenu flipped>
                                                     <WorkLoadAttestor
-                                                        id = {row.id}
-                                                        spiffeid = {row.cells[2].value}
+                                                        id={row.id}
+                                                        spiffeid={row.cells[2].value}
                                                         agentData={row}
                                                     />
                                                 </OverflowMenu>
@@ -262,8 +264,8 @@ class DataTableRender extends React.Component {
 
 const mapStateToProps = (state) => ({
     globalServerSelected: state.servers.globalServerSelected,
-    globalagentsList: state.agents.globalagentsList,
-    globalagentsworkloadattestorinfo: state.agents.globalagentsworkloadattestorinfo,
+    globalAgentsList: state.agents.globalAgentsList,
+    globalAgentsWorkLoadAttestorInfo: state.agents.globalAgentsWorkLoadAttestorInfo,
 })
 
 export default connect(

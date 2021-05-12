@@ -75,8 +75,8 @@ class AgentList extends Component {
   }
 
   agentList() {
-    if (typeof this.props.globalagentsList !== 'undefined') {
-      return this.props.globalagentsList.map(currentAgent => {
+    if (typeof this.props.globalAgentsList !== 'undefined') {
+      return this.props.globalAgentsList.map(currentAgent => {
         return <Agent key={currentAgent.id.path}
           agent={currentAgent}
           banAgent={this.banAgent}
@@ -110,7 +110,7 @@ class AgentList extends Component {
 
 const mapStateToProps = (state) => ({
   globalServerSelected: state.servers.globalServerSelected,
-  globalagentsList: state.agents.globalagentsList,
+  globalAgentsList: state.agents.globalAgentsList,
   globalTornjakServerInfo: state.servers.globalTornjakServerInfo,
   globalErrorMessege: state.tornjak.globalErrorMessege,
 })
