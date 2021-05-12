@@ -38,7 +38,6 @@ type cliOptions struct {
 
 func main() {
 	var opt cliOptions
-	//var dbString = "./agentlocaldb"
 	app := &cli.App{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
@@ -51,7 +50,6 @@ func main() {
 			},
 			&cli.StringFlag{
 				Name:        "agents-db-string",
-				Aliases:     []string{"c"},
 				Value:       "./agentlocaldb",
 				Usage:       "Db string for agents",
 				Destination: &opt.dbOptions.dbString,

@@ -225,11 +225,11 @@ class DataTableRender extends React.Component {
                             </TableHead>
                             <TableBody>
                                 {rows.map((row) => (
-                                    <TableRow key={row.id.toString()}>
+                                    <TableRow key={row.id}>
                                         <TableSelectRow
                                             {...getSelectionProps({ row })} />
                                         {row.cells.map((cell) => (
-                                            <TableCell key={cell.id.toString()}>
+                                            <TableCell key={cell.id}>
                                                 {cell.info.header === "info" ? (
                                                     <div style={{ overflowX: 'auto', width: "400px" }}>
                                                         <pre>{cell.value}</pre>
@@ -241,8 +241,9 @@ class DataTableRender extends React.Component {
                                         <TableCell>
                                             <div>
                                                 <OverflowMenu flipped>
-                                                    {/* onClick={() => {this.getAgentData(row)}}> */}
                                                     <WorkLoadAttestor
+                                                        id = {row.id}
+                                                        spiffeid = {row.cells[2].value}
                                                         agentData={row}
                                                     />
                                                 </OverflowMenu>
