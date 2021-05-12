@@ -6,7 +6,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/pkg/errors"
 
-	"github.com/lumjjb/tornjak/pkg/managerdb/types"
+	"github.com/lumjjb/tornjak/pkg/manager/types"
 )
 
 const (
