@@ -15,7 +15,7 @@ import (
 
 	"github.com/gorilla/mux"
 
-	agentdb "github.com/lumjjb/tornjak/pkg/agentsdb/db"
+	agentdb "github.com/lumjjb/tornjak/pkg/agent/db"
 )
 
 type Server struct {

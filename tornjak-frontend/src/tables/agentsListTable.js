@@ -37,11 +37,10 @@ class DataTableRender extends React.Component {
             listTableData: [{}]
         };
         this.prepareTableData = this.prepareTableData.bind(this);
-        //this.getAgentData = this.getAgentData.bind(this);
     }
 
     componentDidMount() {
-        //this.prepareTableData();
+        this.prepareTableData();
     }
     componentDidUpdate(prevProps, prevState) {
         if (prevProps !== this.props) {
@@ -52,9 +51,6 @@ class DataTableRender extends React.Component {
         }
     }
 
-    // getAgentData(row){
-    //     console.log(row)
-    // }
     prepareTableData() {
         const { data } = this.props;
         let listData = [...data];
@@ -221,19 +217,19 @@ class DataTableRender extends React.Component {
                                     <TableSelectAll
                                         {...getSelectionProps()} />
                                     {headers.map((header) => (
-                                        <TableHeader {...getHeaderProps({ header })}>
+                                        <TableHeader key={header.header} {...getHeaderProps({ header })}>
                                             {header.header}
                                         </TableHeader>
                                     ))}
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {rows.map((row) => (
-                                    <TableRow key={row.id}>
+                                {rows[0].id !== undefined && rows.map((row) => (
+                                    <TableRow key={row.id.toString()}>
                                         <TableSelectRow
                                             {...getSelectionProps({ row })} />
                                         {row.cells.map((cell) => (
-                                            <TableCell key={cell.id}>
+                                            <TableCell key={cell.id.toString()}>
                                                 {cell.info.header === "info" ? (
                                                     <div style={{ overflowX: 'auto', width: "400px" }}>
                                                         <pre>{cell.value}</pre>

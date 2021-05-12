@@ -10,7 +10,7 @@ import (
 	entry "github.com/spiffe/spire/proto/spire/api/server/entry/v1"
 	types "github.com/spiffe/spire/proto/spire/types"
 
-	selectortypes "github.com/lumjjb/tornjak/pkg/agentsdb/types"
+	selectortypes "github.com/lumjjb/tornjak/pkg/agent/types"
 )
 
 type ListAgentsRequest agent.ListAgentsRequest
@@ -187,7 +187,7 @@ GetEntry(GetEntryRequest) returns (spire.types.Entry);
 type ListSelectorsRequest struct{}
 type ListSelectorsResponse selectortypes.SelectorInfoList
 
-//Get's list of agents from the loacal DB with the following info
+// ListSelectors returns list of agents from the loacal DB with the following info
 //id       string
 //spiffeid string
 //plugin   string

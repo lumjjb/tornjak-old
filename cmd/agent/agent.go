@@ -7,12 +7,12 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/lumjjb/tornjak/api"
 	"github.com/pkg/errors"
 	"github.com/spiffe/spire/cmd/spire-server/cli/run"
 	"github.com/spiffe/spire/pkg/common/catalog"
 	"github.com/urfave/cli/v2"
 
+	"github.com/lumjjb/tornjak/api"
 	agentapi "github.com/lumjjb/tornjak/api"
 )
 
@@ -31,11 +31,14 @@ type cliOptions struct {
 	apiOptions        struct {
 		args []string
 	}
+	dbOptions struct {
+		dbString string
+	}
 }
 
 func main() {
 	var opt cliOptions
-	var dbString = "./agentlocaldb"
+	//var dbString = "./agentlocaldb"
 	app := &cli.App{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
@@ -44,6 +47,14 @@ func main() {
 				Value:       "",
 				Usage:       "Config file path for spire server",
 				Destination: &opt.genericOptions.configFile,
+				Required:    true,
+			},
+			&cli.StringFlag{
+				Name:        "agents-db-string",
+				Aliases:     []string{"c"},
+				Value:       "./agentlocaldb",
+				Usage:       "Db string for agents",
+				Destination: &opt.dbOptions.dbString,
 				Required:    true,
 			},
 		},
@@ -90,7 +101,7 @@ func main() {
 				},
 
 				Action: func(c *cli.Context) error {
-					return runTornjakCmd("http", opt, dbString)
+					return runTornjakCmd("http", opt)
 				},
 			},
 			{
@@ -98,14 +109,14 @@ func main() {
 				Usage: "Utilize the SPIRE api through tornjak",
 				Action: func(c *cli.Context) error {
 					opt.apiOptions.args = c.Args().Slice()
-					return runTornjakCmd("api", opt, dbString)
+					return runTornjakCmd("api", opt)
 				},
 			},
 			{
 				Name:  "serverinfo",
 				Usage: "Get the serverinfo of the SPIRE server where tornjak resides",
 				Action: func(c *cli.Context) error {
-					return runTornjakCmd("serverinfo", opt, dbString)
+					return runTornjakCmd("serverinfo", opt)
 				},
 			},
 		},
@@ -117,8 +128,8 @@ func main() {
 	}
 }
 
-func runTornjakCmd(cmd string, opt cliOptions, dbString string) error {
-	s, err := agentapi.NewAgentsDB(dbString)
+func runTornjakCmd(cmd string, opt cliOptions) error {
+	s, err := agentapi.NewAgentsDB(opt.dbOptions.dbString)
 	if err != nil {
 		log.Fatalf("err: %v", err)
 	}

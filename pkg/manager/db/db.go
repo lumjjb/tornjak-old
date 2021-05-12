@@ -1,7 +1,7 @@
 package db
 
 import (
-	"github.com/lumjjb/tornjak/pkg/managerdb/types"
+	"github.com/lumjjb/tornjak/pkg/manager/types"
 )
 
 type ManagerDB interface {

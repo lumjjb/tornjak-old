@@ -8,7 +8,7 @@ import (
 
 func main() {
 	var (
-		dbString   = "./serverslocaldb"
+		dbString   = "./serverlocaldb"
 		listenAddr = ":50000"
 	)
 	s, err := managerapi.NewManagerServer(listenAddr, dbString)
