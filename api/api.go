@@ -188,9 +188,9 @@ type ListSelectorsRequest struct{}
 type ListSelectorsResponse selectortypes.SelectorInfoList
 
 // ListSelectors returns list of agents from the loacal DB with the following info
-//id       string
-//spiffeid string
-//plugin   string
+// id       string
+// spiffeid string
+// plugin   string
 func (s *Server) ListSelectors(inp ListSelectorsRequest) (*ListSelectorsResponse, error) {
 	resp, err := s.Db.GetAgents()
 	if err != nil {

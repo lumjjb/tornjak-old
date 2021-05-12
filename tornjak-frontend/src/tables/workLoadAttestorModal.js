@@ -38,8 +38,7 @@ class WorkLoadAttestor extends React.Component {
     }
 
     prepareAgentData() {
-        const { agentData } = this.props;
-        var id = agentData.id, spiffeid = agentData.cells[2].value;
+        const { id,  spiffeid} = this.props;
         this.setState({
             agentid: id.toString(),
             agentspiffeid: spiffeid,
@@ -61,15 +60,15 @@ class WorkLoadAttestor extends React.Component {
     };
 
     onChangeWorkloadPlugin = selected => {
-        var i = 0, selectors = "";
+        var selectors = "", semiColon = ":";
         var sid = selected.selectedItem.label;
         var selectorsObject = this.props.globalWorkloadSelectorInfo[sid];
-        for (i = 0; i < selectorsObject.length; i++) {
+        for (let i = 0; i < selectorsObject.length; i++) {
             if (i != sid.length - 1) {
-                selectors = selectors + selectorsObject[i].label + ":" + '\n';
+                selectors = selectors + selectorsObject[i].label + semiColon + '\n';
             }
             else {
-                selectors = selectors + selectorsObject[i].label + ":"
+                selectors = selectors + selectorsObject[i].label + semiColon
             }
         }
         this.setState({
@@ -98,7 +97,6 @@ class WorkLoadAttestor extends React.Component {
         return (
             <ModalWrapper
                 triggerButtonKind="ghost"
-                //size='xs'
                 buttonTriggerText="Add WorkLoad Attestor Info"
                 primaryButtonText="Save & Add"
                 handleSubmit={this.handleSubmit}
@@ -126,7 +124,6 @@ class WorkLoadAttestor extends React.Component {
                         placeholder="Select Workload Attestor Plugin from above and selectors will be populated here - Refer to Workload Attestor Plugin"
                         defaultValue={this.state.selectorsList}
                         rows={8}
-                        //onChange={this.onChangeSelectors}
                         disabled
                     />
                 </div>
