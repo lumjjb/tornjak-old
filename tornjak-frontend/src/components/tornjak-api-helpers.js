@@ -94,7 +94,7 @@ class TornjakApi extends Component {
         console.log(error);
       })
   }
-  //populateTornjakServerInfo returns the torjak server info of the selected server in manager mode
+  // populateTornjakServerInfo returns the torjak server info of the selected server in manager mode
   populateTornjakServerInfo = (serverName, tornjakServerInfoUpdateFunc, tornjakMessegeFunc) => {
     axios.get(GetApiServerUri('/manager-api/tornjak/serverinfo/') + serverName, { crossdomain: true })
       .then(response => {
@@ -106,7 +106,7 @@ class TornjakApi extends Component {
       });
   }
 
-  //populateLocalTornjakServerInfo returns the torjak server info of the server in local mode
+  // populateLocalTornjakServerInfo returns the torjak server info of the server in local mode
   populateLocalTornjakServerInfo = (tornjakServerInfoUpdateFunc, tornjakMessegeFunc) => {
     axios.get(GetApiServerUri('/api/tornjak/serverinfo'), { crossdomain: true })
       .then(response => {
@@ -118,7 +118,7 @@ class TornjakApi extends Component {
       })
   }
 
-  //populateServerInfo returns the server trust domain and nodeAttestorPlugin
+  // populateServerInfo returns the server trust domain and nodeAttestorPlugin
   populateServerInfo = (serverInfo, serverInfoUpdateFunc) => {
     //node attestor plugin
     if (serverInfo === "" || serverInfo === undefined) {
@@ -140,7 +140,7 @@ class TornjakApi extends Component {
     serverInfoUpdateFunc(reqInfo);
   }
 
-  //populateAgentsUpdate returns the list of agents with their info in manager mode for the selected server
+  // populateAgentsUpdate returns the list of agents with their info in manager mode for the selected server
   populateAgentsUpdate = (serverName, agentsListUpdateFunc, tornjakMessegeFunc) => {
     axios.get(GetApiServerUri('/manager-api/agent/list/') + serverName, { crossdomain: true })
       .then(response => {
@@ -153,7 +153,7 @@ class TornjakApi extends Component {
 
   }
 
-  //populateLocalAgentsUpdate - returns the list of agents with their info in Local mode for the server
+  // populateLocalAgentsUpdate - returns the list of agents with their info in Local mode for the server
   populateLocalAgentsUpdate = (agentsListUpdateFunc, tornjakMessegeFunc) => {
     axios.get(GetApiServerUri('/api/agent/list'), { crossdomain: true })
       .then(response => {

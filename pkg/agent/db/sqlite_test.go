@@ -26,13 +26,13 @@ func TestServerCreate(t *testing.T) {
 		t.Fatal("Agents list should initially be empty")
 	}
 
-	sinfo := types.SelectorInfo{
+	sinfo := types.AgentInfo{
 		Id:       "1",
 		Spiffeid: "spiffe://example.org/spire/agent/",
 		Plugin:   "Docker",
 	}
 
-	err = db.CreateAgentEntry(types.SelectorInfo{
+	err = db.CreateAgentEntry(types.AgentInfo{
 		Id:       "1",
 		Spiffeid: "spiffe://example.org/spire/agent/",
 		Plugin:   "Docker",

@@ -126,8 +126,11 @@ class CreateEntry extends Component {
   }
 
   prepareSelectorsList() {
-    var prefix = "spiffe://", parentId = this.state.parentId, defaultServer = prefix + this.props.globalServerInfo.data.trustDomain + "/spire/server", globalAgentsWorkLoadAttestorInfo = this.props.globalAgentsWorkLoadAttestorInfo, agentSelectorSet = false;
-    if (parentId !== "" && parentId === defaultServer) {
+    var prefix = "spiffe://", agentSelectorSet = false;
+    var parentId = this.state.parentId;
+    var defaultServer = prefix + this.props.globalServerInfo.data.trustDomain + "/spire/server";
+    var globalAgentsWorkLoadAttestorInfo = this.props.globalAgentsWorkLoadAttestorInfo;
+    if (parentId === defaultServer) {
       if (this.props.globalServerInfo.length === 0) { return }
       let serverNodeAtt = this.props.globalServerInfo.data.nodeAttestorPlugin;
       this.setState({

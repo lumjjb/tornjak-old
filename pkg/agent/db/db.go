@@ -5,7 +5,7 @@ import (
 )
 
 type AgentDB interface {
-	CreateAgentEntry(sinfo types.SelectorInfo) error
-	GetAgents() (types.SelectorInfoList, error)
-	GetAgentSelectorInfo(name string) (types.SelectorInfo, error)
+	CreateAgentEntry(sinfo types.AgentInfo) error
+	GetAgents() (types.AgentInfoList, error)
+	GetAgentPluginInfo(name string) (types.AgentInfo, error)
 }
