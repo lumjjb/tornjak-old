@@ -33,7 +33,7 @@ const TornjakServerInfoDisplay = props => (
       <table>
         {
           Object.entries(props.tornjakServerInfo.plugins).map(([key, value]) =>
-            <tr key={key}><PluginTags key={key} type={key} names={value} /></tr>)
+            <tr key={key+value}><PluginTags type={key} names={value} /></tr>)
         }
       </table>
     </AccordionItem>

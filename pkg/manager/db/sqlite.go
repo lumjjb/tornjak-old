@@ -22,7 +22,7 @@ func NewLocalSqliteDB(dbpath string) (ManagerDB, error) {
 	if err != nil {
 		return nil, errors.New("Unable to open connection to DB")
 	}
-	//Table for servers
+	// Table for servers
 	statement, err := database.Prepare(initServersTable)
 	if err != nil {
 		return nil, errors.Errorf("Unable to execute SQL query :%v", initServersTable)

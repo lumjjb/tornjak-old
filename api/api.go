@@ -10,7 +10,7 @@ import (
 	entry "github.com/spiffe/spire/proto/spire/api/server/entry/v1"
 	types "github.com/spiffe/spire/proto/spire/types"
 
-	selectortypes "github.com/lumjjb/tornjak/pkg/agent/types"
+	agentTypes "github.com/lumjjb/tornjak/pkg/agent/types"
 )
 
 type ListAgentsRequest agent.ListAgentsRequest
@@ -185,7 +185,7 @@ GetEntry(GetEntryRequest) returns (spire.types.Entry);
 */
 
 type ListSelectorsRequest struct{}
-type ListSelectorsResponse selectortypes.SelectorInfoList
+type ListSelectorsResponse agentTypes.AgentInfoList
 
 // ListSelectors returns list of agents from the loacal DB with the following info
 // id       string
@@ -199,10 +199,10 @@ func (s *Server) ListSelectors(inp ListSelectorsRequest) (*ListSelectorsResponse
 	return (*ListSelectorsResponse)(&resp), nil
 }
 
-type RegisterSelectorRequest selectortypes.SelectorInfo
+type RegisterSelectorRequest agentTypes.AgentInfo
 
 func (s *Server) DefineSelectors(inp RegisterSelectorRequest) error {
-	sinfo := selectortypes.SelectorInfo(inp)
+	sinfo := agentTypes.AgentInfo(inp)
 	if len(sinfo.Id) == 0 || len(sinfo.Spiffeid) == 0 {
 		return errors.New("agents's selector info missing mandatory fields")
 	}
