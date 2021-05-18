@@ -62,7 +62,7 @@ class TornjakApi extends Component {
     axios.get(GetApiServerUri("/manager-api/tornjak/selectors/list/") + serverName, { crossdomain: true })
       .then(response => {
         console.log(response.data);
-        agentworkloadSelectorInfoFunc(response.data["plugin"]);
+        agentworkloadSelectorInfoFunc(response.data["agents"]);
       })
       .catch((error) => {
         console.log(error);
@@ -89,7 +89,7 @@ class TornjakApi extends Component {
     axios.get(GetApiServerUri("/api/tornjak/selectors/list"), { crossdomain: true })
       .then(response => {
         console.log(response.data);
-        agentworkloadSelectorInfoFunc(response.data["plugin"]);
+        agentworkloadSelectorInfoFunc(response.data["agents"]);
       })
       .catch((error) => {
         console.log(error);
