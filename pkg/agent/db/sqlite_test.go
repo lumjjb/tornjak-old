@@ -22,7 +22,7 @@ func TestServerCreate(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(sList.Plugin) > 0 {
+	if len(sList.Agents) > 0 {
 		t.Fatal("Agents list should initially be empty")
 	}
 
@@ -43,7 +43,7 @@ func TestServerCreate(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(sList.Plugin) != 1 || sList.Plugin[0] != sinfo {
+	if len(sList.Agents) != 1 || sList.Agents[0] != sinfo {
 		t.Fatal("Agents list should initially be empty")
 	}
 }

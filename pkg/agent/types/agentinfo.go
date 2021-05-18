@@ -8,5 +8,5 @@ type AgentInfo struct {
 
 // AgentInfoList contains the information about agents workload attestor plugin
 type AgentInfoList struct {
-	Plugin []AgentInfo `json:"plugin"`
+	Agents []AgentInfo `json:"agents"`
 }
