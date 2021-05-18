@@ -13,7 +13,6 @@ import (
 	"github.com/urfave/cli/v2"
 
 	"github.com/lumjjb/tornjak/api"
-	agentapi "github.com/lumjjb/tornjak/api"
 )
 
 type cliOptions struct {
@@ -126,7 +125,7 @@ func main() {
 }
 
 func runTornjakCmd(cmd string, opt cliOptions) error {
-	s, err := agentapi.NewAgentsDB(opt.dbOptions.dbString)
+	s, err := api.NewAgentsDB(opt.dbOptions.dbString)
 	if err != nil {
 		log.Fatalf("err: %v", err)
 	}
