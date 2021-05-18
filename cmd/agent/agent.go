@@ -125,7 +125,7 @@ func main() {
 }
 
 func runTornjakCmd(cmd string, opt cliOptions) error {
-	s, err := api.NewAgentsDB(opt.dbOptions.dbString)
+	agentdb, err := api.NewAgentsDB(opt.dbOptions.dbString)
 	if err != nil {
 		log.Fatalf("err: %v", err)
 	}
@@ -160,7 +160,7 @@ func runTornjakCmd(cmd string, opt cliOptions) error {
 			TlsEnabled:      opt.httpOptions.tls,
 			MTlsEnabled:     opt.httpOptions.mtls,
 			SpireServerInfo: serverInfo,
-			Db:              s,
+			Db:              agentdb,
 		}
 		apiServer.HandleRequests()
 	default:
