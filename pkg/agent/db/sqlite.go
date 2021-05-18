@@ -9,7 +9,7 @@ import (
 	"github.com/lumjjb/tornjak/pkg/agent/types"
 )
 
-// TO DO: DELETE deleted agents from the data base
+// TO DO: DELETE deleted agents from the db
 const (
 	initAgentsTable = "CREATE TABLE IF NOT EXISTS agents (spiffeid TEXT PRIMARY KEY, plugin TEXT)" //creates agentdb with fields spiffeid and plugin
 )
@@ -72,7 +72,7 @@ func (db *LocalSqliteDb) GetAgents() (types.AgentInfoList, error) {
 	}
 
 	return types.AgentInfoList{
-		Plugin: sinfos,
+		Agents: sinfos,
 	}, nil
 }
 

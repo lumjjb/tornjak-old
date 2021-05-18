@@ -200,10 +200,13 @@ func (s *Server) ListSelectors(inp ListSelectorsRequest) (*ListSelectorsResponse
 
 type RegisterSelectorRequest agentTypes.AgentInfo
 
+// DefineSelectors registers an agent to the loacal DB with the following info
+// spiffeid string
+// plugin   string
 func (s *Server) DefineSelectors(inp RegisterSelectorRequest) error {
 	sinfo := agentTypes.AgentInfo(inp)
 	if len(sinfo.Spiffeid) == 0 {
-		return errors.New("agent's selector info missing mandatory field")
+		return errors.New("agent's info missing mandatory field - Spiffeid")
 	}
 	return s.Db.CreateAgentEntry(sinfo)
 }
