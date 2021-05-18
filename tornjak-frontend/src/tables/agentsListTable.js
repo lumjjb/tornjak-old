@@ -245,7 +245,6 @@ class DataTableRender extends React.Component {
                                             <div>
                                                 <OverflowMenu flipped>
                                                     <WorkLoadAttestor
-                                                        id={row.id}
                                                         spiffeid={row.cells[2].value}
                                                         agentData={row}
                                                     />
