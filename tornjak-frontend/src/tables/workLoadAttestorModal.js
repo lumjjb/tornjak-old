@@ -47,7 +47,7 @@ class WorkLoadAttestor extends React.Component {
 
     handleSubmit = () => {
         var wLoadAttdata = {
-            "id": this.state.agentId,
+            // "id": this.state.agentId,
             "spiffeid": this.state.agentSpiffeId,
             "plugin": this.state.workloadPlugin,
         };

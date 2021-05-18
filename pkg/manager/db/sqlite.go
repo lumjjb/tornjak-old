@@ -9,6 +9,7 @@ import (
 	"github.com/lumjjb/tornjak/pkg/manager/types"
 )
 
+// TO DO: Add DELETE servers option from the data base
 const (
 	initServersTable = "CREATE TABLE IF NOT EXISTS servers (servername TEXT PRIMARY KEY, address TEXT, tls bool, mtls bool, ca varBinary, cert varBinary, key varBinary)"
 )
