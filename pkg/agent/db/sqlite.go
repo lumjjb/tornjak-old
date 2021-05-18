@@ -9,8 +9,9 @@ import (
 	"github.com/lumjjb/tornjak/pkg/agent/types"
 )
 
+// TO DO: DELETE deleted agents from the data base
 const (
-	initAgentsTable = "CREATE TABLE IF NOT EXISTS agents (agentid TEXT PRIMARY KEY, spiffeid TEXT, plugin TEXT)" //creates agentdb with fields agentid, spiffeid and plugin
+	initAgentsTable = "CREATE TABLE IF NOT EXISTS agents (spiffeid TEXT PRIMARY KEY, plugin TEXT)" //creates agentdb with fields spiffeid and plugin
 )
 
 type LocalSqliteDb struct {
@@ -39,34 +40,32 @@ func NewLocalSqliteDB(dbpath string) (AgentDB, error) {
 }
 
 func (db *LocalSqliteDb) CreateAgentEntry(sinfo types.AgentInfo) error {
-	statement, err := db.database.Prepare("INSERT OR REPLACE INTO agents (agentid, spiffeid, plugin) VALUES (?,?,?)")
+	statement, err := db.database.Prepare("INSERT OR REPLACE INTO agents (spiffeid, plugin) VALUES (?,?)")
 	if err != nil {
 		return errors.Errorf("Unable to execute SQL query: %v", err)
 	}
-	_, err = statement.Exec(sinfo.Id, sinfo.Spiffeid, sinfo.Plugin)
+	_, err = statement.Exec(sinfo.Spiffeid, sinfo.Plugin)
 
 	return err
 }
 
 func (db *LocalSqliteDb) GetAgents() (types.AgentInfoList, error) {
-	rows, err := db.database.Query("SELECT agentid, spiffeid, plugin FROM agents")
+	rows, err := db.database.Query("SELECT spiffeid, plugin FROM agents")
 	if err != nil {
 		return types.AgentInfoList{}, errors.New("Unable to execute SQL query")
 	}
 
 	sinfos := []types.AgentInfo{}
 	var (
-		id       string
 		spiffeid string
 		plugin   string
 	)
 	for rows.Next() {
-		if err = rows.Scan(&id, &spiffeid, &plugin); err != nil {
+		if err = rows.Scan(&spiffeid, &plugin); err != nil {
 			return types.AgentInfoList{}, err
 		}
 
 		sinfos = append(sinfos, types.AgentInfo{
-			Id:       id,
 			Spiffeid: spiffeid,
 			Plugin:   plugin,
 		})
@@ -78,10 +77,10 @@ func (db *LocalSqliteDb) GetAgents() (types.AgentInfoList, error) {
 }
 
 func (db *LocalSqliteDb) GetAgentPluginInfo(name string) (types.AgentInfo, error) {
-	row := db.database.QueryRow("SELECT agentid, spiffeid, plugin FROM agents WHERE agentid=?", name)
+	row := db.database.QueryRow("SELECT spiffeid, plugin FROM agents WHERE spiffeid=?", name)
 
 	sinfo := types.AgentInfo{}
-	err := row.Scan(&sinfo.Id, &sinfo.Spiffeid, &sinfo.Plugin)
+	err := row.Scan(&sinfo.Spiffeid, &sinfo.Plugin)
 	if err != nil {
 		return types.AgentInfo{}, err
 	}

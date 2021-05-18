@@ -27,13 +27,11 @@ func TestServerCreate(t *testing.T) {
 	}
 
 	sinfo := types.AgentInfo{
-		Id:       "1",
 		Spiffeid: "spiffe://example.org/spire/agent/",
 		Plugin:   "Docker",
 	}
 
 	err = db.CreateAgentEntry(types.AgentInfo{
-		Id:       "1",
 		Spiffeid: "spiffe://example.org/spire/agent/",
 		Plugin:   "Docker",
 	})

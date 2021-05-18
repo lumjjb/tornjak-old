@@ -188,7 +188,6 @@ type ListSelectorsRequest struct{}
 type ListSelectorsResponse agentTypes.AgentInfoList
 
 // ListSelectors returns list of agents from the loacal DB with the following info
-// id       string
 // spiffeid string
 // plugin   string
 func (s *Server) ListSelectors(inp ListSelectorsRequest) (*ListSelectorsResponse, error) {
@@ -203,8 +202,8 @@ type RegisterSelectorRequest agentTypes.AgentInfo
 
 func (s *Server) DefineSelectors(inp RegisterSelectorRequest) error {
 	sinfo := agentTypes.AgentInfo(inp)
-	if len(sinfo.Id) == 0 || len(sinfo.Spiffeid) == 0 {
-		return errors.New("agents's selector info missing mandatory fields")
+	if len(sinfo.Spiffeid) == 0 {
+		return errors.New("agent's selector info missing mandatory field")
 	}
 	return s.Db.CreateAgentEntry(sinfo)
 }
