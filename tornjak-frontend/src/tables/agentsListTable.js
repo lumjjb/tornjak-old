@@ -63,7 +63,7 @@ class DataTableRender extends React.Component {
             listtabledata[i]["info"] = JSON.stringify(listData[i].props.agent, null, ' ');
             if (this.props.globalAgentsWorkLoadAttestorInfo !== undefined) {
                 var check_id = this.props.globalAgentsWorkLoadAttestorInfo.filter(agent => (agent.spiffeid) === listtabledata[i].spiffeid);
-                if (check_id.length !== 0 && (check_id[0].spiffeid == listtabledata[i].spiffeid)) {
+                if (check_id.length !== 0) {
                     listtabledata[i]["plugin"] = check_id[0].plugin;
                 }
                 else {
