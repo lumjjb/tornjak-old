@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import IsManager from './is_manager';
 import 'carbon-components/css/carbon-components.min.css';
 import './style.css';
-import tornjak_logo from './tornjak_logo.png';
+import tornjak_logo from "res/tornjak_logo.png";
 
 export default class NavigationBar extends Component {
   constructor(props) {
