@@ -19,7 +19,6 @@ export default class NavigationBar extends Component {
     return (
       <div className="navigation-bar">
         <nav className="navbar navbar-dark bg-dark navbar-expand-lg">
-          {/* <a href="/" className="navbar-brand">Tornjak</a> */}
           <span class="logo">
             <a href="/">
               <img src={tornjak_logo} height="50" width="160" alt="Tornjak" /></a>
