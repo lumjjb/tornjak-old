@@ -24,12 +24,12 @@ const PluginTags = props => (
 )
 const TornjakServerInfoDisplay = props => (
   <Accordion>
-    <AccordionItem title="Trust Domain" open="true">
+    <AccordionItem title="Trust Domain" open>
       <p>
         {props.tornjakServerInfo.trustDomain}
       </p>
     </AccordionItem>
-    <AccordionItem title="Plugins" open="true">
+    <AccordionItem title="Plugins" open>
       <table>
         {
           Object.entries(props.tornjakServerInfo.plugins).map(([key, value]) =>

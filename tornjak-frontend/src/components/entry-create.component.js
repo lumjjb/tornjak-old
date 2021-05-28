@@ -4,17 +4,21 @@ import axios from 'axios';
 import { Dropdown, TextInput, MultiSelect, Checkbox, TextArea, NumberInput } from 'carbon-components-react';
 import GetApiServerUri from './helpers';
 import IsManager from './is_manager';
+import TornjakApi from './tornjak-api-helpers';
 import './style.css';
 import {
   serverSelectedFunc,
   selectorInfoFunc,
   agentsListUpdateFunc,
+  tornjakMessegeFunc,
+  tornjakServerInfoUpdateFunc,
+  serverInfoUpdateFunc
 } from 'actions';
 
 class CreateEntry extends Component {
   constructor(props) {
     super(props);
-
+    this.TornjakApi = new TornjakApi();
     this.onChangeSelectors = this.onChangeSelectors.bind(this);
     this.onChangeSpiffeId = this.onChangeSpiffeId.bind(this);
     this.onChangeParentId = this.onChangeParentId.bind(this);
@@ -69,12 +73,17 @@ class CreateEntry extends Component {
   componentDidMount() {
     if (IsManager) {
       if (this.props.globalServerSelected !== "" && (this.props.globalErrorMessege === "OK" || this.props.globalErrorMessege === "")) {
+        this.TornjakApi.populateAgentsUpdate(this.props.globalServerSelected, this.props.agentsListUpdateFunc, this.props.tornjakMessegeFunc)
+        this.TornjakApi.refreshSelectorsState(this.props.globalServerSelected, this.props.agentworkloadSelectorInfoFunc);
         this.setState({ selectedServer: this.props.globalServerSelected });
         this.prepareParentIdAgentsList();
         this.prepareSelectorsList();
       }
     } else {
       // agent doesnt need to do anything
+      this.TornjakApi.populateLocalAgentsUpdate(this.props.agentsListUpdateFunc, this.props.tornjakMessegeFunc);
+      this.TornjakApi.populateLocalTornjakServerInfo(this.props.tornjakServerInfoUpdateFunc, this.props.tornjakMessegeFunc);
+      this.TornjakApi.populateServerInfo(this.props.globalTornjakServerInfo, this.props.serverInfoUpdateFunc);
       this.setState({})
       this.prepareParentIdAgentsList();
       this.prepareSelectorsList();
@@ -624,5 +633,5 @@ const mapStateToProps = (state) => ({
 
 export default connect(
   mapStateToProps,
-  { serverSelectedFunc, selectorInfoFunc, agentsListUpdateFunc }
+  { serverSelectedFunc, selectorInfoFunc, agentsListUpdateFunc, tornjakMessegeFunc, tornjakServerInfoUpdateFunc, serverInfoUpdateFunc }
 )(CreateEntry)

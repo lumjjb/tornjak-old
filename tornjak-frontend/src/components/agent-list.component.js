@@ -47,9 +47,9 @@ class AgentList extends Component {
     this.props.selectorInfoFunc(selectors); //set selector info
     this.props.workloadSelectorInfoFunc(workloadSelectors); //set workload selector info
     if (IsManager) {
-      this.TornjakApi.refreshSelectorsState(this.props.globalServerSelected, this.props.agentworkloadSelectorInfoFunc);
       if (this.props.globalServerSelected !== "") {
         this.TornjakApi.populateAgentsUpdate(this.props.globalServerSelected, this.props.agentsListUpdateFunc, this.props.tornjakMessegeFunc)
+        this.TornjakApi.refreshSelectorsState(this.props.globalServerSelected, this.props.agentworkloadSelectorInfoFunc);
       }
     } else {
       this.TornjakApi.refreshLocalSelectorsState(this.props.agentworkloadSelectorInfoFunc);
@@ -64,12 +64,14 @@ class AgentList extends Component {
   componentDidUpdate(prevProps) {
     if (IsManager) {
       if (prevProps.globalServerSelected !== this.props.globalServerSelected) {
-        this.TornjakApi.populateAgentsUpdate(this.props.globalServerSelected, this.props.agentsListUpdateFunc, this.props.tornjakMessegeFunc)
+        this.TornjakApi.populateAgentsUpdate(this.props.globalServerSelected, this.props.agentsListUpdateFunc, this.props.tornjakMessegeFunc);
+        this.TornjakApi.refreshSelectorsState(this.props.globalServerSelected, this.props.agentworkloadSelectorInfoFunc);
       }
     } else {
         if(prevProps.globalTornjakServerInfo !== this.props.globalTornjakServerInfo)
         {
           this.TornjakApi.populateServerInfo(this.props.globalTornjakServerInfo, this.props.serverInfoUpdateFunc);
+          this.TornjakApi.refreshSelectorsState(this.props.globalServerSelected, this.props.agentworkloadSelectorInfoFunc);
         }
     }
   }
