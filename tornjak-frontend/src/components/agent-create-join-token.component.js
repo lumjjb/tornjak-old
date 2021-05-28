@@ -5,7 +5,7 @@ import GetApiServerUri from './helpers';
 import IsManager from './is_manager';
 import {
   serverSelectedFunc
-} from 'actions';
+} from 'redux/actions';
 
 class CreateJoinToken extends Component {
   constructor(props) {

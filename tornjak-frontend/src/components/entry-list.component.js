@@ -7,8 +7,8 @@ import Table from "tables/entriesListTable";
 import {
   serverSelectedFunc,
   entriesListUpdateFunc,
-  tornjakMessegeFunc,
-} from 'actions';
+  tornjakMessageFunc,
+} from 'redux/actions';
 
 const Entry = props => (
   <tr>
@@ -60,10 +60,10 @@ class EntryList extends Component {
       axios.get(GetApiServerUri('/manager-api/entry/list/') + serverName, {     crossdomain: true })
       .then(response =>{
         this.props.entriesListUpdateFunc(response.data["entries"]);
-        this.props.tornjakMessegeFunc(response.statusText);
+        this.props.tornjakMessageFunc(response.statusText);
       }).catch(err => {
           this.props.entriesListUpdateFunc([]);
-          this.props.tornjakMessegeFunc("Error retrieving " + serverName + " : "+ err + (typeof (err.response) !== "undefined" ? ":" + err.response.data : ""));
+          this.props.tornjakMessageFunc("Error retrieving " + serverName + " : "+ err + (typeof (err.response) !== "undefined" ? ":" + err.response.data : ""));
       });
 
   }
@@ -72,11 +72,11 @@ class EntryList extends Component {
       axios.get(GetApiServerUri('/api/entry/list'), { crossdomain: true })
       .then(response => {
         this.props.entriesListUpdateFunc(response.data["entries"]);
-        this.props.tornjakMessegeFunc(response.statusText);
+        this.props.tornjakMessageFunc(response.statusText);
       })
       .catch((error) => {
         console.log(error);
-        this.props.tornjakMessegeFunc(error.message);
+        this.props.tornjakMessageFunc(error.message);
       })
   }
 
@@ -97,10 +97,10 @@ class EntryList extends Component {
     return (
       <div>
         <h3>Entry List</h3>
-        {this.props.globalErrorMessege !== "OK" &&
+        {this.props.globalErrorMessage !== "OK" &&
           <div className="alert-primary" role="alert">
             <pre>
-              {this.props.globalErrorMessege}
+              {this.props.globalErrorMessage}
             </pre>
           </div>
         }
@@ -118,10 +118,10 @@ class EntryList extends Component {
 const mapStateToProps = (state) => ({
   globalServerSelected: state.servers.globalServerSelected,
   globalEntriesList: state.entries.globalEntriesList,
-  globalErrorMessege: state.tornjak.globalErrorMessege,
+  globalErrorMessage: state.tornjak.globalErrorMessage,
 })
 
 export default connect(
   mapStateToProps,
-  { serverSelectedFunc, entriesListUpdateFunc, tornjakMessegeFunc }
+  { serverSelectedFunc, entriesListUpdateFunc, tornjakMessageFunc }
 )(EntryList)

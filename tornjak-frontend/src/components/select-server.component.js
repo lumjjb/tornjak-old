@@ -11,8 +11,8 @@ import {
     tornjakServerInfoUpdateFunc,
     serverInfoUpdateFunc,
     agentsListUpdateFunc,
-    tornjakMessegeFunc
-} from 'actions';
+    tornjakMessageFunc
+} from 'redux/actions';
 
 const ServerDropdown = props => (
     <option value={props.value}>{props.name}</option>
@@ -32,12 +32,12 @@ class SelectServer extends Component {
     componentDidMount() {
         if (IsManager) {
             this.populateServers()
-            if ((this.props.globalServerSelected !== "") && (this.props.globalErrorMessege === "OK" || this.props.globalErrorMessege === "")) {
-                this.TornjakApi.populateTornjakServerInfo(this.props.globalServerSelected, this.props.tornjakServerInfoUpdateFunc, this.props.tornjakMessegeFunc);
+            if ((this.props.globalServerSelected !== "") && (this.props.globalErrorMessage === "OK" || this.props.globalErrorMessage === "")) {
+                this.TornjakApi.populateTornjakServerInfo(this.props.globalServerSelected, this.props.tornjakServerInfoUpdateFunc, this.props.tornjakMessageFunc);
             }
-            if ((this.props.globalTornjakServerInfo !== "") && (this.props.globalErrorMessege === "OK" || this.props.globalErrorMessege === "")) {
+            if ((this.props.globalTornjakServerInfo !== "") && (this.props.globalErrorMessage === "OK" || this.props.globalErrorMessage === "")) {
                 this.TornjakApi.populateServerInfo(this.props.globalTornjakServerInfo, this.props.serverInfoUpdateFunc);
-                this.TornjakApi.populateAgentsUpdate(this.props.globalServerSelected, this.props.agentsListUpdateFunc, this.props.tornjakMessegeFunc)
+                this.TornjakApi.populateAgentsUpdate(this.props.globalServerSelected, this.props.agentsListUpdateFunc, this.props.tornjakMessageFunc)
             }
         }
     }
@@ -45,9 +45,9 @@ class SelectServer extends Component {
     componentDidUpdate(prevProps) {
         if (IsManager) {
             if (prevProps.globalServerSelected !== this.props.globalServerSelected ) {
-                this.TornjakApi.populateTornjakServerInfo(this.props.globalServerSelected, this.props.tornjakServerInfoUpdateFunc, this.props.tornjakMessegeFunc);
+                this.TornjakApi.populateTornjakServerInfo(this.props.globalServerSelected, this.props.tornjakServerInfoUpdateFunc, this.props.tornjakMessageFunc);
                 this.TornjakApi.populateServerInfo(this.props.globalTornjakServerInfo, this.props.serverInfoUpdateFunc);
-                this.TornjakApi.populateAgentsUpdate(this.props.globalServerSelected, this.props.agentsListUpdateFunc, this.props.tornjakMessegeFunc);
+                this.TornjakApi.populateAgentsUpdate(this.props.globalServerSelected, this.props.agentsListUpdateFunc, this.props.tornjakMessageFunc);
             }
         }
     }
@@ -119,10 +119,10 @@ const mapStateToProps = (state) => ({
     globalServerSelected: state.servers.globalServerSelected,
     globalServersList: state.servers.globalServersList,
     globalTornjakServerInfo: state.servers.globalTornjakServerInfo,
-    globalErrorMessege: state.tornjak.globalErrorMessege,
+    globalErrorMessage: state.tornjak.globalErrorMessage,
 })
 
 export default connect(
     mapStateToProps,
-    { serverSelectedFunc, serversListUpdateFunc, tornjakServerInfoUpdateFunc, serverInfoUpdateFunc, agentsListUpdateFunc, tornjakMessegeFunc }
+    { serverSelectedFunc, serversListUpdateFunc, tornjakServerInfoUpdateFunc, serverInfoUpdateFunc, agentsListUpdateFunc, tornjakMessageFunc }
 )(SelectServer)

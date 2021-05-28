@@ -6,18 +6,18 @@ import {
     GLOBAL_TORNJAK_SERVER_INFO,
     GLOBAL_SERVERS_LIST,
     GLOBAL_SELECTOR_INFO,
-    GLOBAL_MESSEGE,
+    GLOBAL_MESSAGE,
     GLOBAL_WORKLOAD_SELECTOR_INFO,
     GLOBAL_AGENTS_WORKLOADATTESTOR_INFO,
 } from './types';
 
-// Expected input - "Error Messege/ Success Messege"
-// tornjakMessegeFunc returns the Error Messege/ Success Messege of an executed function
-export function tornjakMessegeFunc(globalErrorMessege) {
+// Expected input - "Error Message/ Success Message"
+// tornjakMessageFunc returns the Error Message/ Success Message of an executed function
+export function tornjakMessageFunc(globalErrorMessage) {
     return dispatch => {
         dispatch({
-            type: GLOBAL_MESSEGE,
-            payload: globalErrorMessege
+            type: GLOBAL_MESSAGE,
+            payload: globalErrorMessage
         });
     }
 }
@@ -35,7 +35,7 @@ export function serverSelectedFunc(globalServerSelected) {
 
 // Expected input - "TornjakServerInfo" struct (as JSON) based on 
 // TornjakServerInfo in /api/types.go
-// tornjakServerInfoUpdateFunc returns the torjak server info of the selected server
+// tornjakServerInfoUpdateFunc returns the tornjak server info of the selected server
 export function tornjakServerInfoUpdateFunc(globalTornjakServerInfo) {
     return dispatch => {
         dispatch({
@@ -189,7 +189,7 @@ export function workloadSelectorInfoFunc(globalWorkloadSelectorInfo) {
 //     }
 //   ]
 //]
-// agentworkloadSelectorInfoFunc returns the work load selector info for the agents
+// agentworkloadSelectorInfoFunc returns the workload selector info for the agents
 export function agentworkloadSelectorInfoFunc(globalAgentsWorkLoadAttestorInfo) {
     return dispatch => {
         dispatch({

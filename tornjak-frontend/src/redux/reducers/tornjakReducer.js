@@ -1,17 +1,17 @@
 import {
-    GLOBAL_MESSEGE,
+    GLOBAL_MESSAGE,
 } from '../actions/types';
 
 const initialState = {
-    globalErrorMessege: "",
+    globalErrorMessage: "",
 };
 
 export default function tornjakReducer(state = initialState, action) {
     switch (action.type) {
-        case GLOBAL_MESSEGE:
+        case GLOBAL_MESSAGE:
             return {
                 ...state,
-                globalErrorMessege: action.payload
+                globalErrorMessage: action.payload
             };
         default:
             return state;

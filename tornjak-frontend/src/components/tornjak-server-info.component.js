@@ -7,8 +7,8 @@ import {
   serverSelectedFunc,
   serverInfoUpdateFunc,
   tornjakServerInfoUpdateFunc,
-  tornjakMessegeFunc,
-} from 'actions';
+  tornjakMessageFunc,
+} from 'redux/actions';
 
 const pluginTagColorMapper = {
   "NodeAttestor": "red",
@@ -55,17 +55,17 @@ class TornjakServerInfo extends Component {
   componentDidMount() {
     if (IsManager) {
       if (this.props.globalServerSelected !== "") {
-        this.TornjakApi.populateTornjakServerInfo(this.props.globalServerSelected, this.props.tornjakServerInfoUpdateFunc, this.props.tornjakMessegeFunc);
+        this.TornjakApi.populateTornjakServerInfo(this.props.globalServerSelected, this.props.tornjakServerInfoUpdateFunc, this.props.tornjakMessageFunc);
       }
     } else {
-      this.TornjakApi.populateLocalTornjakServerInfo(this.props.tornjakServerInfoUpdateFunc, this.props.tornjakMessegeFunc);
+      this.TornjakApi.populateLocalTornjakServerInfo(this.props.tornjakServerInfoUpdateFunc, this.props.tornjakMessageFunc);
     }
   }
 
   componentDidUpdate(prevProps) {
     if (IsManager) {
       if (prevProps.globalServerSelected !== this.props.globalServerSelected) {
-        this.TornjakApi.populateTornjakServerInfo(this.props.globalServerSelected, this.props.tornjakServerInfoUpdateFunc, this.props.tornjakMessegeFunc)
+        this.TornjakApi.populateTornjakServerInfo(this.props.globalServerSelected, this.props.tornjakServerInfoUpdateFunc, this.props.tornjakMessageFunc)
       }
     }
   }
@@ -82,10 +82,10 @@ class TornjakServerInfo extends Component {
     return (
       <div>
         <h3>Server Info</h3>
-        {this.props.globalErrorMessege !== "OK" &&
+        {this.props.globalErrorMessage !== "OK" &&
           <div className="alert-primary" role="alert">
             <pre>
-              {this.props.globalErrorMessege}
+              {this.props.globalErrorMessage}
             </pre>
           </div>
         }
@@ -101,10 +101,10 @@ const mapStateToProps = (state) => ({
   globalServerSelected: state.servers.globalServerSelected,
   globalServerInfo: state.servers.globalServerInfo,
   globalTornjakServerInfo: state.servers.globalTornjakServerInfo,
-  globalErrorMessege: state.tornjak.globalErrorMessege,
+  globalErrorMessage: state.tornjak.globalErrorMessage,
 })
 
 export default connect(
   mapStateToProps,
-  { serverSelectedFunc, tornjakServerInfoUpdateFunc, serverInfoUpdateFunc, tornjakMessegeFunc }
+  { serverSelectedFunc, tornjakServerInfoUpdateFunc, serverInfoUpdateFunc, tornjakMessageFunc }
 )(TornjakServerInfo)

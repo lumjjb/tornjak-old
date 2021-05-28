@@ -10,10 +10,10 @@ import {
   tornjakServerInfoUpdateFunc,
   serverInfoUpdateFunc,
   selectorInfoFunc,
-  tornjakMessegeFunc,
+  tornjakMessageFunc,
   workloadSelectorInfoFunc,
   agentworkloadSelectorInfoFunc,
-} from 'actions';
+} from 'redux/actions';
 
 const Agent = props => (
   <tr>
@@ -48,13 +48,13 @@ class AgentList extends Component {
     this.props.workloadSelectorInfoFunc(workloadSelectors); //set workload selector info
     if (IsManager) {
       if (this.props.globalServerSelected !== "") {
-        this.TornjakApi.populateAgentsUpdate(this.props.globalServerSelected, this.props.agentsListUpdateFunc, this.props.tornjakMessegeFunc)
+        this.TornjakApi.populateAgentsUpdate(this.props.globalServerSelected, this.props.agentsListUpdateFunc, this.props.tornjakMessageFunc)
         this.TornjakApi.refreshSelectorsState(this.props.globalServerSelected, this.props.agentworkloadSelectorInfoFunc);
       }
     } else {
       this.TornjakApi.refreshLocalSelectorsState(this.props.agentworkloadSelectorInfoFunc);
-      this.TornjakApi.populateLocalAgentsUpdate(this.props.agentsListUpdateFunc, this.props.tornjakMessegeFunc);
-      this.TornjakApi.populateLocalTornjakServerInfo(this.props.tornjakServerInfoUpdateFunc, this.props.tornjakMessegeFunc);
+      this.TornjakApi.populateLocalAgentsUpdate(this.props.agentsListUpdateFunc, this.props.tornjakMessageFunc);
+      this.TornjakApi.populateLocalTornjakServerInfo(this.props.tornjakServerInfoUpdateFunc, this.props.tornjakMessageFunc);
       if(this.props.globalTornjakServerInfo !== "") {
         this.TornjakApi.populateServerInfo(this.props.globalTornjakServerInfo, this.props.serverInfoUpdateFunc);
       }
@@ -64,7 +64,7 @@ class AgentList extends Component {
   componentDidUpdate(prevProps) {
     if (IsManager) {
       if (prevProps.globalServerSelected !== this.props.globalServerSelected) {
-        this.TornjakApi.populateAgentsUpdate(this.props.globalServerSelected, this.props.agentsListUpdateFunc, this.props.tornjakMessegeFunc);
+        this.TornjakApi.populateAgentsUpdate(this.props.globalServerSelected, this.props.agentsListUpdateFunc, this.props.tornjakMessageFunc);
         this.TornjakApi.refreshSelectorsState(this.props.globalServerSelected, this.props.agentworkloadSelectorInfoFunc);
       }
     } else {
@@ -93,10 +93,10 @@ class AgentList extends Component {
     return (
       <div>
         <h3>Agent List</h3>
-        {this.props.globalErrorMessege !== "OK" &&
+        {this.props.globalErrorMessage !== "OK" &&
           <div className="alert-primary" role="alert">
             <pre>
-              {this.props.globalErrorMessege}
+              {this.props.globalErrorMessage}
             </pre>
           </div>
         }
@@ -114,10 +114,10 @@ const mapStateToProps = (state) => ({
   globalServerSelected: state.servers.globalServerSelected,
   globalAgentsList: state.agents.globalAgentsList,
   globalTornjakServerInfo: state.servers.globalTornjakServerInfo,
-  globalErrorMessege: state.tornjak.globalErrorMessege,
+  globalErrorMessage: state.tornjak.globalErrorMessage,
 })
 
 export default connect(
   mapStateToProps,
-  { serverSelectedFunc, agentsListUpdateFunc, tornjakServerInfoUpdateFunc, serverInfoUpdateFunc, selectorInfoFunc, tornjakMessegeFunc, workloadSelectorInfoFunc, agentworkloadSelectorInfoFunc }
+  { serverSelectedFunc, agentsListUpdateFunc, tornjakServerInfoUpdateFunc, serverInfoUpdateFunc, selectorInfoFunc, tornjakMessageFunc, workloadSelectorInfoFunc, agentworkloadSelectorInfoFunc }
 )(AgentList)

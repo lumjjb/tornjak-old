@@ -7,7 +7,7 @@ import IsManager from 'components/is_manager';
 import axios from 'axios'
 import {
     entriesListUpdateFunc
-} from 'actions';
+} from 'redux/actions';
 const {
     TableContainer,
     Table,

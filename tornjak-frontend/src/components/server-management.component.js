@@ -5,7 +5,7 @@ import GetApiServerUri from './helpers';
 import IsManager from './is_manager';
 import {
   serversListUpdateFunc
-} from 'actions';
+} from 'redux/actions';
 
 const Server = props => (
   <tr>

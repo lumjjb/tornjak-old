@@ -1,5 +1,5 @@
 //tornjak
-export const GLOBAL_MESSEGE = 'GLOBAL_MESSEGE';
+export const GLOBAL_MESSAGE = 'GLOBAL_MESSAGE';
 
 //servers
 export const GLOBAL_SERVER_SELECTED = 'GLOBAL_SERVER_SELECTED';
