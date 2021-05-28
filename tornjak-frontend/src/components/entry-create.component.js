@@ -13,7 +13,7 @@ import {
   tornjakMessegeFunc,
   tornjakServerInfoUpdateFunc,
   serverInfoUpdateFunc
-} from 'actions';
+} from 'redux/actions';
 
 class CreateEntry extends Component {
   constructor(props) {

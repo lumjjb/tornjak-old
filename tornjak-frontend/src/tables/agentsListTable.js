@@ -7,11 +7,11 @@ import {
 import ResetIcon from "@carbon/icons-react/es/reset--alt/20";
 import GetApiServerUri from 'components/helpers';
 import IsManager from 'components/is_manager';
-import WorkLoadAttestor from './workLoadAttestorModal';
+import WorkLoadAttestor from 'components/workLoadAttestorModal';
 import axios from 'axios'
 import {
     agentsListUpdateFunc
-} from 'actions';
+} from 'redux/actions';
 const {
     TableContainer,
     Table,

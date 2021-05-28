@@ -7,12 +7,11 @@ import (
 	"os"
 	"os/exec"
 
+	agentapi "github.com/lumjjb/tornjak/api/agent"
 	"github.com/pkg/errors"
 	"github.com/spiffe/spire/cmd/spire-server/cli/run"
 	"github.com/spiffe/spire/pkg/common/catalog"
 	"github.com/urfave/cli/v2"
-
-	"github.com/lumjjb/tornjak/api"
 )
 
 type cliOptions struct {
@@ -125,7 +124,7 @@ func main() {
 }
 
 func runTornjakCmd(cmd string, opt cliOptions) error {
-	agentdb, err := api.NewAgentsDB(opt.dbOptions.dbString)
+	agentdb, err := agentapi.NewAgentsDB(opt.dbOptions.dbString)
 	if err != nil {
 		log.Fatalf("err: %v", err)
 	}
@@ -152,7 +151,7 @@ func runTornjakCmd(cmd string, opt cliOptions) error {
 			log.Fatalf("Error: %v", err)
 		}
 
-		apiServer := &api.Server{
+		apiServer := &agentapi.Server{
 			SpireServerAddr: "unix://" + config.Server.RegistrationUDSPath,
 			ListenAddr:      opt.httpOptions.listenAddr,
 			CertPath:        opt.httpOptions.certPath,
@@ -170,14 +169,14 @@ func runTornjakCmd(cmd string, opt cliOptions) error {
 
 }
 
-func GetServerInfo(config *run.Config) (api.TornjakServerInfo, error) {
+func GetServerInfo(config *run.Config) (agentapi.TornjakServerInfo, error) {
 	if config.Plugins == nil {
-		return api.TornjakServerInfo{}, errors.New("config plugins map should not be nil")
+		return agentapi.TornjakServerInfo{}, errors.New("config plugins map should not be nil")
 	}
 
 	pluginConfigs, err := catalog.PluginConfigsFromHCL(*config.Plugins)
 	if err != nil {
-		return api.TornjakServerInfo{}, errors.Errorf("Unable to parse plugin HCL: %v", err)
+		return agentapi.TornjakServerInfo{}, errors.Errorf("Unable to parse plugin HCL: %v", err)
 	}
 
 	serverInfo := ""
@@ -194,7 +193,7 @@ func GetServerInfo(config *run.Config) (api.TornjakServerInfo, error) {
 	s, _ := json.MarshalIndent(config.Server, "", "\t")
 	serverInfo += string(s)
 
-	return api.TornjakServerInfo{
+	return agentapi.TornjakServerInfo{
 		Plugins:       pluginMap,
 		TrustDomain:   config.Server.TrustDomain,
 		VerboseConfig: serverInfo,

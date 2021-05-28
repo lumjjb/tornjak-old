@@ -1,12 +1,12 @@
 import React from "react";
 import { ModalWrapper, Dropdown, TextArea } from "carbon-components-react";
 import { connect } from 'react-redux';
-import IsManager from 'components/is_manager';
-import TornjakApi from 'components/tornjak-api-helpers';
+import IsManager from './is_manager';
+import TornjakApi from './tornjak-api-helpers';
 import {
     agentsListUpdateFunc,
     agentworkloadSelectorInfoFunc,
-} from 'actions';
+} from 'redux/actions';
 
 class WorkLoadAttestor extends React.Component {
     constructor(props) {

@@ -10,7 +10,7 @@ import EntryCreate from "./components/entry-create.component";
 import ServerManagement from "./components/server-management.component";
 import TornjakServerInfo from "./components/tornjak-server-info.component";
 import { Provider } from 'react-redux'; //enables all components to have acces to everything inside our react app
-import store from './store';
+import store from 'redux/store';
 import './App.css';
 
 function App() {
