@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	managerapi "github.com/lumjjb/tornjak/api/manager"
+	managerapi "github.com/lumjjb/tornjak/tornjak-backend/api/manager"
 )
 
 func main() {
