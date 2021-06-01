@@ -7,7 +7,7 @@ import {
 import ResetIcon from "@carbon/icons-react/es/reset--alt/20";
 import GetApiServerUri from 'components/helpers';
 import IsManager from 'components/is_manager';
-import WorkLoadAttestor from 'components/workLoadAttestorModal';
+import WorkLoadAttestor from 'components/work-load-attestor-modal';
 import axios from 'axios'
 import {
     agentsListUpdateFunc
