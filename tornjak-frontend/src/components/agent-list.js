@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import IsManager from './is_manager';
-import Table from "tables/agentsListTable";
+import Table from "tables/agents-list-table";
 import { selectors, workloadSelectors} from './selector-info';
 import TornjakApi from './tornjak-api-helpers';
 import {

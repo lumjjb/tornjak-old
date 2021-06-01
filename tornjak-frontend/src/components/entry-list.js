@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import axios from 'axios'
 import GetApiServerUri from './helpers';
 import IsManager from './is_manager';
-import Table from "tables/entriesListTable";
+import Table from "tables/entries-list-table";
 import {
   serverSelectedFunc,
   entriesListUpdateFunc,
