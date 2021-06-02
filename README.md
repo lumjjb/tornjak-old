@@ -1,6 +1,6 @@
 # Tornjak
 
-_**WARNING: This project is still in early development and should not be used for production use**_
+_**WARNING: This project is still in early development and should not be used in production**_
 
 
 The project aims to provide a management plane and capabilities for SPIFFE identities managed by SPIRE.
