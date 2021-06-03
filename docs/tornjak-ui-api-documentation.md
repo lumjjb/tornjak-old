@@ -2,8 +2,8 @@
 
 Overview
 This documentation details tornjak’s user interface and its interaction with the APIs and the redux state management. 
-![tornjak-agent](rsrc/agent.png)
-![tornjak-agent](rsrc/agent.png)
+![tornjak-high-level-ui-diagram](rsrc/Tornjak UI API Diagram-High Level UI Box Diagram.jpg)
+![tornjak-high-level-back-end-diagram](rsrc/Tornjak UI API Diagram-High Level Back End Box Diagram.jpg)
 
 # Tornjak User Interface (UI) Architecture
 
@@ -337,18 +337,17 @@ Content-Type: application/json; charset=utf-8
 Example response:
 SUCCESS
 ```
-![tornjak-agent](rsrc/agent.png)
-
+![tornjak-agent-list](rsrc/Tornjak UI API Diagram-Agent list.jpg)
 Figure 1. Agent List/ Home Page UI-API Interactions
-![tornjak-agent](rsrc/agent.png)
+![tornjak-create-token](rsrc/Tornjak UI API Diagram-Create Token.jpg)
 Figure 2. Create Token Page UI-API Interactions
-![tornjak-agent](rsrc/agent.png)
+![tornjak-entries-list](rsrc/Tornjak UI API Diagram-Entries List.jpg)
 Figure 3. Entries List Page UI-API Interactions
-![tornjak-agent](rsrc/agent.png)
+![tornjak-create-entries](rsrc/Tornjak UI API Diagram-Create Entries.jpg)
 Figure 4. Create Entries Page UI-API Interactions
-![tornjak-agent](rsrc/agent.png)
+![tornjak-serverinfo](rsrc/Tornjak UI API Diagram-Tornjak ServerInfo.jpg)
 Figure 5. Tornjak ServerInfo Page UI-API Interactions
-![tornjak-agent](rsrc/agent.png)
+![tornjak-manage-servers](rsrc/Tornjak UI API Diagram-Manage Servers.jpg)
 Figure 6. Manage Servers Page UI-API Interactions [ONLY FOR MANAGER UI]
 
 # Tornjak Redux Reducers and Actions With Their Respective Descriptions
