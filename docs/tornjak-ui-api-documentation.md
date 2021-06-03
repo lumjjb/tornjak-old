@@ -1,30 +1,39 @@
 # Tornjak UI-API Documentation
 
-Overview
+### Overview
 This documentation details tornjak’s user interface and its interaction with the APIs and the redux state management. 
-![tornjak-high-level-ui-diagram](rsrc/Tornjak UI API Diagram-High Level UI Box Diagram.jpg)
-![tornjak-high-level-back-end-diagram](rsrc/Tornjak UI API Diagram-High Level Back End Box Diagram.jpg)
+
+
+![tornjak-high-level-ui-diagram](rsrc/tornjak-ui-diagram.png)
+
+
+
+
+![tornjak-high-level-back-end-diagram](rsrc/tornjak-backend-diagram.png)
 
 # Tornjak User Interface (UI) Architecture
 
-UI Pages (With their paths)
-Below are UI pages of Tornjak with their respective paths. For details on a specific UI component and it’s interaction with the API calls refer to the diagrams respective to the pages by clicking on the link “Details”. There are two seperate UI’s, the manager UI and the regular agent UI. The regular agent UI is utilized for configuration and management of identities (For details visit Agent design details). The manager UI  in addition to the regular agent UI includes the manager management panel/ page used to manage SPIRE servers (For details visit Manager design details).  
+### UI Pages (With their paths)
+Below are UI pages of Tornjak with their respective paths. For details on a specific UI component and it’s interaction with the API calls refer to the diagrams respective to the pages by clicking on the link “Details”. There are two seperate UI’s, the manager UI and the regular agent UI. The regular agent UI is utilized for configuration and management of identities (For details visit [Agent design details](https://github.com/lumjjb/tornjak/blob/main/docs/tornjak-agent.md)). The manager UI  in addition to the regular agent UI includes the manager management panel/ page used to manage SPIRE servers (For details visit [Manager design details](https://github.com/lumjjb/tornjak/blob/main/docs/tornjak-manager.md)).  
+
+
 * Tornjak Home Page (/)
-  - Details
+  - [Details](rsrc/tornjak-agent-list.png)
 * Agents Page (/agents || /agent/*)
   - Agents List Page  (/agents) 
-    - Details
+    - [Details](rsrc/tornjak-agent-list.png)
   - Create Token Page  (/agent/createjointoken) 
-    - Details
+    - [Details](rsrc/tornjak-create-token.png)
 * Entries Page (/entries || /entry/*) 
   - Entries List Page  (/entries) 
-    - Details
+    - [Details](rsrc/tornjak-entries-list.png)
   - Create Entries Page  (/entry/create) 
-    - Details
+    - [Details](rsrc/tornjak-create-entries.png)
 * Tornjak ServerInfo Page (/tornjak/serverinfo)
-  - Details
+  - [Details](rsrc/tornjak-serverInfo.png)
 * Manage Servers Page (/server/manage) [ONLY FOR MANAGER UI]
-  - Details
+  - [Details](rsrc/tornjak-manage-servers.png)
+
 
 # Tornjak User Interface (UI) Interaction with API Endpoints
 ## * Agent API’s
@@ -42,26 +51,25 @@ Content-Type: application/json; charset=utf-8
 {
   "agents": [
     {
-        "id": {
-    "trust_domain": "example.org",
-    "path": "/spire/agent"
-},
-"attestation_type": "k8s_sat",
- "x509svid_serial_number": "111",
- "x509svid_expires_at": 222,
- "selectors": [
-      {
-           "type": "k8s_sat",
-              "value": "agent_ns:spire"
-       },
-       {
-              "type": "k8s_sat",
-              "value": "agent_sa:spire-agent"
-       },
+      "id": {
+      "trust_domain": "example.org",
+      "path": "/spire/agent"
+    },
+    "attestation_type": "k8s_sat",
+    "x509svid_serial_number": "111",
+    "x509svid_expires_at": 222,
+    "selectors": [
+    {
+      "type": "k8s_sat",
+      "value": "agent_ns:spire"
+    },
+    {
+      "type": "k8s_sat",
+      "value": "agent_sa:spire-agent"
+    },
   ]
-        }
+ }
 }
-
 ```
 - Entries
 ### /api/entry/list
@@ -75,28 +83,27 @@ Content-Type: application/json; charset=utf-8
 {
   "entries": [
     {
-        "id": "id1",
-"spiffe_id": {
-    "trust_domain": "example.org",
-    "path": "/spire/agent/"
-},
-"parent_id": {
-     "trust_domain": "example.org",
-       "path": "/spire/agent/"
-},
- "selectors": [
-      {
+      "id": "id1",
+      "spiffe_id": {
+        "trust_domain": "example.org",
+        "path": "/spire/agent/"
+      },
+      "parent_id": {
+        "trust_domain": "example.org",
+        "path": "/spire/agent/"
+      },
+      "selectors": [
+        {
            "type": "k8s_sat",
-              "value": "agent_ns:spire"
+           "value": "agent_ns:spire"
        },
        {
-              "type": "k8s_sat",
-              "value": "agent_sa:spire-agent"
+            "type": "k8s_sat",
+            "value": "agent_sa:spire-agent"
        },
-  ]
-        }
+    ]
+  }
 }
-
 ```
 - Tornjak Specific
 ### /api/tornjak/serverinfo
@@ -108,23 +115,15 @@ HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
 
 {
-  "plugins": {
-"DataStore": [
-          "sql",
-],
-  "KeyManager": [
-          "disk",
-],
-  "NodeAttestor": [
-          "k8s_sat",
-],
-  "NodeResolver": [
-          "k8sbundle",
-],
-
-  "trust_domain": "example.ord",
-  "verboseConfig": "Plugin Info……..."
-
+  "plugins": 
+  {
+    "DataStore": ["sql"],
+    "KeyManager": ["disk"],
+    "NodeAttestor": ["k8s_sat"],
+    "NodeResolver": ["k8sbundle"],
+    "trust_domain": "example.org",
+    "verboseConfig": "Plugin Info..."
+  }
 }
 
 ```
@@ -199,7 +198,7 @@ Content-Type: application/json; charset=utf-8
   "federates_with": [],
   "parent_id": {
      "trust_domain": "example.org",
-       "path": "/spire/agent/"
+     "path": "/spire/agent/"
   },
   "selectors": [
      {
@@ -211,43 +210,39 @@ Content-Type: application/json; charset=utf-8
        "value": "agent_sa:spire-agent"
      },
 ]
-
-
   "spiffe_id": {
     "trust_domain": "example.org",
     "path": "/spire/agent/"
-},
-
+  }
 }
+
 Example response:
 {
   "results": [
     {
-        "status": {
-"message":"OK"
-}
-      "entry": {
-"message":"OK"
-}
-"spiffe_id": {
-    "trust_domain": "example.org",
-    "path": "/spire/agent/"
-},
-"parent_id": {
-     "trust_domain": "example.org",
-       "path": "/spire/agent/"
-},
- "selectors": [
+      "status": {"message":"OK"}
+      "entry": {"message":"OK"}
+      "spiffe_id": 
       {
-           "type": "k8s_sat",
-              "value": "agent_ns:spire"
-       },
-       {
-              "type": "k8s_sat",
-              "value": "agent_sa:spire-agent"
-       },
-  ]
-        }
+        "trust_domain": "example.org",
+        "path": "/spire/agent/"
+      },
+      "parent_id": 
+      {
+        "trust_domain": "example.org",
+        "path": "/spire/agent/"
+      },
+      "selectors": [
+      {
+        "type": "k8s_sat",
+        "value": "agent_ns:spire"
+      },
+      {
+        "type": "k8s_sat",
+        "value": "agent_sa:spire-agent"
+      },
+    ]
+  }
 }
 ```
 ### /api/entry/delete
@@ -259,19 +254,20 @@ HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
 
 {
-  "ids": [
+  "ids": 
+  [
     "111",
   ]
 }
 Example response:
 {
-     "Results": [
+  "Results": [
     {
-           "status": 
-             {"messege":  "OK"},
-                 "id":  "111"
-}                
-  ]}
+      "status": {"messege":  "OK"},
+      "id":  "111"
+    }                
+  ]
+}
 ```
 - Tornjak Specific
 ### /api/tornjak/selectors/register
@@ -283,7 +279,8 @@ HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
 
 {
-  "id": {
+  "id": 
+  {
     "plugin": "plugin1",
     "spiffee id": "spiffe://example.org/spire/agent"
   }
@@ -303,15 +300,15 @@ Request
 manager-api/server/list
 Example response:
 {
-"servers": 
-[
-{
-                "name": "server1",
-                "address": "http://localhost:10000/",
-"tls": false,
-                "mtls": false
-}
-]
+  "servers": 
+  [
+    {
+      "name": "server1",
+      "address": "http://localhost:10000/",
+      "tls": false,
+      "mtls": false
+    }
+   ]
 }
 ```
 POST
@@ -325,36 +322,41 @@ HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
 
 {
-"name": "server1",
-"address": "http://localhost:10000/",
-"tls": false,
-"mtls": false,
-"ca": null,
-"cert": null,
-"key": null
-
+  "name": "server1",
+  "address": "http://localhost:10000/",
+  "tls": false,
+  "mtls": false,
+  "ca": null,
+  "cert": null,
+  "key": null
 }
 Example response:
 SUCCESS
 ```
-![tornjak-agent-list](rsrc/Tornjak UI API Diagram-Agent list.jpg)
+![tornjak-agent-list](rsrc/tornjak-agent-list.png)
 Figure 1. Agent List/ Home Page UI-API Interactions
-![tornjak-create-token](rsrc/Tornjak UI API Diagram-Create Token.jpg)
+
+![tornjak-create-token](rsrc/tornjak-create-token.png)
 Figure 2. Create Token Page UI-API Interactions
-![tornjak-entries-list](rsrc/Tornjak UI API Diagram-Entries List.jpg)
+
+![tornjak-entries-list](rsrc/tornjak-entries-list.png)
 Figure 3. Entries List Page UI-API Interactions
-![tornjak-create-entries](rsrc/Tornjak UI API Diagram-Create Entries.jpg)
+
+![tornjak-create-entries](rsrc/tornjak-create-entries.png)
 Figure 4. Create Entries Page UI-API Interactions
-![tornjak-serverinfo](rsrc/Tornjak UI API Diagram-Tornjak ServerInfo.jpg)
+
+![tornjak-serverinfo](rsrc/tornjak-serverInfo.png)
 Figure 5. Tornjak ServerInfo Page UI-API Interactions
-![tornjak-manage-servers](rsrc/Tornjak UI API Diagram-Manage Servers.jpg)
+
+![tornjak-manage-servers](rsrc/tornjak-manage-servers.png)
 Figure 6. Manage Servers Page UI-API Interactions [ONLY FOR MANAGER UI]
+
 
 # Tornjak Redux Reducers and Actions With Their Respective Descriptions
 
 Redux reducers are functions that mutate the current state based upon the defined action and generally as a developer one should be interfacing with the actions as those actions define the events that describe how and when the state is mutating in the application. One should only be creating reducers if modifying the data model is necessary. 
 
-## * [Reducers] (https://github.com/lumjjb/tornjak/tree/main/tornjak-frontend/src/redux/reducers)
+## * [Reducers](https://github.com/lumjjb/tornjak/tree/main/tornjak-frontend/src/redux/reducers)
 - Servers
   * Server Selected
     - Stores the selected server in the redux state
@@ -383,7 +385,7 @@ Redux reducers are functions that mutate the current state based upon the define
   * Tornjak Message
     - Stores the Error Message/ Success Message of an executed function in the redux store
 
-## * [Actions] (https://github.com/lumjjb/tornjak/tree/main/tornjak-frontend/src/redux/actions)
+## * [Actions](https://github.com/lumjjb/tornjak/tree/main/tornjak-frontend/src/redux/actions)
 - TornjakMessage
   * Expected input - "Error Message/ Success Message"                                                                                    
   * This action returns the Error Message/ Success Message of an executed function
@@ -397,11 +399,11 @@ Redux reducers are functions that mutate the current state based upon the define
   * Expected input -
     ```
     {
-          "data": 
-          {
-            "trustDomain": trustDomain,
-            "nodeAttestorPlugin": nodeAttestorPlugin
-          }
+      "data": 
+      {
+        "trustDomain": trustDomain,
+        "nodeAttestorPlugin": nodeAttestorPlugin
+      }
     }
     ```
   * This action returns the server trust domain and nodeAttestorPlugin
@@ -409,21 +411,21 @@ Redux reducers are functions that mutate the current state based upon the define
   * Expected input - 
     ```
      [
-          "server1": 
-          {
-            "name": Server1Name,
-            "address": Server1Address,
-            "tls": false/true,
-            "mtls": false/true,
-          },
-          "server2": 
-          {
-            "name": Server2Name,
-            "address": Server2Address,
-            "tls": false/true,
-            "mtls": false/true,
-          }
-     ]
+      "server1": 
+       {
+        "name": Server1Name,
+        "address": Server1Address,
+        "tls": false/true,
+        "mtls": false/true,
+       },
+       "server2": 
+       {
+        "name": Server2Name,
+        "address": Server2Address,
+        "tls": false/true,
+        "mtls": false/true,
+       }
+      ]
      ```
   * This action returns the list of available servers and their basic info
 - SelectedInfo
@@ -431,72 +433,72 @@ Redux reducers are functions that mutate the current state based upon the define
     ```
      [
       "selector1": [
-          {
-            "label": "selector1:...."
-          },
-          {
-            "label": "selector1:...."
-          },
-        ],
-        "selector2": [
-          {
-            "label": "selector2:...."
-          },
+        {
+          "label": "selector1:...."
+        },
+        {
+          "label": "selector1:...."
+        },
+       ],
+       "selector2": [
           {
             "label": "selector2:...."
           },
-        ]
-     ]
+          {
+            "label": "selector2:...."
+          },
+       ]
+      ]
      ```
   * This action returns the list of available selectors and their options
 - EntriesListUpdate
-  * Expected input - List of entries with their info json representation from SPIFFE golang documentation - (https://github.com/spiffe/spire/blob/v0.12.0/proto/spire/types/entry.pb.go#L28-L67)
+  * Expected input - List of entries with their info json representation from [SPIFFE golang documentation](https://github.com/spiffe/spire/blob/v0.12.0/proto/spire/types/entry.pb.go#L28-L67)
   * This action returns the list of entries with their info
 - AgentsListUpdate
-  * Expected input - List of agents with their info json representation from SPIFFE golang documentation - (https://github.com/spiffe/spire/blob/v0.12.0/proto/spire/types/agent.pb.go#L28-L45)
+  * Expected input - List of agents with their info json representation from [SPIFFE golang documentation](https://github.com/spiffe/spire/blob/v0.12.0/proto/spire/types/agent.pb.go#L28-L45)
   * This action returns the list of agents with their info
 - WorkloadSelectorInfo
   * Expected input - 
     ```
      [
-     "workloadselector1": [
-         {
-           "label": "workloadselector1:...."
-         },
-         {
-           "label": "workloadselector1:...."
-         },
-       ],
-       "workloadselector2": [
-         {
-           "label": "workloadselector2:...."
-         },
-         {
-           "label": "workloadselector2:...."
-         },
-       ]
-     ]
+       "workloadselector1": [
+          {
+            "label": "workloadselector1:...."
+          },
+          {
+            "label": "workloadselector1:...."
+          },
+        ],
+        "workloadselector2": [
+          {
+            "label": "workloadselector2:...."
+          },
+          {
+            "label": "workloadselector2:...."
+          },
+        ]
+      ]
      ```
   * This action returns the list of available workload selectors and their options
 - AgentWorkloadSelectorInfo
   * Expected input - 
     ```
      [
-     "agent1workloadselectorinfo": [
-         {
-           "id": "agentid",
-           "spiffeid": "agentspiffeeid",  
-           "selectors": "agentworkloadselectors"
-         }
-       ],
-       "agent2workloadselectorinfo": [
-         {
-           "id": "agentid",
-           "spiffeid": "agentspiffeeid",  
-           "selectors": "agentworkloadselectors"  
-         }
-       ]
-    ]
+       "agent1workloadselectorinfo": [
+          {
+            "id": "agentid",
+            "spiffeid": "agentspiffeeid",  
+            "selectors": "agentworkloadselectors"
+          }
+        ],
+        "agent2workloadselectorinfo": [
+          {
+            "id": "agentid",
+            "spiffeid": "agentspiffeeid",  
+            "selectors": "agentworkloadselectors"  
+          }
+        ]
+      ]
     ```
   * This action returns the workload selector info for the agents
 
