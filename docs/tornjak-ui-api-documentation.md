@@ -26,7 +26,7 @@ This documentation details tornjak’s user interface and its interaction with t
 
 # 2. Tornjak User Interface (UI) Architecture
 
-### 2.1 UI Pages (With their paths)
+### 2.1. UI Pages (With their paths)
 Below are UI pages of Tornjak with their respective paths. For details on a specific UI component and it’s interaction with the API calls refer to the diagrams respective to the pages by clicking on the link “Details”. There are two seperate UI’s, the manager UI and the regular agent UI. The regular agent UI is utilized for configuration and management of identities (For details visit [Agent design details](https://github.com/lumjjb/tornjak/blob/main/docs/tornjak-agent.md)). The manager UI  in addition to the regular agent UI includes the manager management panel/ page used to manage SPIRE servers (For details visit [Manager design details](https://github.com/lumjjb/tornjak/blob/main/docs/tornjak-manager.md)).  
 
 
