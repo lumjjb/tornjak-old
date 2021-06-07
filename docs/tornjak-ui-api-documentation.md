@@ -1,6 +1,19 @@
-# Tornjak UI-API Documentation
+#### Contents
 
-### Overview
+- [Tornjak UI-API Documentation](#1-tornjak-ui-api-documentation)
+  - [Overview](#11-overview)
+- [Tornjak User Interface (UI) Architecture](#2-tornjak-user-interface-ui-architecture)
+  - [UI Pages (With their paths)](#21-ui-pages-with-their-paths)
+- [Tornjak User Interface (UI) Interaction with API Endpoints](#3-tornjak-user-interface-ui-interaction-with-api-endpoints)
+  - [Agent API’s](#31-agent-apis)
+  - [Manager API’s](#32-manager-apis)
+- [Tornjak Redux Reducers and Actions With Their Respective Descriptions
+](#4-tornjak-redux-reducers-and-actions-with-their-respective-descriptions)
+  - [Reducers](#41-reducers)
+  - [Actions](#42-actions)
+# 1. Tornjak UI-API Documentation
+
+### 1.1. Overview
 This documentation details tornjak’s user interface and its interaction with the APIs and the redux state management. 
 
 
@@ -11,9 +24,9 @@ This documentation details tornjak’s user interface and its interaction with t
 
 ![tornjak-high-level-back-end-diagram](rsrc/tornjak-backend-diagram.png)
 
-# Tornjak User Interface (UI) Architecture
+# 2. Tornjak User Interface (UI) Architecture
 
-### UI Pages (With their paths)
+### 2.1 UI Pages (With their paths)
 Below are UI pages of Tornjak with their respective paths. For details on a specific UI component and it’s interaction with the API calls refer to the diagrams respective to the pages by clicking on the link “Details”. There are two seperate UI’s, the manager UI and the regular agent UI. The regular agent UI is utilized for configuration and management of identities (For details visit [Agent design details](https://github.com/lumjjb/tornjak/blob/main/docs/tornjak-agent.md)). The manager UI  in addition to the regular agent UI includes the manager management panel/ page used to manage SPIRE servers (For details visit [Manager design details](https://github.com/lumjjb/tornjak/blob/main/docs/tornjak-manager.md)).  
 
 
@@ -35,8 +48,8 @@ Below are UI pages of Tornjak with their respective paths. For details on a spec
   - [Details](rsrc/tornjak-manage-servers.png)
 
 
-# Tornjak User Interface (UI) Interaction with API Endpoints
-## * Agent API’s
+# 3. Tornjak User Interface (UI) Interaction with API Endpoints
+## 3.1. Agent API’s
 Get
 - Agents
 ### /api/agent/list
@@ -289,7 +302,7 @@ Example response:
 SUCCESS
 ```
 
-## * Manager API’s
+## 3.2. Manager API’s
 All of Tornjak agent APIs apply for manager APIs as well except that manager APIs are proxy calls of agent APIs (/manager-api/). In addition to the agent APIs manager API also includes server’s APIs as described below. 
 
 GET
@@ -352,11 +365,11 @@ Figure 5. Tornjak ServerInfo Page UI-API Interactions
 Figure 6. Manage Servers Page UI-API Interactions [ONLY FOR MANAGER UI]
 
 
-# Tornjak Redux Reducers and Actions With Their Respective Descriptions
+# 4. Tornjak Redux Reducers and Actions With Their Respective Descriptions
 
 Redux reducers are functions that mutate the current state based upon the defined action and generally as a developer one should be interfacing with the actions as those actions define the events that describe how and when the state is mutating in the application. One should only be creating reducers if modifying the data model is necessary. 
 
-## * [Reducers](https://github.com/lumjjb/tornjak/tree/main/tornjak-frontend/src/redux/reducers)
+## 4.1. [Reducers](https://github.com/lumjjb/tornjak/tree/main/tornjak-frontend/src/redux/reducers)
 - Servers
   * Server Selected
     - Stores the selected server in the redux state
@@ -385,7 +398,7 @@ Redux reducers are functions that mutate the current state based upon the define
   * Tornjak Message
     - Stores the Error Message/ Success Message of an executed function in the redux store
 
-## * [Actions](https://github.com/lumjjb/tornjak/tree/main/tornjak-frontend/src/redux/actions)
+## 4.2. [Actions](https://github.com/lumjjb/tornjak/tree/main/tornjak-frontend/src/redux/actions)
 - TornjakMessage
   * Expected input - "Error Message/ Success Message"                                                                                    
   * This action returns the Error Message/ Success Message of an executed function
