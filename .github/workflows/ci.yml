@@ -17,11 +17,10 @@ jobs:
         with:
           node-version: '15'
       - name: golangci-lint
-        run:
-            modules-download-mode: vendor 
         uses: golangci/golangci-lint-action@v2
         with:
           version: v1.29
+          args: --modules-download-mode vendor --config ./.golangci.yml ./...
       - name: Run make all
         run: make all
       - run: echo "🍏 This job's status is ${{ job.status }}."
