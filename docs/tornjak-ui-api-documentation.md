@@ -50,9 +50,9 @@ Below are UI pages of Tornjak with their respective paths. For details on a spec
 
 # 3. Tornjak User Interface (UI) Interaction with API Endpoints
 ## 3.1. Agent API’s
-Get
-- Agents
-### /api/agent/list
+### GET
+#### - Agents
+##### /api/agent/list
 ```
 Request 
 api/agent/list
@@ -84,8 +84,8 @@ Content-Type: application/json; charset=utf-8
  }
 }
 ```
-- Entries
-### /api/entry/list
+#### - Entries
+##### /api/entry/list
 ```
 Request 
 api/entry/list
@@ -118,8 +118,8 @@ Content-Type: application/json; charset=utf-8
   }
 }
 ```
-- Tornjak Specific
-### /api/tornjak/serverinfo
+#### - Tornjak Specific
+##### /api/tornjak/serverinfo
 ```
 Request 
 api/tornjak/serverinfo
@@ -140,11 +140,10 @@ Content-Type: application/json; charset=utf-8
 }
 
 ```
-### /api/tornjak/selectors/list
+##### /api/tornjak/selectors/list
 ```
 Request 
-api/tornjak/
-selectors/list
+api/tornjak/selectors/list
 Example response:
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=utf-8
@@ -157,9 +156,9 @@ Content-Type: application/json; charset=utf-8
 }
 
 ```
-POST
-- Agents
-### /api/agent/ban
+### POST
+#### - Agents
+##### /api/agent/ban
 ```
 Request 
 api/agent/ban
@@ -176,7 +175,7 @@ Content-Type: application/json; charset=utf-8
 Example response:
 SUCCESS
 ```
-### /api/agent/delete
+##### /api/agent/delete
 ```
 Request 
 api/agent/delete
@@ -193,9 +192,29 @@ Content-Type: application/json; charset=utf-8
 Example response:
 SUCCESS
 ```
-### /api/agent/createjointoken
-- Entries
-### /api/entry/create
+##### /api/agent/createjointoken
+```
+Request 
+api/agent/createjointoken
+Example request payload:
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+
+{
+ "path": "/sample/spiffe/id",
+ "token": "1111",
+ "trust_domain": "example.org",
+ "ttl": "500",
+}
+Example response:
+{
+  "value": "1111",
+  "expires_at": "555",
+}
+
+```
+#### - Entries
+##### /api/entry/create
 ```
 Request 
 api/entry/create
@@ -258,7 +277,7 @@ Example response:
   }
 }
 ```
-### /api/entry/delete
+##### /api/entry/delete
 ```
 Request 
 api/entry/delete
@@ -282,8 +301,8 @@ Example response:
   ]
 }
 ```
-- Tornjak Specific
-### /api/tornjak/selectors/register
+#### - Tornjak Specific
+##### /api/tornjak/selectors/register
 ```
 Request 
 api/tornjak/selectors/register
@@ -305,9 +324,9 @@ SUCCESS
 ## 3.2. Manager API’s
 All of Tornjak agent APIs apply for manager APIs as well except that manager APIs are proxy calls of agent APIs (/manager-api/). In addition to the agent APIs manager API also includes server’s APIs as described below. 
 
-GET
-- Servers
-### /manager-api/server/list
+### GET
+#### - Servers
+##### /manager-api/server/list
 ```
 Request 
 manager-api/server/list
@@ -324,9 +343,9 @@ Example response:
    ]
 }
 ```
-POST
-- Servers
-### /manager-api/server/register
+### POST
+#### - Servers
+##### /manager-api/server/register
 ```
 Request 
 manager-api/server/register
