@@ -178,9 +178,6 @@ Content-Type: application/json; charset=utf-8
 #### POST
 ##### /api/entry/create
 ```
-#### - Entries
-##### /api/entry/create
-```
 Request 
 api/entry/create
 Example request payload:
@@ -265,9 +262,9 @@ Example response:
     }                
   ]
 }
-#### GET
 ```
-#### - Tornjak Specific
+### - Tornjak Specific
+#### GET
 ##### /api/tornjak/serverinfo
 ```
 Request 
@@ -303,7 +300,7 @@ Content-Type: application/json; charset=utf-8
     "plugin": "plugin1"
   }
 }
-
+```
 #### POST
 ##### /api/tornjak/selectors/register
 ```
