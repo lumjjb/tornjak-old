@@ -21,21 +21,14 @@ class ClusterManagement extends Component {
   constructor(props) {
     super(props);
     this.TornjakApi = new TornjakApi();
-    this.onChangeSelectors = this.onChangeSelectors.bind(this);
     this.onChangeClusterName = this.onChangeClusterName.bind(this);
     this.onChangeClusterType = this.onChangeClusterType.bind(this);
     this.onChangeManualClusterType = this.onChangeManualClusterType.bind(this);
     this.onChangeClusterDomainName = this.onChangeClusterDomainName.bind(this);
     this.onChangeClusterManagedBy = this.onChangeClusterManagedBy.bind(this);
-    this.onChangeAdminFlag = this.onChangeAdminFlag.bind(this);
     this.prepareClusterTypeList = this.prepareClusterTypeList.bind(this);
-    this.prepareSelectorsList = this.prepareSelectorsList.bind(this);
-    this.onChangeSelectorsRecommended = this.onChangeSelectorsRecommended.bind(this);
-    this.onChangeTtl = this.onChangeTtl.bind(this);
-    this.onChangeExpiresAt = this.onChangeExpiresAt.bind(this);
-    this.onChangeFederatesWith = this.onChangeFederatesWith.bind(this);
-    this.onChangeDownStream = this.onChangeDownStream.bind(this);
-    this.onChangeDnsNames = this.onChangeDnsNames.bind(this);
+    this.prepareAgentsList = this.prepareAgentsList.bind(this);
+    this.onChangeAgentsList = this.onChangeAgentsList.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
 
     this.state = {
@@ -55,24 +48,16 @@ class ClusterManagement extends Component {
 
       // ',' delimetered selectors
       selectors: "",
-      selectorsRecommendationList: "",
-      adminFlag: false,
-
-      ttl: 0,
-      expiresAt: 0,
-      dnsNames: [],
-      federatesWith: [],
-      downstream: false,
+      clusterAgentsList: "",
       //token: "",
       message: "",
       servers: [],
       selectedServer: "",
       clusterTypeList: [],
-      spiffeIdPrefix: "",
       clusterTypeManualEntryOption: "----Select this option and Enter Custom Cluster Type Below----",
       clusterTypeManualEntry: false,
-      selectorsList: [],
-      selectorsListDisplay: "Select Selectors",
+      agentsList: [],
+      agentsListDisplay: "Select Agents",
     }
   }
 
@@ -84,7 +69,7 @@ class ClusterManagement extends Component {
         this.TornjakApi.refreshSelectorsState(this.props.globalServerSelected, this.props.agentworkloadSelectorInfoFunc);
         this.setState({ selectedServer: this.props.globalServerSelected });
         this.prepareClusterTypeList();
-        this.prepareSelectorsList();
+        this.prepareAgentsList();
       }
     } else {
       // agent doesnt need to do anything
@@ -93,7 +78,7 @@ class ClusterManagement extends Component {
       this.TornjakApi.populateServerInfo(this.props.globalTornjakServerInfo, this.props.serverInfoUpdateFunc);
       this.setState({})
       this.prepareClusterTypeList();
-      this.prepareSelectorsList();
+      this.prepareAgentsList();
     }
   }
 
@@ -104,20 +89,20 @@ class ClusterManagement extends Component {
       }
       if (prevProps.globalServerInfo !== this.props.globalServerInfo) {
         this.prepareClusterTypeList();
-        this.prepareSelectorsList();
+        this.prepareAgentsList();
       }
       if (prevProps.globalAgentsList !== this.props.globalAgentsList) {
         this.prepareClusterTypeList();
       }
       if (prevState.parentId !== this.state.parentId) {
-        this.prepareSelectorsList();
+        this.prepareAgentsList();
       }
     } else {
       if (prevProps.globalServerInfo !== this.props.globalServerInfo) {
-        this.prepareSelectorsList();
+        this.prepareAgentsList();
       }
       if (prevState.parentId !== this.state.parentId) {
-        this.prepareSelectorsList();
+        this.prepareAgentsList();
       }
     }
   }
@@ -138,114 +123,34 @@ class ClusterManagement extends Component {
     });
   }
 
-  prepareSelectorsList() {
+  prepareAgentsList() {
     var prefix = "spiffe://", agentSelectorSet = false;
-    var parentId = this.state.parentId;
     var defaultServer = prefix + this.props.globalServerInfo.data.trustDomain + "/spire/server";
-    var globalAgentsWorkLoadAttestorInfo = this.props.globalAgentsWorkLoadAttestorInfo;
-    if (parentId === defaultServer) {
-      if (this.props.globalServerInfo.length === 0) { return }
-      let serverNodeAtt = this.props.globalServerInfo.data.nodeAttestorPlugin;
-      this.setState({
-        selectorsList: this.props.globalSelectorInfo[serverNodeAtt]
-      });
-    } else if (parentId !== "") {
-      for (let i = 0; i < globalAgentsWorkLoadAttestorInfo.length; i++) {
-        if (parentId === globalAgentsWorkLoadAttestorInfo[i].spiffeid) {
-          this.setState({
-            selectorsList: this.props.globalWorkloadSelectorInfo[globalAgentsWorkLoadAttestorInfo[i].plugin]
-          });
-          agentSelectorSet = true;
-        }
-      }
-      if (!agentSelectorSet) {
-        this.setState({
-          selectorsList: [],
-          selectorsListDisplay: "Select Selectors",
-        });
-      }
+    let localAgentsIdList = [];
+    //default option
+    localAgentsIdList[0] = {}
+    localAgentsIdList[0]["label"] = defaultServer;
+    //agents
+    for (let i = 0; i < this.props.globalAgentsList.length; i++) {
+      localAgentsIdList[i + 1] = {}
+      localAgentsIdList[i + 1]["label"] = prefix + this.props.globalAgentsList[i].id.trust_domain + this.props.globalAgentsList[i].id.path;
     }
-  }
-
-  onChangeTtl(e) {
     this.setState({
-      ttl: Number(e.imaginaryTarget.value)
+      agentsList: localAgentsIdList,
+      agentsListDisplay: "Select Agents",
     });
   }
 
-  onChangeExpiresAt(e) {
+  onChangeAgentsList = selected => {
+    var sid = selected.selectedItems, agents = "", agentsDisplay = "";
+    agentsDisplay = sid;
+    agents = sid;
+    if (agentsDisplay.length === 0)
+      agentsDisplay = "Select Agents"
     this.setState({
-      expiresAt: Number(e.imaginaryTarget.value)
+      clusterAgentsList: agents,
+      agentsListDisplay: agentsDisplay,
     });
-  }
-
-  onChangeDownStream = selected => {
-    var sid = selected;
-    this.setState({
-      downstream: sid,
-    });
-  }
-
-  onChangeDnsNames(e) {
-    var sid = e.target.value;
-    this.setState({
-      dnsNames: sid,
-    });
-  }
-
-  onChangeFederatesWith(e) {
-    var sid = e.target.value;
-    this.setState({
-      federatesWith: sid,
-    });
-  }
-
-  onChangeSelectorsRecommended = selected => {
-    var i = 0, sid = selected.selectedItems, selectors = "", selectorsDisplay = "";
-    for (i = 0; i < sid.length; i++) {
-      if (i !== sid.length - 1) {
-        selectors = selectors + sid[i].label + ":\n";
-        selectorsDisplay = selectorsDisplay + sid[i].label + ",";
-      }
-      else {
-        selectors = selectors + sid[i].label + ":"
-        selectorsDisplay = selectorsDisplay + sid[i].label
-      }
-    }
-    if (selectorsDisplay.length === 0)
-      selectorsDisplay = "Select Selectors"
-    this.setState({
-      selectorsRecommendationList: selectors,
-      selectorsListDisplay: selectorsDisplay,
-    });
-  }
-
-  onChangeSelectors(e) {
-    var sid = e.target.value, selectors = "";
-    selectors = sid.replace(/\n/g, ",");
-    this.setState({
-      selectors: selectors,
-    });
-  }
-
-  onChangeAdminFlag = selected => {
-    var sid = selected;
-    this.setState({
-      adminFlag: sid,
-    });
-  }
-
-  parseSpiffeId(sid) {
-    if (sid.startsWith('spiffe://')) {
-      var sub = sid.substr("spiffe://".length)
-      var sp = sub.indexOf("/")
-      if (sp > 0 && sp !== sub.length - 1) {
-        var trustDomain = sub.substr(0, sp);
-        var path = sub.substr(sp);
-        return [true, trustDomain, path];
-      }
-    }
-    return [false, "", ""];
   }
 
   onChangeClusterName(e) {
@@ -345,63 +250,30 @@ class ClusterManagement extends Component {
   }
 
   onSubmit(e) {
-    let selectorStrings = [], federatedWithList = [], dnsNamesWithList = [];
+    let agentsList = [];
     e.preventDefault();
 
-    const validSpiffeId = (this.parseSpiffeId(this.state.spiffeId))[0];
-    if (!validSpiffeId) {
-      this.setState({ message: "ERROR: invalid spiffe ID specified" });
+    if (this.state.clusterName.length === 0) {
+      this.setState({ message: "ERROR: Cluster Name Can Not Be Empty - Enter Cluster Name" });
       return
     }
 
-    const validParentId = (this.parseSpiffeId(this.state.parentId))[0];
-    if (!validParentId) {
-      this.setState({ message: "ERROR: invalid parent ID specified" });
+    if (this.state.clusterType.length === 0) {
+      this.setState({ message: "ERROR: Cluster Type Can Not Be Empty - Choose/ Enter Cluster Type" });
       return
     }
 
-    if (this.state.selectors.length !== 0) {
-      selectorStrings = this.state.selectors.split(',').map(x => x.trim())
-    }
-    if (selectorStrings.length === 0) {
-      this.setState({ message: "ERROR: Selectors cannot be empty" })
-      return
-    }
-    const selectorEntries = selectorStrings.map(x => x.indexOf(":") > 0 ?
-      {
-        "type": x.substr(0, x.indexOf(":")),
-        "value": x.substr(x.indexOf(":") + 1)
-      } : null)
-
-    if (selectorEntries.some(x => x == null || x["value"].length === 0)) {
-      this.setState({ message: "ERROR: Selectors not in the correct format should be type:value" })
-      return
-    }
-
-    if (this.state.federatesWith.length !== 0) {
-      federatedWithList = this.state.federatesWith.split(',').map(x => x.trim())
-    }
-    if (this.state.dnsNames.length !== 0) {
-      dnsNamesWithList = this.state.dnsNames.split(',').map(x => x.trim())
+    if (this.state.clusterAgentsList.length !== 0) {
+      agentsList = this.state.clusterAgentsList.split(',').map(x => x.trim())
     }
 
     var cjtData = {
-      "entries": [{
-        "spiffe_id": {
-          "trust_domain": this.state.spiffeIdTrustDomain,
-          "path": this.state.spiffeIdPath,
-        },
-        "parent_id": {
-          "trust_domain": this.state.parentIdTrustDomain,
-          "path": this.state.parentIdPath,
-        },
-        "selectors": selectorEntries,
-        "admin": this.state.adminFlag,
-        "ttl": this.state.ttl,
-        "expires_at": this.state.expiresAt,
-        "downstream": this.state.downstream,
-        "federates_with": federatedWithList,
-        "dns_names": dnsNamesWithList,
+      "clusters": [{
+        "clusterName": this.state.clusterName,
+        "clusterType": this.state.clusterType,
+        "clusterDomainName": this.state.clusterDomainName,
+        "clusterManagedBy": this.state.clusterManagedBy,
+        "clusterAgentsList": agentsList
       }]
     }
 
@@ -493,96 +365,17 @@ class ClusterManagement extends Component {
                         onChange={this.onChangeClusterManagedBy}
                       />
                     </div>
-                    <div className="selectors-multiselect">
+                    <div className="agents-multiselect">
                       <MultiSelect.Filterable
-                        required
-                        titleText="Selectors Recommendation"
-                        helperText="i.e. k8s_sat:cluster,..."
-                        placeholder={this.state.selectorsListDisplay}
+                        titleText="ASSIGN AGENTS/ NODES TO CLUSTER"
+                        helperText="i.e. spiffe://example.org/agent/myagent1,i.e. spiffe://example.org/spire/server..."
+                        placeholder={this.state.agentsListDisplay}
                         ariaLabel="selectors-multiselect"
                         id="selectors-multiselect"
-                        items={this.state.selectorsList}
-                        label={this.state.selectorsListDisplay}
-                        onChange={this.onChangeSelectorsRecommended}
+                        items={this.state.agentsList}
+                        label={this.state.agentsListDisplay}
+                        onChange={this.onChangeAgentsList}
                       />
-                    </div>
-                    <div className="selectors-textArea">
-                      <TextArea
-                        cols={50}
-                        helperText="i.e. k8s_sat:cluster:demo-cluster,..."
-                        id="selectors-textArea"
-                        invalidText="A valid value is required"
-                        labelText="Selectors"
-                        placeholder="Enter Selectors - Refer to Selectors Recommendation"
-                        defaultValue={this.state.selectorsRecommendationList}
-                        rows={8}
-                        onChange={this.onChangeSelectors}
-                      />
-                    </div>
-                    <div className="advanced">
-                      <fieldset className="bx--fieldset">
-                        <legend className="bx--label">Advanced</legend>
-                        <div className="ttl-input">
-                          <NumberInput
-                            helperText="Ttl for identities issued for this entry (In seconds)"
-                            id="ttl-input"
-                            invalidText="Number is not valid"
-                            label="Time to Leave (Ttl)"
-                            //max={100}
-                            min={0}
-                            step={1}
-                            value={0}
-                            onChange={this.onChangeTtl}
-                          />
-                        </div>
-                        <div className="expiresAt-input">
-                          <NumberInput
-                            helperText="Entry expires at (seconds since Unix epoch)"
-                            id="expiresAt-input"
-                            invalidText="Number is not valid"
-                            label="Expires At"
-                            //max={100}
-                            min={0}
-                            step={1}
-                            value={0}
-                            onChange={this.onChangeExpiresAt}
-                          />
-                        </div>
-                        <div className="federates-with-input-field">
-                          <TextInput
-                            helperText="i.e. example.org,abc.com (Separated By Commas)"
-                            id="federates-with-input-field"
-                            invalidText="A valid value is required - refer to helper text below"
-                            labelText="Federates With"
-                            placeholder="Enter Names of trust domains the identity described by this entry federates with"
-                            onChange={this.onChangeFederatesWith}
-                          />
-                        </div>
-                        <div className="dnsnames-input-field">
-                          <TextInput
-                            helperText="i.e. example.org,abc.com (Separated By Commas)"
-                            id="dnsnames-input-field"
-                            invalidText="A valid value is required - refer to helper text below"
-                            labelText="DNS Names"
-                            placeholder="Enter DNS Names associated with the identity described by this entry"
-                            onChange={this.onChangeDnsNames}
-                          />
-                        </div>
-                        <div className="admin-flag-checkbox">
-                          <Checkbox
-                            labelText="Admin Flag"
-                            id="admin-flag"
-                            onChange={this.onChangeAdminFlag}
-                          />
-                        </div>
-                        <div className="down-stream-checkbox">
-                          <Checkbox
-                            labelText="Down Stream"
-                            id="down-steam"
-                            onChange={this.onChangeDownStream}
-                          />
-                        </div>
-                      </fieldset>
                     </div>
                     <div className="form-group">
                       <input type="submit" value="Create Entry" className="btn btn-primary" />
