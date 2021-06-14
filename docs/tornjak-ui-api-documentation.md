@@ -49,9 +49,9 @@ Below are UI pages of Tornjak with their respective paths. For details on a spec
 
 
 # 3. Tornjak User Interface (UI) Interaction with API Endpoints
-## 3.1. Agent API’s
-### GET
-#### - Agents
+## 3.1. [Agent API’s](https://github.com/spiffe/spire-api-sdk/tree/main/proto/spire/api/server/agent/v1)
+### - Agents
+#### GET
 ##### /api/agent/list
 ```
 Request 
@@ -84,80 +84,7 @@ Content-Type: application/json; charset=utf-8
  }
 }
 ```
-#### - Entries
-##### /api/entry/list
-```
-Request 
-api/entry/list
-Example response:
-HTTP/1.1 200 OK
-Content-Type: application/json; charset=utf-8
-
-{
-  "entries": [
-    {
-      "id": "id1",
-      "spiffe_id": {
-        "trust_domain": "example.org",
-        "path": "/spire/agent/"
-      },
-      "parent_id": {
-        "trust_domain": "example.org",
-        "path": "/spire/agent/"
-      },
-      "selectors": [
-        {
-           "type": "k8s_sat",
-           "value": "agent_ns:spire"
-       },
-       {
-            "type": "k8s_sat",
-            "value": "agent_sa:spire-agent"
-       },
-    ]
-  }
-}
-```
-#### - Tornjak Specific
-##### /api/tornjak/serverinfo
-```
-Request 
-api/tornjak/serverinfo
-Example Response:
-HTTP/1.1 200 OK
-Content-Type: application/json; charset=utf-8
-
-{
-  "plugins": 
-  {
-    "DataStore": ["sql"],
-    "KeyManager": ["disk"],
-    "NodeAttestor": ["k8s_sat"],
-    "NodeResolver": ["k8sbundle"],
-    "trust_domain": "example.org",
-    "verboseConfig": "Plugin Info..."
-  }
-}
-
-```
-##### /api/tornjak/selectors/list
-```
-Request 
-api/tornjak/selectors/list
-Example response:
-HTTP/1.1 200 OK
-Content-Type: application/json; charset=utf-8
-
-{
-  "agents": {
-    "spiffeid": "spiffe://example.org/spire/agent/",
-    "plugin": "plugin1"
-  }
-}
-
-```
-### POST
-#### - Agents
+#### POST
 ##### /api/agent/ban
 ```
 Request 
@@ -212,6 +139,44 @@ Example response:
   "expires_at": "555",
 }
 
+```
+### - Entries
+#### GET
+##### /api/entry/list
+```
+Request 
+api/entry/list
+Example response:
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+
+{
+  "entries": [
+    {
+      "id": "id1",
+      "spiffe_id": {
+        "trust_domain": "example.org",
+        "path": "/spire/agent/"
+      },
+      "parent_id": {
+        "trust_domain": "example.org",
+        "path": "/spire/agent/"
+      },
+      "selectors": [
+        {
+           "type": "k8s_sat",
+           "value": "agent_ns:spire"
+       },
+       {
+            "type": "k8s_sat",
+            "value": "agent_sa:spire-agent"
+       },
+    ]
+  }
+}
+```
+#### POST
+##### /api/entry/create
 ```
 #### - Entries
 ##### /api/entry/create
@@ -300,8 +265,46 @@ Example response:
     }                
   ]
 }
+#### GET
 ```
 #### - Tornjak Specific
+##### /api/tornjak/serverinfo
+```
+Request 
+api/tornjak/serverinfo
+Example Response:
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+
+{
+  "plugins": 
+  {
+    "DataStore": ["sql"],
+    "KeyManager": ["disk"],
+    "NodeAttestor": ["k8s_sat"],
+    "NodeResolver": ["k8sbundle"],
+    "trust_domain": "example.org",
+    "verboseConfig": "Plugin Info..."
+  }
+}
+
+```
+##### /api/tornjak/selectors/list
+```
+Request 
+api/tornjak/selectors/list
+Example response:
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+
+{
+  "agents": {
+    "spiffeid": "spiffe://example.org/spire/agent/",
+    "plugin": "plugin1"
+  }
+}
+
+#### POST
 ##### /api/tornjak/selectors/register
 ```
 Request 
