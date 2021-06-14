@@ -25,6 +25,8 @@ class ClusterManagement extends Component {
     this.onChangeClusterName = this.onChangeClusterName.bind(this);
     this.onChangeClusterType = this.onChangeClusterType.bind(this);
     this.onChangeManualClusterType = this.onChangeManualClusterType.bind(this);
+    this.onChangeClusterDomainName = this.onChangeClusterDomainName.bind(this);
+    this.onChangeClusterManagedBy = this.onChangeClusterManagedBy.bind(this);
     this.onChangeAdminFlag = this.onChangeAdminFlag.bind(this);
     this.prepareClusterTypeList = this.prepareClusterTypeList.bind(this);
     this.prepareSelectorsList = this.prepareSelectorsList.bind(this);
@@ -46,6 +48,8 @@ class ClusterManagement extends Component {
 
       // parent_id
       clusterType: "",
+      clusterDomainName: "",
+      clusterManagedBy: "",
       parentIdTrustDomain: "",
       parentIdPath: "",
 
@@ -290,6 +294,21 @@ class ClusterManagement extends Component {
     return
   }
 
+  onChangeClusterDomainName(e) {
+    var sid = e.target.value;
+    this.setState({
+      clusterDomainName: sid
+    });
+    return
+  }
+
+  onChangeClusterManagedBy(e) {
+    var sid = e.target.value;
+    this.setState({
+      clusterManagedBy: sid
+    });
+    return
+  }
   // Tag related things
 
   handleTagDelete(i) {
@@ -426,8 +445,6 @@ class ClusterManagement extends Component {
                         invalidText="A valid value is required - refer to helper text below"
                         labelText="CLUSTER NAME"
                         placeholder="Enter CLUSTER NAME"
-                        //value={this.state.spiffeId}
-                        defaultValue={this.state.spiffeIdPrefix}
                         onChange={this.onChangeClusterName}
                       />
                     </div>
@@ -455,6 +472,27 @@ class ClusterManagement extends Component {
                           }}
                         />
                       </div>}
+                    <div className="cluster-domain-name-input-field">
+                      <TextInput
+                        helperText="i.e. example.org"
+                        id="clusterDomainNameInputField"
+                        invalidText="A valid value is required - refer to helper text below"
+                        labelText="CLUSTER DOMAIN NAME/ URL"
+                        placeholder="Enter CLUSTER DOMAIN NAME/ URL"
+                        onChange={this.onChangeClusterDomainName}
+                      />
+                    </div>
+                    <div className="cluster-managed-by-input-field">
+                      <TextInput
+                        helperText="i.e. person-A"
+                        id="clusterNameInputField"
+                        invalidText="A valid value is required - refer to helper text below"
+                        labelText="CLUSTER MANAGED BY"
+                        placeholder="Enter CLUSTER MANAGED BY"
+                        //value={this.state.spiffeId}
+                        onChange={this.onChangeClusterManagedBy}
+                      />
+                    </div>
                     <div className="selectors-multiselect">
                       <MultiSelect.Filterable
                         required
