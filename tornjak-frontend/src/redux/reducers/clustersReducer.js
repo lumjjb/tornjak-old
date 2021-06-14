@@ -1,9 +1,11 @@
 import {
     GLOBAL_CLUSTERS_LIST,
+    GLOBAL_CLUSTER_TYPE_INFO,
 } from '../actions/types';
 
 const initialState = {
     globalClustersList: [],
+    globalClusterTypeInfo: [],
 };
 
 export default function clustersReducer(state = initialState, action) {
@@ -12,6 +14,11 @@ export default function clustersReducer(state = initialState, action) {
             return {
                 ...state,
                 globalAgentsList: action.payload
+            };
+        case GLOBAL_CLUSTER_TYPE_INFO:
+            return {
+                ...state,
+                globalClusterTypeInfo: action.payload
             };
         default:
             return state;

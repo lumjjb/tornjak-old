@@ -5,8 +5,10 @@ import { Tabs, Tab, Dropdown, TextInput, MultiSelect, Checkbox, TextArea, Number
 import GetApiServerUri from './helpers';
 import IsManager from './is_manager';
 import TornjakApi from './tornjak-api-helpers';
+import { clusterType } from '../res/data';
 import './style.css';
 import {
+  clusterTypeInfoFunc,
   serverSelectedFunc,
   selectorInfoFunc,
   agentsListUpdateFunc,
@@ -20,11 +22,11 @@ class ClusterManagement extends Component {
     super(props);
     this.TornjakApi = new TornjakApi();
     this.onChangeSelectors = this.onChangeSelectors.bind(this);
-    this.onChangeSpiffeId = this.onChangeSpiffeId.bind(this);
-    this.onChangeParentId = this.onChangeParentId.bind(this);
-    this.onChangeManualParentId = this.onChangeManualParentId.bind(this);
+    this.onChangeClusterName = this.onChangeClusterName.bind(this);
+    this.onChangeClusterType = this.onChangeClusterType.bind(this);
+    this.onChangeManualClusterType = this.onChangeManualClusterType.bind(this);
     this.onChangeAdminFlag = this.onChangeAdminFlag.bind(this);
-    this.prepareParentIdAgentsList = this.prepareParentIdAgentsList.bind(this);
+    this.prepareClusterTypeList = this.prepareClusterTypeList.bind(this);
     this.prepareSelectorsList = this.prepareSelectorsList.bind(this);
     this.onChangeSelectorsRecommended = this.onChangeSelectorsRecommended.bind(this);
     this.onChangeTtl = this.onChangeTtl.bind(this);
@@ -38,12 +40,12 @@ class ClusterManagement extends Component {
       name: "",
 
       // spiffe_id
-      spiffeId: "",
+      clusterName: "",
       spiffeIdTrustDomain: "",
       spiffeIdPath: "",
 
       // parent_id
-      parentId: "",
+      clusterType: "",
       parentIdTrustDomain: "",
       parentIdPath: "",
 
@@ -61,22 +63,23 @@ class ClusterManagement extends Component {
       message: "",
       servers: [],
       selectedServer: "",
-      agentsIdList: [],
+      clusterTypeList: [],
       spiffeIdPrefix: "",
-      parentIdManualEntryOption: "----Select this option and Enter Custom Parent ID Below----",
-      parentIDManualEntry: false,
+      clusterTypeManualEntryOption: "----Select this option and Enter Custom Cluster Type Below----",
+      clusterTypeManualEntry: false,
       selectorsList: [],
       selectorsListDisplay: "Select Selectors",
     }
   }
 
   componentDidMount() {
+    this.props.clusterTypeInfoFunc(clusterType); //set cluster type info
     if (IsManager) {
       if (this.props.globalServerSelected !== "" && (this.props.globalErrorMessage === "OK" || this.props.globalErrorMessage === "")) {
         this.TornjakApi.populateAgentsUpdate(this.props.globalServerSelected, this.props.agentsListUpdateFunc, this.props.tornjakMessageFunc)
         this.TornjakApi.refreshSelectorsState(this.props.globalServerSelected, this.props.agentworkloadSelectorInfoFunc);
         this.setState({ selectedServer: this.props.globalServerSelected });
-        this.prepareParentIdAgentsList();
+        this.prepareClusterTypeList();
         this.prepareSelectorsList();
       }
     } else {
@@ -85,7 +88,7 @@ class ClusterManagement extends Component {
       this.TornjakApi.populateLocalTornjakServerInfo(this.props.tornjakServerInfoUpdateFunc, this.props.tornjakMessageFunc);
       this.TornjakApi.populateServerInfo(this.props.globalTornjakServerInfo, this.props.serverInfoUpdateFunc);
       this.setState({})
-      this.prepareParentIdAgentsList();
+      this.prepareClusterTypeList();
       this.prepareSelectorsList();
     }
   }
@@ -96,11 +99,11 @@ class ClusterManagement extends Component {
         this.setState({ selectedServer: this.props.globalServerSelected });
       }
       if (prevProps.globalServerInfo !== this.props.globalServerInfo) {
-        this.prepareParentIdAgentsList();
+        this.prepareClusterTypeList();
         this.prepareSelectorsList();
       }
       if (prevProps.globalAgentsList !== this.props.globalAgentsList) {
-        this.prepareParentIdAgentsList();
+        this.prepareClusterTypeList();
       }
       if (prevState.parentId !== this.state.parentId) {
         this.prepareSelectorsList();
@@ -115,22 +118,19 @@ class ClusterManagement extends Component {
     }
   }
 
-  prepareParentIdAgentsList() {
-    var i = 0, prefix = "spiffe://";;
-    let localAgentsIdList = [];
+  prepareClusterTypeList() {
+    let localClusterTypeList = [];
     if (this.props.globalServerInfo.length === 0) {
       return
     }
     //user prefered option
-    localAgentsIdList[0] = this.state.parentIdManualEntryOption;
-    //default option
-    localAgentsIdList[1] = prefix + this.props.globalServerInfo.data.trustDomain + "/spire/server";
+    localClusterTypeList[0] = this.state.clusterTypeManualEntryOption;
     //agents
-    for (i = 0; i < this.props.globalAgentsList.length; i++) {
-      localAgentsIdList[i + 2] = prefix + this.props.globalAgentsList[i].id.trust_domain + this.props.globalAgentsList[i].id.path;
+    for (let i = 0; i < this.props.globalClusterTypeInfo.length; i++) {
+      localClusterTypeList[i + 1] = this.props.globalClusterTypeInfo[i];
     }
     this.setState({
-      agentsIdList: localAgentsIdList
+      clusterTypeList: localClusterTypeList
     });
   }
 
@@ -244,111 +244,48 @@ class ClusterManagement extends Component {
     return [false, "", ""];
   }
 
-  onChangeSpiffeId(e) {
+  onChangeClusterName(e) {
+    var sid = e.target.value;
+    this.setState({
+      clusterName: sid
+    });
+    return
+  }
+
+  onChangeClusterType = selected => {
+    var sid = selected.selectedItem;
+    if (sid.length === 0) {
+      this.setState({
+        clusterType: sid,
+      });
+      return
+    }
+    if (sid === this.state.clusterTypeManualEntryOption) {
+      this.setState({
+        clusterTypeManualEntry: true,
+        clusterType: sid,
+      });
+      return
+    }
+    this.setState({
+      clusterTypeManualEntry: false
+    });
+    this.setState({
+      clusterType: sid,
+    });
+    return
+  }
+
+  onChangeManualClusterType(e) {
     var sid = e.target.value;
     if (sid.length === 0) {
       this.setState({
-        spiffeId: sid,
-        spiffeIdTrustDomain: "",
-        spiffeIdPath: "",
-        message: "",
-      });
-      return
-    }
-
-    const [validSpiffeId, trustDomain, path] = this.parseSpiffeId(sid)
-    if (validSpiffeId) {
-      this.setState({
-        message: "",
-        spiffeId: sid,
-        spiffeIdTrustDomain: trustDomain,
-        spiffeIdPath: path,
-      });
-      return
-    }
-    // else invalid spiffe ID
-    this.setState({
-      spiffeId: sid,
-      message: "Invalid Spiffe ID",
-      spiffeIdTrustDomain: "",
-      spiffeIdPath: "",
-    });
-    return
-  }
-
-  onChangeParentId = selected => {
-    var prefix = "spiffe://", sid = selected.selectedItem;
-    if (sid.length === 0) {
-      this.setState({
-        parentId: sid,
-        parentIdTrustDomain: "",
-        parentIdPath: "",
-        message: "",
-      });
-      return
-    }
-    if (sid === this.state.parentIdManualEntryOption) {
-      this.setState({
-        parentIDManualEntry: true,
-        spiffeIdPrefix: "",
-        parentId: sid,
+        clusterType: sid
       });
       return
     }
     this.setState({
-      parentIDManualEntry: false
-    });
-    const [validSpiffeId, trustDomain, path] = this.parseSpiffeId(sid)
-    var spiffeIdPrefix = prefix + trustDomain + "/";
-    if (validSpiffeId) {
-      this.setState({
-        message: "",
-        parentId: sid,
-        parentIdTrustDomain: trustDomain,
-        parentIdPath: path,
-        spiffeIdPrefix: spiffeIdPrefix,
-      });
-      return
-    }
-    // else invalid spiffe ID
-    this.setState({
-      parentId: sid,
-      message: "Invalid Parent ID",
-      parentIdTrustDomain: "",
-      parentIdPath: "",
-    });
-    return
-  }
-
-  onChangeManualParentId(e) {
-    var prefix = "spiffe://", sid = e.target.value;
-    if (sid.length === 0) {
-      this.setState({
-        parentId: sid,
-        parentIdTrustDomain: "",
-        parentIdPath: "",
-        message: "",
-      });
-      return
-    }
-    const [validSpiffeId, trustDomain, path] = this.parseSpiffeId(sid)
-    var spiffeIdPrefix = prefix + trustDomain + "/";
-    if (validSpiffeId) {
-      this.setState({
-        message: "",
-        parentId: sid,
-        parentIdTrustDomain: trustDomain,
-        parentIdPath: path,
-        spiffeIdPrefix: spiffeIdPrefix,
-      });
-      return
-    }
-    // else invalid spiffe ID
-    this.setState({
-      parentId: sid,
-      message: "Invalid Parent ID",
-      parentIdTrustDomain: "",
-      parentIdPath: "",
+      clusterType: sid
     });
     return
   }
@@ -459,7 +396,7 @@ class ClusterManagement extends Component {
   }
 
   render() {
-    const ParentIdList = this.state.agentsIdList;
+    const ClusterType = this.state.clusterTypeList;
     return (
       <div>
         <div className="cluster-management-tabs">
@@ -482,50 +419,42 @@ class ClusterManagement extends Component {
                   {IsManager}
                   <br /><br />
                   <div className="entry-form">
-                    <div className="parentId-drop-down">
-                      <Dropdown
-                        ariaLabel="parentId-drop-down"
-                        id="parentId-drop-down"
-                        items={ParentIdList}
-                        label="Select Parent ID"
-                        titleText="Parent ID"
-                        //value={this.state.parentId}
-                        onChange={this.onChangeParentId}
+                    <div className="clustername-input-field">
+                      <TextInput
+                        helperText="i.e. exampleabc"
+                        id="clusterNameInputField"
+                        invalidText="A valid value is required - refer to helper text below"
+                        labelText="CLUSTER NAME"
+                        placeholder="Enter CLUSTER NAME"
+                        //value={this.state.spiffeId}
+                        defaultValue={this.state.spiffeIdPrefix}
+                        onChange={this.onChangeClusterName}
                       />
-                      <p className="parentId-helper">i.e. spiffe://example.org/agent/myagent1 - For node entries, select spiffe server as parent i.e. spiffe://example.org/spire/server</p>
                     </div>
-                    {this.state.parentIDManualEntry === true &&
-                      <div className="parentId-manual-input-field">
+                    <div className="clustertype-drop-down">
+                      <Dropdown
+                        ariaLabel="clustertype-drop-down"
+                        id="clustertype-drop-down"
+                        items={ClusterType}
+                        label="Select Cluster Type"
+                        titleText="CLUSTER TYPE"
+                        onChange={this.onChangeClusterType}
+                      />
+                      <p className="cluster-helper">i.e. Kubernetes, VMs...</p>
+                    </div>
+                    {this.state.clusterTypeManualEntry === true &&
+                      <div className="clustertype-manual-input-field">
                         <TextInput
-                          helperText="i.e. spiffe://example.org/agent/myagent1 - For node entries, specify spiffe server as parent i.e. spiffe://example.org/spire/server"
-                          id="parentIdManualInputField"
+                          helperText="i.e. Kubernetes, VMs..."
+                          id="clusterTypeManualInputField"
                           invalidText="A valid value is required - refer to helper text below"
-                          labelText="Parent ID - Manual Entry"
-                          placeholder="Enter Parent ID"
-                          //value={this.state.spiffeId}
-                          //defaultValue={this.state.spiffeIdPrefix}
+                          labelText="Cluster Type - Manual Entry"
+                          placeholder="Enter Cluster Type"
                           onChange={(e) => {
-                            this.onChangeManualParentId(e);
+                            this.onChangeManualClusterType(e);
                           }}
                         />
                       </div>}
-                    <div className="spiffeId-input-field">
-                      <TextInput
-                        helperText="i.e. spiffe://example.org/sample/spiffe/id"
-                        id="spiffeIdInputField"
-                        invalidText="A valid value is required - refer to helper text below"
-                        labelText="SPIFFE ID"
-                        placeholder="Enter SPIFFE ID"
-                        //value={this.state.spiffeId}
-                        defaultValue={this.state.spiffeIdPrefix}
-                        onChange={(e) => {
-                          const input = e.target.value
-                          e.target.value = this.state.spiffeIdPrefix + input.substr(this.state.spiffeIdPrefix.length);
-                          this.onChangeSpiffeId(e);
-                        }}
-                      //onChange={this.onChangeSpiffeId}
-                      />
-                    </div>
                     <div className="selectors-multiselect">
                       <MultiSelect.Filterable
                         required
@@ -644,6 +573,7 @@ class ClusterManagement extends Component {
 
 
 const mapStateToProps = (state) => ({
+  globalClusterTypeInfo: state.clusters.globalClusterTypeInfo,
   globalServerSelected: state.servers.globalServerSelected,
   globalSelectorInfo: state.servers.globalSelectorInfo,
   globalAgentsList: state.agents.globalAgentsList,
@@ -656,5 +586,5 @@ const mapStateToProps = (state) => ({
 
 export default connect(
   mapStateToProps,
-  { serverSelectedFunc, selectorInfoFunc, agentsListUpdateFunc, tornjakMessageFunc, tornjakServerInfoUpdateFunc, serverInfoUpdateFunc }
+  { clusterTypeInfoFunc, serverSelectedFunc, selectorInfoFunc, agentsListUpdateFunc, tornjakMessageFunc, tornjakServerInfoUpdateFunc, serverInfoUpdateFunc }
 )(ClusterManagement)
