@@ -3,7 +3,9 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { BrowserRouter as Router, Route } from "react-router-dom";
 import NavigationBar from "./components/navbar";
 import SelectServer from "./components/select-server";
-import AgentList from "./components/agent-list";
+import ClusterList from "./components/agent-list";
+import ClusterManagement from "./components/cluster-management";
+import AgentList from "./components/cluster-list";
 import CreateJoinToken from "./components/agent-create-join-token";
 import EntryList from "./components/entry-list";
 import EntryCreate from "./components/entry-create";
@@ -27,10 +29,12 @@ function App() {
                         <SelectServer />
                         <br />
                         <Route path="/" exact component={AgentList} />
+                        <Route path="/clusters" exact component={ClusterList} />
                         <Route path="/agents" exact component={AgentList} />
                         <Route path="/entries" exact component={EntryList} />
                         <Route path="/entry/create" exact component={EntryCreate} />
                         <Route path="/agent/createjointoken" exact component={CreateJoinToken} />
+                        <Route path="/cluster/clustermanagement" exact component={ClusterManagement} />
                         <Route path="/tornjak/serverinfo" exact component={TornjakServerInfo} />
                         <Route path="/server/manage" exact component={ServerManagement} />
                         <br /><br /><br />

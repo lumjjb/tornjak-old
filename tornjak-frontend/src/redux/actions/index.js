@@ -9,7 +9,19 @@ import {
     GLOBAL_MESSAGE,
     GLOBAL_WORKLOAD_SELECTOR_INFO,
     GLOBAL_AGENTS_WORKLOADATTESTOR_INFO,
+    GLOBAL_CLUSTERS_LIST,
 } from './types';
+
+// Expected input - List of clusters with their info
+// clustersListUpdateFunc returns the list of clusters with their info
+export function clustersListUpdateFunc(globalClustersList) {
+    return dispatch => {
+        dispatch({
+            type: GLOBAL_CLUSTERS_LIST,
+            payload: globalClustersList
+        });
+    }
+}
 
 // Expected input - "Error Message/ Success Message"
 // tornjakMessageFunc returns the Error Message/ Success Message of an executed function
