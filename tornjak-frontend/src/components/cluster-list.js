@@ -34,7 +34,7 @@ const Agent = props => (
   </tr>
 )
 
-class AgentList extends Component {
+class ClusterList extends Component {
   constructor(props) {
     super(props);
     this.TornjakApi = new TornjakApi();
@@ -120,4 +120,4 @@ const mapStateToProps = (state) => ({
 export default connect(
   mapStateToProps,
   { serverSelectedFunc, agentsListUpdateFunc, tornjakServerInfoUpdateFunc, serverInfoUpdateFunc, selectorInfoFunc, tornjakMessageFunc, workloadSelectorInfoFunc, agentworkloadSelectorInfoFunc }
-)(AgentList)
+)(ClusterList)

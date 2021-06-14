@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import axios from 'axios';
-import { Dropdown, TextInput, MultiSelect, Checkbox, TextArea, NumberInput } from 'carbon-components-react';
+import { Tabs, Tab, Dropdown, TextInput, MultiSelect, Checkbox, TextArea, NumberInput } from 'carbon-components-react';
 import GetApiServerUri from './helpers';
 import IsManager from './is_manager';
 import TornjakApi from './tornjak-api-helpers';
@@ -462,158 +462,181 @@ class ClusterManagement extends Component {
     const ParentIdList = this.state.agentsIdList;
     return (
       <div>
-        <div className="create-entry-title">
-          <h3>Create New Entry</h3>
+        <div className="cluster-management-tabs">
+          <Tabs scrollIntoView={false} >
+            <Tab className="cluster-management-tab1"
+              href="#"
+              id="tab-1"
+              label="Create Cluster"
+            >
+              <div className="cluster-create">
+                <div className="create-entry-title">
+                  <h3>Create New Cluster</h3>
+                </div>
+                <form onSubmit={this.onSubmit}>
+                  <div className="alert-primary" role="alert">
+                    <pre>
+                      {this.state.message}
+                    </pre>
+                  </div>
+                  {IsManager}
+                  <br /><br />
+                  <div className="entry-form">
+                    <div className="parentId-drop-down">
+                      <Dropdown
+                        ariaLabel="parentId-drop-down"
+                        id="parentId-drop-down"
+                        items={ParentIdList}
+                        label="Select Parent ID"
+                        titleText="Parent ID"
+                        //value={this.state.parentId}
+                        onChange={this.onChangeParentId}
+                      />
+                      <p className="parentId-helper">i.e. spiffe://example.org/agent/myagent1 - For node entries, select spiffe server as parent i.e. spiffe://example.org/spire/server</p>
+                    </div>
+                    {this.state.parentIDManualEntry === true &&
+                      <div className="parentId-manual-input-field">
+                        <TextInput
+                          helperText="i.e. spiffe://example.org/agent/myagent1 - For node entries, specify spiffe server as parent i.e. spiffe://example.org/spire/server"
+                          id="parentIdManualInputField"
+                          invalidText="A valid value is required - refer to helper text below"
+                          labelText="Parent ID - Manual Entry"
+                          placeholder="Enter Parent ID"
+                          //value={this.state.spiffeId}
+                          //defaultValue={this.state.spiffeIdPrefix}
+                          onChange={(e) => {
+                            this.onChangeManualParentId(e);
+                          }}
+                        />
+                      </div>}
+                    <div className="spiffeId-input-field">
+                      <TextInput
+                        helperText="i.e. spiffe://example.org/sample/spiffe/id"
+                        id="spiffeIdInputField"
+                        invalidText="A valid value is required - refer to helper text below"
+                        labelText="SPIFFE ID"
+                        placeholder="Enter SPIFFE ID"
+                        //value={this.state.spiffeId}
+                        defaultValue={this.state.spiffeIdPrefix}
+                        onChange={(e) => {
+                          const input = e.target.value
+                          e.target.value = this.state.spiffeIdPrefix + input.substr(this.state.spiffeIdPrefix.length);
+                          this.onChangeSpiffeId(e);
+                        }}
+                      //onChange={this.onChangeSpiffeId}
+                      />
+                    </div>
+                    <div className="selectors-multiselect">
+                      <MultiSelect.Filterable
+                        required
+                        titleText="Selectors Recommendation"
+                        helperText="i.e. k8s_sat:cluster,..."
+                        placeholder={this.state.selectorsListDisplay}
+                        ariaLabel="selectors-multiselect"
+                        id="selectors-multiselect"
+                        items={this.state.selectorsList}
+                        label={this.state.selectorsListDisplay}
+                        onChange={this.onChangeSelectorsRecommended}
+                      />
+                    </div>
+                    <div className="selectors-textArea">
+                      <TextArea
+                        cols={50}
+                        helperText="i.e. k8s_sat:cluster:demo-cluster,..."
+                        id="selectors-textArea"
+                        invalidText="A valid value is required"
+                        labelText="Selectors"
+                        placeholder="Enter Selectors - Refer to Selectors Recommendation"
+                        defaultValue={this.state.selectorsRecommendationList}
+                        rows={8}
+                        onChange={this.onChangeSelectors}
+                      />
+                    </div>
+                    <div className="advanced">
+                      <fieldset className="bx--fieldset">
+                        <legend className="bx--label">Advanced</legend>
+                        <div className="ttl-input">
+                          <NumberInput
+                            helperText="Ttl for identities issued for this entry (In seconds)"
+                            id="ttl-input"
+                            invalidText="Number is not valid"
+                            label="Time to Leave (Ttl)"
+                            //max={100}
+                            min={0}
+                            step={1}
+                            value={0}
+                            onChange={this.onChangeTtl}
+                          />
+                        </div>
+                        <div className="expiresAt-input">
+                          <NumberInput
+                            helperText="Entry expires at (seconds since Unix epoch)"
+                            id="expiresAt-input"
+                            invalidText="Number is not valid"
+                            label="Expires At"
+                            //max={100}
+                            min={0}
+                            step={1}
+                            value={0}
+                            onChange={this.onChangeExpiresAt}
+                          />
+                        </div>
+                        <div className="federates-with-input-field">
+                          <TextInput
+                            helperText="i.e. example.org,abc.com (Separated By Commas)"
+                            id="federates-with-input-field"
+                            invalidText="A valid value is required - refer to helper text below"
+                            labelText="Federates With"
+                            placeholder="Enter Names of trust domains the identity described by this entry federates with"
+                            onChange={this.onChangeFederatesWith}
+                          />
+                        </div>
+                        <div className="dnsnames-input-field">
+                          <TextInput
+                            helperText="i.e. example.org,abc.com (Separated By Commas)"
+                            id="dnsnames-input-field"
+                            invalidText="A valid value is required - refer to helper text below"
+                            labelText="DNS Names"
+                            placeholder="Enter DNS Names associated with the identity described by this entry"
+                            onChange={this.onChangeDnsNames}
+                          />
+                        </div>
+                        <div className="admin-flag-checkbox">
+                          <Checkbox
+                            labelText="Admin Flag"
+                            id="admin-flag"
+                            onChange={this.onChangeAdminFlag}
+                          />
+                        </div>
+                        <div className="down-stream-checkbox">
+                          <Checkbox
+                            labelText="Down Stream"
+                            id="down-steam"
+                            onChange={this.onChangeDownStream}
+                          />
+                        </div>
+                      </fieldset>
+                    </div>
+                    <div className="form-group">
+                      <input type="submit" value="Create Entry" className="btn btn-primary" />
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </Tab>
+            <Tab
+              href="#"
+              id="tab-2"
+              label="Assign Agents"
+            >
+              <div className="some-content">
+                <div className="create-entry-title">
+                  <h3>Assign Agents/ Nodes to Cluster</h3>
+                </div>
+              </div>
+            </Tab>
+          </Tabs>
         </div>
-        <form onSubmit={this.onSubmit}>
-          <div className="alert-primary" role="alert">
-            <pre>
-              {this.state.message}
-            </pre>
-          </div>
-          {IsManager}
-          <br /><br />
-          <div className="entry-form">
-            <div className="parentId-drop-down">
-              <Dropdown
-                ariaLabel="parentId-drop-down"
-                id="parentId-drop-down"
-                items={ParentIdList}
-                label="Select Parent ID"
-                titleText="Parent ID"
-                //value={this.state.parentId}
-                onChange={this.onChangeParentId}
-              />
-              <p className="parentId-helper">i.e. spiffe://example.org/agent/myagent1 - For node entries, select spiffe server as parent i.e. spiffe://example.org/spire/server</p>
-            </div>
-            {this.state.parentIDManualEntry === true &&
-              <div className="parentId-manual-input-field">
-                <TextInput
-                  helperText="i.e. spiffe://example.org/agent/myagent1 - For node entries, specify spiffe server as parent i.e. spiffe://example.org/spire/server"
-                  id="parentIdManualInputField"
-                  invalidText="A valid value is required - refer to helper text below"
-                  labelText="Parent ID - Manual Entry"
-                  placeholder="Enter Parent ID"
-                  //value={this.state.spiffeId}
-                  //defaultValue={this.state.spiffeIdPrefix}
-                  onChange={(e) => {
-                    this.onChangeManualParentId(e);
-                  }}
-                />
-              </div>}
-            <div className="spiffeId-input-field">
-              <TextInput
-                helperText="i.e. spiffe://example.org/sample/spiffe/id"
-                id="spiffeIdInputField"
-                invalidText="A valid value is required - refer to helper text below"
-                labelText="SPIFFE ID"
-                placeholder="Enter SPIFFE ID"
-                //value={this.state.spiffeId}
-                defaultValue={this.state.spiffeIdPrefix}
-                onChange={(e) => {
-                  const input = e.target.value
-                  e.target.value = this.state.spiffeIdPrefix + input.substr(this.state.spiffeIdPrefix.length);
-                  this.onChangeSpiffeId(e);
-                }}
-              //onChange={this.onChangeSpiffeId}
-              />
-            </div>
-            <div className="selectors-multiselect">
-              <MultiSelect.Filterable
-                required
-                titleText="Selectors Recommendation"
-                helperText="i.e. k8s_sat:cluster,..."
-                placeholder={this.state.selectorsListDisplay}
-                ariaLabel="selectors-multiselect"
-                id="selectors-multiselect"
-                items={this.state.selectorsList}
-                label={this.state.selectorsListDisplay}
-                onChange={this.onChangeSelectorsRecommended}
-              />
-            </div>
-            <div className="selectors-textArea">
-              <TextArea
-                cols={50}
-                helperText="i.e. k8s_sat:cluster:demo-cluster,..."
-                id="selectors-textArea"
-                invalidText="A valid value is required"
-                labelText="Selectors"
-                placeholder="Enter Selectors - Refer to Selectors Recommendation"
-                defaultValue={this.state.selectorsRecommendationList}
-                rows={8}
-                onChange={this.onChangeSelectors}
-              />
-            </div>
-            <div className="advanced">
-              <fieldset className="bx--fieldset">
-                <legend className="bx--label">Advanced</legend>
-                <div className="ttl-input">
-                  <NumberInput
-                    helperText="Ttl for identities issued for this entry (In seconds)"
-                    id="ttl-input"
-                    invalidText="Number is not valid"
-                    label="Time to Leave (Ttl)"
-                    //max={100}
-                    min={0}
-                    step={1}
-                    value={0}
-                    onChange={this.onChangeTtl}
-                  />
-                </div>
-                <div className="expiresAt-input">
-                  <NumberInput
-                    helperText="Entry expires at (seconds since Unix epoch)"
-                    id="expiresAt-input"
-                    invalidText="Number is not valid"
-                    label="Expires At"
-                    //max={100}
-                    min={0}
-                    step={1}
-                    value={0}
-                    onChange={this.onChangeExpiresAt}
-                  />
-                </div>
-                <div className="federates-with-input-field">
-                  <TextInput
-                    helperText="i.e. example.org,abc.com (Separated By Commas)"
-                    id="federates-with-input-field"
-                    invalidText="A valid value is required - refer to helper text below"
-                    labelText="Federates With"
-                    placeholder="Enter Names of trust domains the identity described by this entry federates with"
-                    onChange={this.onChangeFederatesWith}
-                  />
-                </div>
-                <div className="dnsnames-input-field">
-                  <TextInput
-                    helperText="i.e. example.org,abc.com (Separated By Commas)"
-                    id="dnsnames-input-field"
-                    invalidText="A valid value is required - refer to helper text below"
-                    labelText="DNS Names"
-                    placeholder="Enter DNS Names associated with the identity described by this entry"
-                    onChange={this.onChangeDnsNames}
-                  />
-                </div>
-                <div className="admin-flag-checkbox">
-                  <Checkbox
-                    labelText="Admin Flag"
-                    id="admin-flag"
-                    onChange={this.onChangeAdminFlag}
-                  />
-                </div>
-                <div className="down-stream-checkbox">
-                  <Checkbox
-                    labelText="Down Stream"
-                    id="down-steam"
-                    onChange={this.onChangeDownStream}
-                  />
-                </div>
-              </fieldset>
-            </div>
-            <div className="form-group">
-              <input type="submit" value="Create Entry" className="btn btn-primary" />
-            </div>
-          </div>
-        </form>
       </div>
     )
   }
