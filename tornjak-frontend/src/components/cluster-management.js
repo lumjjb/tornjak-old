@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import axios from 'axios';
-import { Tabs, Tab, Dropdown, TextInput, MultiSelect, Checkbox, TextArea, NumberInput } from 'carbon-components-react';
+import { Tabs, Tab, Dropdown, TextInput, MultiSelect, TextArea } from 'carbon-components-react';
 import GetApiServerUri from './helpers';
 import IsManager from './is_manager';
 import TornjakApi from './tornjak-api-helpers';
@@ -32,32 +32,21 @@ class ClusterManagement extends Component {
     this.onSubmit = this.onSubmit.bind(this);
 
     this.state = {
-      name: "",
-
-      // spiffe_id
       clusterName: "",
-      spiffeIdTrustDomain: "",
-      spiffeIdPath: "",
-
-      // parent_id
       clusterType: "",
       clusterDomainName: "",
       clusterManagedBy: "",
-      parentIdTrustDomain: "",
-      parentIdPath: "",
-
-      // ',' delimetered selectors
-      selectors: "",
       clusterAgentsList: "",
-      //token: "",
-      message: "",
-      servers: [],
-      selectedServer: "",
       clusterTypeList: [],
       clusterTypeManualEntryOption: "----Select this option and Enter Custom Cluster Type Below----",
       clusterTypeManualEntry: false,
+      message: "",
+      statusOK: "",
+      successJsonMessege: "",
+      selectedServer: "",
       agentsList: [],
       agentsListDisplay: "Select Agents",
+      assignedAgentsListDisplay: "",
     }
   }
 
@@ -72,7 +61,6 @@ class ClusterManagement extends Component {
         this.prepareAgentsList();
       }
     } else {
-      // agent doesnt need to do anything
       this.TornjakApi.populateLocalAgentsUpdate(this.props.agentsListUpdateFunc, this.props.tornjakMessageFunc);
       this.TornjakApi.populateLocalTornjakServerInfo(this.props.tornjakServerInfoUpdateFunc, this.props.tornjakMessageFunc);
       this.TornjakApi.populateServerInfo(this.props.globalTornjakServerInfo, this.props.serverInfoUpdateFunc);
@@ -125,15 +113,11 @@ class ClusterManagement extends Component {
 
   prepareAgentsList() {
     var prefix = "spiffe://", agentSelectorSet = false;
-    var defaultServer = prefix + this.props.globalServerInfo.data.trustDomain + "/spire/server";
     let localAgentsIdList = [];
-    //default option
-    localAgentsIdList[0] = {}
-    localAgentsIdList[0]["label"] = defaultServer;
     //agents
     for (let i = 0; i < this.props.globalAgentsList.length; i++) {
-      localAgentsIdList[i + 1] = {}
-      localAgentsIdList[i + 1]["label"] = prefix + this.props.globalAgentsList[i].id.trust_domain + this.props.globalAgentsList[i].id.path;
+      localAgentsIdList[i] = {}
+      localAgentsIdList[i]["label"] = prefix + this.props.globalAgentsList[i].id.trust_domain + this.props.globalAgentsList[i].id.path;
     }
     this.setState({
       agentsList: localAgentsIdList,
@@ -142,14 +126,21 @@ class ClusterManagement extends Component {
   }
 
   onChangeAgentsList = selected => {
-    var sid = selected.selectedItems, agents = "", agentsDisplay = "";
-    agentsDisplay = sid;
-    agents = sid;
-    if (agentsDisplay.length === 0)
+    var sid = selected.selectedItems, agents = "", agentsDisplay = "", assignedAgentsDisplay = "";
+    let localAgentsIdList = [];
+    for (let i = 0; i < sid.length; i++) {
+      localAgentsIdList[i] = sid[i].label;
+    }
+    agents = localAgentsIdList;
+    agentsDisplay = localAgentsIdList.toString();
+    assignedAgentsDisplay = localAgentsIdList.join("\n");
+    if (agentsDisplay.length === 0) {
       agentsDisplay = "Select Agents"
+    }
     this.setState({
       clusterAgentsList: agents,
       agentsListDisplay: agentsDisplay,
+      assignedAgentsListDisplay: assignedAgentsDisplay,
     });
   }
 
@@ -216,33 +207,11 @@ class ClusterManagement extends Component {
   }
   // Tag related things
 
-  handleTagDelete(i) {
-    const { tags } = this.state;
-    this.setState({
-      tags: tags.filter((tag, index) => index !== i),
-    });
-  }
-
-  handleTagAddition(tag) {
-    this.setState(state => ({ tags: [...state.tags, tag] }));
-  }
-
-  handleTagDrag(tag, currPos, newPos) {
-    const tags = [...this.state.tags];
-    const newTags = tags.slice();
-
-    newTags.splice(currPos, 1);
-    newTags.splice(newPos, 0, tag);
-
-    // re-render
-    this.setState({ tags: newTags });
-  }
-
   getApiEntryCreateEndpoint() {
     if (!IsManager) {
-      return GetApiServerUri('/api/entry/create')
+      return GetApiServerUri('/api/cluster/create')
     } else if (IsManager && this.state.selectedServer !== "") {
-      return GetApiServerUri('/manager-api/entry/create') + "/" + this.state.selectedServer
+      return GetApiServerUri('/manager-api/cluster/create') + "/" + this.state.selectedServer
     } else {
       this.setState({ message: "Error: No server selected" })
       return ""
@@ -282,8 +251,19 @@ class ClusterManagement extends Component {
       return
     }
     axios.post(endpoint, cjtData)
-      .then(res => this.setState({ message: "Requst:" + JSON.stringify(cjtData, null, ' ') + "\n\nSuccess:" + JSON.stringify(res.data, null, ' ') }))
-      .catch(err => this.setState({ message: "ERROR:" + err }))
+      .then(
+        res => this.setState({ 
+          message: "Requst:" + JSON.stringify(cjtData, null, ' ') + "\n\nSuccess:" + JSON.stringify(res.data, null, ' '),
+          statusOK: "OK",
+          successJsonMessege: res.data.results[0].status.message
+        })
+      )
+      .catch(
+        err => this.setState({ 
+          message: "ERROR:" + err,
+          statusOK: "ERROR"
+         })
+      )
   }
 
   render() {
@@ -302,33 +282,30 @@ class ClusterManagement extends Component {
                   <h3>Create New Cluster</h3>
                 </div>
                 <form onSubmit={this.onSubmit}>
-                  <div className="alert-primary" role="alert">
-                    <pre>
-                      {this.state.message}
-                    </pre>
-                  </div>
                   {IsManager}
                   <br /><br />
                   <div className="entry-form">
                     <div className="clustername-input-field">
                       <TextInput
+                        aria-required="true"
                         helperText="i.e. exampleabc"
                         id="clusterNameInputField"
                         invalidText="A valid value is required - refer to helper text below"
-                        labelText="CLUSTER NAME"
+                        labelText="Cluster Name [*required]"
                         placeholder="Enter CLUSTER NAME"
                         onChange={this.onChangeClusterName}
-                      />
+                        required />
                     </div>
                     <div className="clustertype-drop-down">
                       <Dropdown
+                        aria-required="true"
                         ariaLabel="clustertype-drop-down"
                         id="clustertype-drop-down"
                         items={ClusterType}
                         label="Select Cluster Type"
-                        titleText="CLUSTER TYPE"
+                        titleText="Cluster Type [*required]"
                         onChange={this.onChangeClusterType}
-                      />
+                        required />
                       <p className="cluster-helper">i.e. Kubernetes, VMs...</p>
                     </div>
                     {this.state.clusterTypeManualEntry === true &&
@@ -349,7 +326,7 @@ class ClusterManagement extends Component {
                         helperText="i.e. example.org"
                         id="clusterDomainNameInputField"
                         invalidText="A valid value is required - refer to helper text below"
-                        labelText="CLUSTER DOMAIN NAME/ URL"
+                        labelText="Cluster Domain Name/ URL"
                         placeholder="Enter CLUSTER DOMAIN NAME/ URL"
                         onChange={this.onChangeClusterDomainName}
                       />
@@ -359,7 +336,7 @@ class ClusterManagement extends Component {
                         helperText="i.e. person-A"
                         id="clusterNameInputField"
                         invalidText="A valid value is required - refer to helper text below"
-                        labelText="CLUSTER MANAGED BY"
+                        labelText="Cluster Managed By"
                         placeholder="Enter CLUSTER MANAGED BY"
                         //value={this.state.spiffeId}
                         onChange={this.onChangeClusterManagedBy}
@@ -367,8 +344,8 @@ class ClusterManagement extends Component {
                     </div>
                     <div className="agents-multiselect">
                       <MultiSelect.Filterable
-                        titleText="ASSIGN AGENTS/ NODES TO CLUSTER"
-                        helperText="i.e. spiffe://example.org/agent/myagent1,i.e. spiffe://example.org/spire/server..."
+                        titleText="Assign Agents To Cluster"
+                        helperText="i.e. spiffe://example.org/agent/myagent1..."
                         placeholder={this.state.agentsListDisplay}
                         ariaLabel="selectors-multiselect"
                         id="selectors-multiselect"
@@ -377,8 +354,34 @@ class ClusterManagement extends Component {
                         onChange={this.onChangeAgentsList}
                       />
                     </div>
+                    <div className="selectors-textArea">
+                      <TextArea
+                        cols={50}
+                        helperText="i.e. spiffe://example.org/agent/myagent1..."
+                        id="selectors-textArea"
+                        invalidText="A valid value is required"
+                        labelText="Assigned Agents"
+                        placeholder="Assigned agents will be populated here - Refer to Assign Agents To Cluster"
+                        defaultValue={this.state.assignedAgentsListDisplay}
+                        rows={8}
+                        disabled
+                      />
+                    </div>
                     <div className="form-group">
-                      <input type="submit" value="Create Entry" className="btn btn-primary" />
+                      <input type="submit" value="Create Cluster" className="btn btn-primary" />
+                    </div>
+                    <div>
+                      {this.state.statusOK === "OK" && this.state.successJsonMessege === "OK" &&
+                        <p className="success-message">--ENTRY SUCCESSFULLY CREATED--</p>
+                      }
+                      {this.state.statusOK === "ERROR" || (this.state.successJsonMessege !== "OK" && this.state.successJsonMessege !== "") &&
+                        <p className="failed-message">--ENTRY CREATION FAILED--</p>
+                      }
+                    </div>
+                    <div className="alert-primary" role="alert">
+                      <pre>
+                        {this.state.message}
+                      </pre>
                     </div>
                   </div>
                 </form>

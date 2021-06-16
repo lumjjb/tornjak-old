@@ -140,3 +140,13 @@
   .servers-drp-dwn {
     margin-top: 5px;
   }
+
+  .success-message {
+    font-weight: bold;
+    color: green;
+  }
+
+  .failed-message {
+    font-weight: bold;
+    color:red;
+  }
