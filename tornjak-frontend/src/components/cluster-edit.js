@@ -101,11 +101,17 @@ class ClusterEdit extends Component {
       return
     }
     //user prefered option
-    localClusterTypeList[0] = this.state.clusterTypeManualEntryOption;
-    //agents
-    for (let i = 0; i < this.props.globalClusterTypeInfo.length; i++) {
-      localClusterTypeList[i + 1] = this.props.globalClusterTypeInfo[i];
-    }
+    localClusterTypeList = 
+    [
+      "FunCluster",
+      "GalaxyCluster",
+      "SuperCluster",
+      "IBMResearchHCCluster",
+      "Cluster5",
+      "FornaxCluster",
+      "Cluster7",
+      "Cluster8",
+    ];
     this.setState({
       clusterTypeList: localClusterTypeList
     });
@@ -209,9 +215,9 @@ class ClusterEdit extends Component {
 
   getApiEntryCreateEndpoint() {
     if (!IsManager) {
-      return GetApiServerUri('/api/cluster/create')
+      return GetApiServerUri('/api/tornjak/cluster/edit')
     } else if (IsManager && this.state.selectedServer !== "") {
-      return GetApiServerUri('/manager-api/cluster/create') + "/" + this.state.selectedServer
+      return GetApiServerUri('/manager-api/tornjak/cluster/edit') + "/" + this.state.selectedServer
     } else {
       this.setState({ message: "Error: No server selected" })
       return ""
@@ -221,6 +227,11 @@ class ClusterEdit extends Component {
   onSubmit(e) {
     let agentsList = [];
     e.preventDefault();
+
+    // if (this.state.chooseCluster.length === 0) {
+    //   this.setState({ message: "ERROR: Please Choose a Cluster" });
+    //   return
+    // }
 
     if (this.state.clusterName.length === 0) {
       this.setState({ message: "ERROR: Cluster Name Can Not Be Empty - Enter Cluster Name" });
@@ -297,11 +308,10 @@ class ClusterEdit extends Component {
                   labelText="Edit Cluster Name"
                   placeholder="Edit CLUSTER NAME"
                   onChange={this.onChangeClusterName}
-                   />
+                   required />
               </div>
               <div className="clustertype-drop-down">
                 <Dropdown
-                  aria-required="true"
                   ariaLabel="clustertype-drop-down"
                   id="clustertype-drop-down"
                   items={ClusterType}

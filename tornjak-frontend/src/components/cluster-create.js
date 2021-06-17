@@ -209,9 +209,9 @@ class ClusterCreate extends Component {
 
   getApiEntryCreateEndpoint() {
     if (!IsManager) {
-      return GetApiServerUri('/api/cluster/create')
+      return GetApiServerUri('/api/tornjak/cluster/create')
     } else if (IsManager && this.state.selectedServer !== "") {
-      return GetApiServerUri('/manager-api/cluster/create') + "/" + this.state.selectedServer
+      return GetApiServerUri('/manager-api/tornjak/cluster/create') + "/" + this.state.selectedServer
     } else {
       this.setState({ message: "Error: No server selected" })
       return ""
