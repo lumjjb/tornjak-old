@@ -187,7 +187,7 @@ GetEntry(GetEntryRequest) returns (spire.types.Entry);
 type ListSelectorsRequest struct{}
 type ListSelectorsResponse agentTypes.AgentInfoList
 
-// ListSelectors returns list of agents from the loacal DB with the following info
+// ListSelectors returns list of agents from the local DB with the following info
 // spiffeid string
 // plugin   string
 func (s *Server) ListSelectors(inp ListSelectorsRequest) (*ListSelectorsResponse, error) {
@@ -209,4 +209,17 @@ func (s *Server) DefineSelectors(inp RegisterSelectorRequest) error {
 		return errors.New("agent's info missing mandatory field - Spiffeid")
 	}
 	return s.Db.CreateAgentEntry(sinfo)
+}
+
+type ListClustersRequest struct{}
+type ListClustersResponse agentTypes.ClusterInfoList
+// ListClusters returns list of clusters from the local DB with the following info
+// name string
+// details json
+func (s *Server) ListClusters(inp ListClustersRequest) (*ListClustersResponse, error) {
+  retVal, err := s.Db.GetClusters()
+  if err != nil {
+    return nil, err
+  }
+  return (*ListClustersResponse)(&retVal), nil
 }
