@@ -271,22 +271,33 @@ class ClusterEdit extends Component {
       <div>
         <div className="cluster-edit">
           <div className="create-edit-title">
-            <h3>Assign Agents/ Nodes to Cluster</h3>
+            <h3>Edit Cluster</h3>
           </div>
           <form onSubmit={this.onSubmit}>
             {IsManager}
             <br /><br />
             <div className="entry-form">
+              <div className="clustertype-drop-down">
+                <Dropdown
+                  aria-required="true"
+                  ariaLabel="clustertype-drop-down"
+                  id="clustertype-drop-down"
+                  items={ClusterType}
+                  label="Select Cluster"
+                  titleText="Choose Cluster [*required]"
+                  onChange={this.onChangeClusterType}
+                  required />
+                <p className="cluster-helper">i.e. Choose Cluster Name To Edit</p>
+              </div>
               <div className="clustername-input-field">
                 <TextInput
-                  aria-required="true"
                   helperText="i.e. exampleabc"
                   id="clusterNameInputField"
                   invalidText="A valid value is required - refer to helper text below"
-                  labelText="Cluster Name [*required]"
-                  placeholder="Enter CLUSTER NAME"
+                  labelText="Edit Cluster Name"
+                  placeholder="Edit CLUSTER NAME"
                   onChange={this.onChangeClusterName}
-                  required />
+                   />
               </div>
               <div className="clustertype-drop-down">
                 <Dropdown
@@ -295,7 +306,7 @@ class ClusterEdit extends Component {
                   id="clustertype-drop-down"
                   items={ClusterType}
                   label="Select Cluster Type"
-                  titleText="Cluster Type [*required]"
+                  titleText="Edit Cluster Type"
                   onChange={this.onChangeClusterType}
                   required />
                 <p className="cluster-helper">i.e. Kubernetes, VMs...</p>
@@ -318,8 +329,8 @@ class ClusterEdit extends Component {
                   helperText="i.e. example.org"
                   id="clusterDomainNameInputField"
                   invalidText="A valid value is required - refer to helper text below"
-                  labelText="Cluster Domain Name/ URL"
-                  placeholder="Enter CLUSTER DOMAIN NAME/ URL"
+                  labelText="Edit Cluster Domain Name/ URL"
+                  placeholder="Edit CLUSTER DOMAIN NAME/ URL"
                   onChange={this.onChangeClusterDomainName}
                 />
               </div>
@@ -328,15 +339,15 @@ class ClusterEdit extends Component {
                   helperText="i.e. person-A"
                   id="clusterNameInputField"
                   invalidText="A valid value is required - refer to helper text below"
-                  labelText="Cluster Managed By"
-                  placeholder="Enter CLUSTER MANAGED BY"
+                  labelText="Edit Cluster Managed By"
+                  placeholder="Edit CLUSTER MANAGED BY"
                   //value={this.state.spiffeId}
                   onChange={this.onChangeClusterManagedBy}
                 />
               </div>
               <div className="agents-multiselect">
                 <MultiSelect.Filterable
-                  titleText="Assign Agents To Cluster"
+                  titleText="Edit Assigned Agents To Cluster"
                   helperText="i.e. spiffe://example.org/agent/myagent1..."
                   placeholder={this.state.agentsListDisplay}
                   ariaLabel="selectors-multiselect"
@@ -360,7 +371,7 @@ class ClusterEdit extends Component {
                 />
               </div>
               <div className="form-group">
-                <input type="submit" value="Create Cluster" className="btn btn-primary" />
+                <input type="submit" value="Edit Cluster" className="btn btn-primary" />
               </div>
               <div>
                 {this.state.statusOK === "OK" && this.state.successJsonMessege === "OK" &&

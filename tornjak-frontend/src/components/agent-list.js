@@ -92,7 +92,7 @@ class AgentList extends Component {
   render() {
     return (
       <div>
-        <h3>Agent List</h3>
+        <h3>Agents List</h3>
         {this.props.globalErrorMessage !== "OK" &&
           <div className="alert-primary" role="alert">
             <pre>

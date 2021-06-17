@@ -96,7 +96,7 @@ class EntryList extends Component {
 
     return (
       <div>
-        <h3>Entry List</h3>
+        <h3>Entries List</h3>
         {this.props.globalErrorMessage !== "OK" &&
           <div className="alert-primary" role="alert">
             <pre>

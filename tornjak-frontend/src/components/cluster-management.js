@@ -25,7 +25,7 @@ class ClusterManagement extends Component {
           <Tab
             href="#"
             id="tab-2"
-            label="Assign Agents"
+            label="Edit Cluster"
           >
             <ClusterEdit />
           </Tab>

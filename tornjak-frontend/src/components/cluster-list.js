@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import IsManager from './is_manager';
-import Table from "tables/agents-list-table";
+import Table from "tables/clusters-list-table";
 import { selectors, workloadSelectors} from '../res/data';
 import TornjakApi from './tornjak-api-helpers';
 import {
@@ -92,7 +92,7 @@ class ClusterList extends Component {
   render() {
     return (
       <div>
-        <h3>Agent List</h3>
+        <h3>Clusters List</h3>
         {this.props.globalErrorMessage !== "OK" &&
           <div className="alert-primary" role="alert">
             <pre>
