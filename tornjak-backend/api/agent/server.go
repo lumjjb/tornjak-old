@@ -39,6 +39,51 @@ func (_ *Server) homePage(w http.ResponseWriter, r *http.Request) {
 	cors(w, r)
 }
 
+/********* CLUSTER *********/
+
+func (s* Server) clusterList(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Endpoint Hit: Cluster List")
+
+  //var input ListClustersRequest
+  buf := new(strings.Builder)
+
+  n, err := io.Copy(buf, r.Body)
+  if err != nil {
+    emsg := fmt.Sprintf("Error parsing data: %v", err.Error())
+    retError(w, emsg, http.StatusBadRequest)
+    return
+  }
+  //data := buf.String()
+
+  if n == 0 {
+    //input = ListClustersRequest{}
+    msg := fmt.Sprintf("n = 0!")
+    retError(w, msg, http.StatusBadRequest)
+    return
+  } else {
+    /*err := json.Unmarshal([]byte(data), &input)
+    if err != nil {
+      emsg := fmt.Sprintf("Error parsing data: %v", err.Error())
+      retError(w, emsg, http.StatusBadRequest)
+      return
+    }*/
+    msg := fmt.Sprintf("n != 0! WOW")
+    retError(w, msg, http.StatusBadRequest)
+    return
+  }
+  return
+}
+
+func (s* Server) clusterCreate(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Endpoint Hit: Cluster Create")
+
+  msg := fmt.Sprintf("cluster create??")
+  retError(w, msg, http.StatusBadRequest)
+
+}
+
+/********* END CLUSTER *********/
+
 func (s *Server) agentList(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Endpoint Hit: Agent List")
 
@@ -430,6 +475,10 @@ func (s *Server) HandleRequests() {
 	//Agents Selectors
 	rtr.HandleFunc("/api/tornjak/selectors/register", corsHandler(s.pluginDefine))
 	rtr.HandleFunc("/api/tornjak/selectors/list", corsHandler(s.agentsList))
+
+  // Clusters
+  rtr.HandleFunc("/api/cluster/list", corsHandler(s.clusterList))
+  rtr.HandleFunc("/api/cluster/create", corsHandler(s.clusterCreate))
 
 	// UI
 	spa := spaHandler{staticPath: "ui-agent", indexPath: "index.html"}
