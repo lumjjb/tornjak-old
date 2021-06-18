@@ -588,11 +588,33 @@ func (s* Server) clusterList(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s* Server) clusterCreate(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Endpoint Hit: Cluster Create")
-
-  msg := fmt.Sprintf("cluster create??")
-  retError(w, msg, http.StatusBadRequest)
-
+	buf := new(strings.Builder)
+	n, err := io.Copy(buf, r.Body)
+	if err != nil {
+		emsg := fmt.Sprintf("Error parsing data: %v", err.Error())
+		retError(w, emsg, http.StatusBadRequest)
+		return
+	}
+	data := buf.String()
+	var input RegisterClusterRequest
+	if n == 0 {
+		input = RegisterClusterRequest{}
+	} else {
+		err := json.Unmarshal([]byte(data), &input)
+		if err != nil {
+			emsg := fmt.Sprintf("Error parsing data: %v", err.Error())
+			retError(w, emsg, http.StatusBadRequest)
+			return
+		}
+	}
+	err = s.DefineCluster(input)
+	if err != nil {
+		emsg := fmt.Sprintf("Error: %v", err.Error())
+		retError(w, emsg, http.StatusBadRequest)
+		return
+	}
+	cors(w, r)
+	w.Write([]byte("SUCCESS"))
 }
 
 /********* END CLUSTER *********/

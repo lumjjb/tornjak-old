@@ -9,4 +9,5 @@ type AgentDB interface {
 	GetAgents() (types.AgentInfoList, error)
 	GetAgentPluginInfo(name string) (types.AgentInfo, error)
   GetClusters() (types.ClusterInfoList, error)
+  CreateClusterEntry(cinfo types.ClusterInfo) error
 }

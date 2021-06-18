@@ -223,3 +223,17 @@ func (s *Server) ListClusters(inp ListClustersRequest) (*ListClustersResponse, e
   }
   return (*ListClustersResponse)(&retVal), nil
 }
+
+type RegisterClusterRequest agentTypes.ClusterInfo
+
+// DefineCluster registers cluster to local DB with following info
+// name string
+// details json
+func (s *Server) DefineCluster(inp RegisterClusterRequest) error {
+  cinfo := agentTypes.ClusterInfo(inp)
+  if len(cinfo.Name) == 0 {
+    return errors.New("agent's name missing mandatory field - Name")
+  }
+  return s.Db.CreateClusterEntry(cinfo)
+}
+
