@@ -12,7 +12,7 @@ import (
 // TO DO: DELETE deleted agents from the db
 const (
 	initAgentsTable = "CREATE TABLE IF NOT EXISTS agents (spiffeid TEXT PRIMARY KEY, plugin TEXT)" //creates agentdb with fields spiffeid and plugin
-  initClustersTable = "CREATE TABLE IF NOT EXISTS clusters (name TEXT PRIMARY KEY, domainName TEXT, platform TEXT, managedBy TEXT)" //TODO need other fields?
+  initClustersTable = "CREATE TABLE IF NOT EXISTS clusters (name TEXT PRIMARY KEY, domainName TEXT, platform TEXT, managedBy TEXT, agentsList TEXT)" //TODO need other fields?
   testDetails2 = `{"foo1": "bar2", "calvin1": {"and2": "hobbes2"}}`
 )
 
@@ -101,7 +101,7 @@ func (db *LocalSqliteDb) GetAgentPluginInfo(name string) (types.AgentInfo, error
 
 func (db *LocalSqliteDb) GetClusters() (types.ClusterInfoList, error) {
 	//rows, err := db.database.Query("SELECT name, details FROM clusters, json_each(clusters.details, '$.foo1')")
-	rows, err := db.database.Query("SELECT name, domainName, managedBy, platform from clusters")
+	rows, err := db.database.Query("SELECT name, domainName, managedBy, platform, agentsList from clusters")
   if err != nil {
 		return types.ClusterInfoList{}, errors.Errorf("Unable to execute SQL query: %v", err)
 	}
@@ -112,9 +112,10 @@ func (db *LocalSqliteDb) GetClusters() (types.ClusterInfoList, error) {
 		domainName string
     managedBy string
     platform string
+    agentsList string
 	)
 	for rows.Next() {
-		if err = rows.Scan(&name, &domainName, &managedBy, &platform); err != nil {
+		if err = rows.Scan(&name, &domainName, &managedBy, &platform, &agentsList); err != nil {
 			return types.ClusterInfoList{}, err
 		}
 
@@ -123,6 +124,7 @@ func (db *LocalSqliteDb) GetClusters() (types.ClusterInfoList, error) {
 			DomainName: domainName,
       ManagedBy: managedBy,
       Platform: platform,
+      AgentsList: agentsList,
 		})
 	}
 
@@ -132,11 +134,11 @@ func (db *LocalSqliteDb) GetClusters() (types.ClusterInfoList, error) {
 }
 
 func (db *LocalSqliteDb) CreateClusterEntry(cinfo types.ClusterInfo) error {
-  statement, err := db.database.Prepare("INSERT OR REPLACE INTO clusters (name, domainName, managedBy, platform) VALUES (?,?,?,?)")
+  statement, err := db.database.Prepare("INSERT OR REPLACE INTO clusters (name, domainName, managedBy, platform, agentsList) VALUES (?,?,?,?,?)")
   if err != nil {
     return errors.Errorf("Unable to execute SQL query: %v", err)
   }
-  _, err = statement.Exec(cinfo.Name, cinfo.DomainName, cinfo.ManagedBy, cinfo.Platform)
+  _, err = statement.Exec(cinfo.Name, cinfo.DomainName, cinfo.ManagedBy, cinfo.Platform, cinfo.AgentsList)
   return err
 }
 

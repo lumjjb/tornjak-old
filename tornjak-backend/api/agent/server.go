@@ -432,8 +432,9 @@ func (s *Server) HandleRequests() {
 	rtr.HandleFunc("/api/tornjak/selectors/list", corsHandler(s.agentsList))
 
   // Clusters
-  rtr.HandleFunc("/api/cluster/list", corsHandler(s.clusterList))
-  rtr.HandleFunc("/api/cluster/create", corsHandler(s.clusterCreate))
+  rtr.HandleFunc("/api/tornjak/cluster/list", corsHandler(s.clusterList))
+  rtr.HandleFunc("/api/tornjak/cluster/create", corsHandler(s.clusterCreate))
+  rtr.HandleFunc("/api/tornjak/cluster/edit", corsHandler(s.clusterCreate)) //TODO
 
 	// UI
 	spa := spaHandler{staticPath: "ui-agent", indexPath: "index.html"}

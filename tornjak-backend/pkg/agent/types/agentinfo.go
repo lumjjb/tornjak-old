@@ -1,8 +1,5 @@
 package types
 
-import (
-  "encoding/json"
-)
 
 // AgentInfo contains the information about agents workload attestor plugin
 type AgentInfo struct {
@@ -22,7 +19,7 @@ type ClusterInfo struct {
   DomainName string `json:"domainName"`
   ManagedBy string `json:"managedBy"`
   Platform string `json:"platform"`
-  AgentsList []string `json:"agentsList"`
+  AgentsList string `json:"agentsList"`
 }
 
 // ClusterInfoList contains the meta-information about clusters
