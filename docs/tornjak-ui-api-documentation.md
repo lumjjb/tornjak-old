@@ -49,8 +49,8 @@ Below are UI pages of Tornjak with their respective paths. For details on a spec
 
 
 # 3. Tornjak User Interface (UI) Interaction with API Endpoints
-## 3.1. [Agent API’s](https://github.com/spiffe/spire-api-sdk/tree/main/proto/spire/api/server/agent/v1)
-### - Agents
+## 3.1. Agent API’s
+### - [Agents](https://github.com/spiffe/spire-api-sdk/tree/main/proto/spire/api/server/agent/v1)
 #### GET
 ##### /api/agent/list
 ```
@@ -140,7 +140,7 @@ Example response:
 }
 
 ```
-### - Entries
+### - [Entries](https://github.com/spiffe/spire-api-sdk/tree/main/proto/spire/api/server/entry/v1)
 #### GET
 ##### /api/entry/list
 ```
