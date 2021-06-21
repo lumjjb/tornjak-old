@@ -1,3 +1,4 @@
+//nolint:govet //Ignoring mutex (not being used)
 package api
 
 import (
