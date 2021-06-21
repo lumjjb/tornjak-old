@@ -1,4 +1,4 @@
-//nolint:govet //Ignoring mutex (not being used)
+//nolint:govet //Ignoring mutex (not being used) - sync.Mutex by value is unused for linter govet
 package api
 
 import (
