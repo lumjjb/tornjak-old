@@ -80,7 +80,7 @@ func (s *Server) apiServerProxyFunc(apiPath string) func(w http.ResponseWriter, 
 		}
 		fmt.Printf("%+v\n", sinfo)
 
-		client, err := sinfo.HttpClient()
+		client, err := sinfo.HTTPClient()
 		if err != nil {
 			emsg := fmt.Sprintf("Error initializing server client: %v", err.Error())
 			retError(w, emsg, http.StatusBadRequest)

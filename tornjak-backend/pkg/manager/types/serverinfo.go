@@ -3,11 +3,12 @@ package types
 import (
 	"crypto/tls"
 	"crypto/x509"
-	"github.com/pkg/errors"
 	"net/http"
+
+	"github.com/pkg/errors"
 )
 
-func (s ServerInfo) HttpClient() (*http.Client, error) {
+func (s ServerInfo) HTTPClient() (*http.Client, error) {
 	if s.TLS || s.MTLS {
 		// Create a CA certificate pool and add cert.pem to it
 		caCert := s.CA
