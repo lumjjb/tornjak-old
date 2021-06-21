@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import axios from 'axios';
-import { Tabs, Tab, Dropdown, TextInput, MultiSelect, TextArea } from 'carbon-components-react';
+import { Dropdown, TextInput, MultiSelect, TextArea } from 'carbon-components-react';
 import GetApiServerUri from './helpers';
 import IsManager from './is_manager';
 import TornjakApi from './tornjak-api-helpers';
@@ -76,20 +76,10 @@ class ClusterCreate extends Component {
         this.setState({ selectedServer: this.props.globalServerSelected });
       }
       if (prevProps.globalServerInfo !== this.props.globalServerInfo) {
-        this.prepareClusterTypeList();
-        this.prepareAgentsList();
-      }
-      if (prevProps.globalAgentsList !== this.props.globalAgentsList) {
-        this.prepareClusterTypeList();
-      }
-      if (prevState.parentId !== this.state.parentId) {
         this.prepareAgentsList();
       }
     } else {
       if (prevProps.globalServerInfo !== this.props.globalServerInfo) {
-        this.prepareAgentsList();
-      }
-      if (prevState.parentId !== this.state.parentId) {
         this.prepareAgentsList();
       }
     }

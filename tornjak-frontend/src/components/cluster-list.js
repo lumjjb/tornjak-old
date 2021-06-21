@@ -15,22 +15,15 @@ import {
   agentworkloadSelectorInfoFunc,
 } from 'redux/actions';
 
-const Agent = props => (
+const Cluster = props => (
   <tr>
-    <td>{props.agent.id.trust_domain}</td>
-    <td>{"spiffe://" + props.agent.id.trust_domain + props.agent.id.path}</td>
+    <td>{props.cluster.name}</td>
+    <td>{props.cluster.type}</td>
+    <td>{props.cluster.domainName}</td>
+    <td>{props.cluster.managedBy}</td>
     <td><div style={{ overflowX: 'auto', width: "400px" }}>
-      <pre>{JSON.stringify(props.agent, null, ' ')}</pre>
+      <pre>{JSON.stringify(props.cluster.agentsList, null, ' ')}</pre>
     </div></td>
-
-    <td>
-      {/*
-        // <Link to={"/agentView/"+props.agent._id}>view</Link> |
-      */}
-      <a href="/#" onClick={() => { props.banAgent(props.agent.id) }}>ban</a>
-      <br />
-      <a href="/#" onClick={() => { props.deleteAgent(props.agent.id) }}>delete</a>
-    </td>
   </tr>
 )
 
@@ -44,17 +37,12 @@ class ClusterList extends Component {
   }
 
   componentDidMount() {
-    this.props.selectorInfoFunc(selectors); //set selector info
-    this.props.workloadSelectorInfoFunc(workloadSelectors); //set workload selector info
     if (IsManager) {
       if (this.props.globalServerSelected !== "") {
-        this.TornjakApi.populateAgentsUpdate(this.props.globalServerSelected, this.props.agentsListUpdateFunc, this.props.tornjakMessageFunc)
-        this.TornjakApi.refreshSelectorsState(this.props.globalServerSelected, this.props.agentworkloadSelectorInfoFunc);
+        this.TornjakApi.populateClustersUpdate(this.props.globalServerSelected, this.props.clustersListUpdateFunc, this.props.tornjakMessageFunc);
       }
     } else {
-      this.TornjakApi.refreshLocalSelectorsState(this.props.agentworkloadSelectorInfoFunc);
-      this.TornjakApi.populateLocalAgentsUpdate(this.props.agentsListUpdateFunc, this.props.tornjakMessageFunc);
-      this.TornjakApi.populateLocalTornjakServerInfo(this.props.tornjakServerInfoUpdateFunc, this.props.tornjakMessageFunc);
+      this.TornjakApi.populateLocalClustersUpdate(this.props.clustersListUpdateFunc, this.props.tornjakMessageFunc);
       if(this.props.globalTornjakServerInfo !== "") {
         this.TornjakApi.populateServerInfo(this.props.globalTornjakServerInfo, this.props.serverInfoUpdateFunc);
       }
@@ -64,25 +52,20 @@ class ClusterList extends Component {
   componentDidUpdate(prevProps) {
     if (IsManager) {
       if (prevProps.globalServerSelected !== this.props.globalServerSelected) {
-        this.TornjakApi.populateAgentsUpdate(this.props.globalServerSelected, this.props.agentsListUpdateFunc, this.props.tornjakMessageFunc);
-        this.TornjakApi.refreshSelectorsState(this.props.globalServerSelected, this.props.agentworkloadSelectorInfoFunc);
+        this.TornjakApi.populateClustersUpdate(this.props.globalServerSelected, this.props.clustersListUpdateFunc, this.props.tornjakMessageFunc);
       }
     } else {
-        if(prevProps.globalTornjakServerInfo !== this.props.globalTornjakServerInfo)
-        {
-          this.TornjakApi.populateServerInfo(this.props.globalTornjakServerInfo, this.props.serverInfoUpdateFunc);
-          this.TornjakApi.refreshSelectorsState(this.props.globalServerSelected, this.props.agentworkloadSelectorInfoFunc);
-        }
+      if(prevProps.globalTornjakServerInfo !== this.props.globalTornjakServerInfo) {
+        this.TornjakApi.populateServerInfo(this.props.globalTornjakServerInfo, this.props.serverInfoUpdateFunc);
+      }
     }
   }
 
-  agentList() {
-    if (typeof this.props.globalAgentsList !== 'undefined') {
-      return this.props.globalAgentsList.map(currentAgent => {
-        return <Agent key={currentAgent.id.path}
-          agent={currentAgent}
-          banAgent={this.banAgent}
-          deleteAgent={this.deleteAgent} />;
+  clusterList() {
+    if (typeof this.props.globalClustersList !== 'undefined') {
+      return this.props.globalClustersList.map(currentCluster => {
+        return <Cluster key={currentCluster.cluster.name}
+          agent={currentCluster}/>;
       })
     } else {
       return ""
@@ -103,7 +86,7 @@ class ClusterList extends Component {
         {IsManager}
         <br /><br />
         <div className="indvidual-list-table">
-          <Table data={this.agentList()} id="table-1" />
+          <Table data={this.clusterList()} id="table-1" />
         </div>
       </div>
     )
@@ -112,7 +95,7 @@ class ClusterList extends Component {
 
 const mapStateToProps = (state) => ({
   globalServerSelected: state.servers.globalServerSelected,
-  globalAgentsList: state.agents.globalAgentsList,
+  globalClustersList: state.agents.globalClustersList,
   globalTornjakServerInfo: state.servers.globalTornjakServerInfo,
   globalErrorMessage: state.tornjak.globalErrorMessage,
 })

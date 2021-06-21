@@ -24,7 +24,7 @@ export default class NavigationBar extends Component {
               <img src={tornjak_logo} height="50" width="160" alt="Tornjak" /></a>
           </span>
           <div className="collpase navbar-collapse">
-          <div className="dropdown">
+            <div className="dropdown">
               <a href="/clusters" className="dropbtn">Clusters </a>
               <div className="dropdown-content">
                 <a href="/clusters" className="nav-link">Clusters List</a>

@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import axios from 'axios';
-import { Tabs, Tab, Dropdown, TextInput, MultiSelect, TextArea } from 'carbon-components-react';
+import { Dropdown, TextInput, MultiSelect, TextArea } from 'carbon-components-react';
 import GetApiServerUri from './helpers';
 import IsManager from './is_manager';
 import TornjakApi from './tornjak-api-helpers';
 import { clusterType } from '../res/data';
 import './style.css';
 import {
+  clustersListUpdateFunc,
   clusterTypeInfoFunc,
   serverSelectedFunc,
   selectorInfoFunc,
@@ -51,19 +52,15 @@ class ClusterEdit extends Component {
   }
 
   componentDidMount() {
-    this.props.clusterTypeInfoFunc(clusterType); //set cluster type info
     if (IsManager) {
       if (this.props.globalServerSelected !== "" && (this.props.globalErrorMessage === "OK" || this.props.globalErrorMessage === "")) {
-        this.TornjakApi.populateAgentsUpdate(this.props.globalServerSelected, this.props.agentsListUpdateFunc, this.props.tornjakMessageFunc)
-        this.TornjakApi.refreshSelectorsState(this.props.globalServerSelected, this.props.agentworkloadSelectorInfoFunc);
+        this.TornjakApi.populateClustersUpdate(this.props.globalServerSelected, this.props.clustersListUpdateFunc, this.props.tornjakMessageFunc)
         this.setState({ selectedServer: this.props.globalServerSelected });
         this.prepareClusterTypeList();
         this.prepareAgentsList();
       }
     } else {
-      this.TornjakApi.populateLocalAgentsUpdate(this.props.agentsListUpdateFunc, this.props.tornjakMessageFunc);
-      this.TornjakApi.populateLocalTornjakServerInfo(this.props.tornjakServerInfoUpdateFunc, this.props.tornjakMessageFunc);
-      this.TornjakApi.populateServerInfo(this.props.globalTornjakServerInfo, this.props.serverInfoUpdateFunc);
+      this.TornjakApi.populateLocalClustersUpdate(this.props.clustersListUpdateFunc, this.props.tornjakMessageFunc);
       this.setState({})
       this.prepareClusterTypeList();
       this.prepareAgentsList();
@@ -419,5 +416,5 @@ const mapStateToProps = (state) => ({
 
 export default connect(
   mapStateToProps,
-  { clusterTypeInfoFunc, serverSelectedFunc, selectorInfoFunc, agentsListUpdateFunc, tornjakMessageFunc, tornjakServerInfoUpdateFunc, serverInfoUpdateFunc }
+  { clusterTypeInfoFunc, serverSelectedFunc, selectorInfoFunc, agentsListUpdateFunc, tornjakMessageFunc, tornjakServerInfoUpdateFunc, serverInfoUpdateFunc, clustersListUpdateFunc }
 )(ClusterEdit)
