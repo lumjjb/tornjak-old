@@ -358,7 +358,7 @@ class ClusterCreate extends Component {
                 {this.state.statusOK === "OK" && this.state.successJsonMessege === "OK" &&
                   <p className="success-message">--ENTRY SUCCESSFULLY CREATED--</p>
                 }
-                {this.state.statusOK === "ERROR" || (this.state.successJsonMessege !== "OK" && this.state.successJsonMessege !== "") &&
+                {(this.state.statusOK === "ERROR" || (this.state.successJsonMessege !== "OK" && this.state.successJsonMessege !== "")) &&
                   <p className="failed-message">--ENTRY CREATION FAILED--</p>
                 }
               </div>
