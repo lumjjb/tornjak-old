@@ -22,12 +22,13 @@ class ClusterEdit extends Component {
   constructor(props) {
     super(props);
     this.TornjakApi = new TornjakApi();
+    this.onChangeClusterNameList = this.onChangeClusterNameList.bind(this);
     this.onChangeClusterName = this.onChangeClusterName.bind(this);
     this.onChangeClusterType = this.onChangeClusterType.bind(this);
     this.onChangeManualClusterType = this.onChangeManualClusterType.bind(this);
     this.onChangeClusterDomainName = this.onChangeClusterDomainName.bind(this);
     this.onChangeClusterManagedBy = this.onChangeClusterManagedBy.bind(this);
-    this.prepareClusterTypeList = this.prepareClusterTypeList.bind(this);
+    this.prepareClusterNameList = this.prepareClusterNameList.bind(this);
     this.prepareAgentsList = this.prepareAgentsList.bind(this);
     this.onChangeAgentsList = this.onChangeAgentsList.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
@@ -38,6 +39,7 @@ class ClusterEdit extends Component {
       clusterDomainName: "",
       clusterManagedBy: "",
       clusterAgentsList: "",
+      clusterNameList: [],
       clusterTypeList: [],
       clusterTypeManualEntryOption: "----Select this option and Enter Custom Cluster Type Below----",
       clusterTypeManualEntry: false,
@@ -56,13 +58,13 @@ class ClusterEdit extends Component {
       if (this.props.globalServerSelected !== "" && (this.props.globalErrorMessage === "OK" || this.props.globalErrorMessage === "")) {
         this.TornjakApi.populateClustersUpdate(this.props.globalServerSelected, this.props.clustersListUpdateFunc, this.props.tornjakMessageFunc)
         this.setState({ selectedServer: this.props.globalServerSelected });
-        this.prepareClusterTypeList();
+        this.prepareClusterNameList();
         this.prepareAgentsList();
       }
     } else {
       this.TornjakApi.populateLocalClustersUpdate(this.props.clustersListUpdateFunc, this.props.tornjakMessageFunc);
       this.setState({})
-      this.prepareClusterTypeList();
+      this.prepareClusterNameList();
       this.prepareAgentsList();
     }
   }
@@ -73,11 +75,11 @@ class ClusterEdit extends Component {
         this.setState({ selectedServer: this.props.globalServerSelected });
       }
       if (prevProps.globalServerInfo !== this.props.globalServerInfo) {
-        this.prepareClusterTypeList();
+        this.prepareClusterNameList();
         this.prepareAgentsList();
       }
       if (prevProps.globalAgentsList !== this.props.globalAgentsList) {
-        this.prepareClusterTypeList();
+        this.prepareClusterNameList();
       }
       if (prevState.parentId !== this.state.parentId) {
         this.prepareAgentsList();
@@ -92,25 +94,18 @@ class ClusterEdit extends Component {
     }
   }
 
-  prepareClusterTypeList() {
-    let localClusterTypeList = [];
+  prepareClusterNameList() {
+    var clusters = this.props.globalClustersList;
+    let localClusterNameList = [];
     if (this.props.globalServerInfo.length === 0) {
       return
     }
-    //user prefered option
-    localClusterTypeList = 
-    [
-      "FunCluster",
-      "GalaxyCluster",
-      "SuperCluster",
-      "IBMResearchHCCluster",
-      "Cluster5",
-      "FornaxCluster",
-      "Cluster7",
-      "Cluster8",
-    ];
+
+    for (let i = 0; i < clusters.length; i++) {
+      localClusterNameList[i] = clusters[i].cluster.name;
+    }
     this.setState({
-      clusterTypeList: localClusterTypeList
+      clusterNameList: localClusterNameList
     });
   }
 
@@ -128,23 +123,23 @@ class ClusterEdit extends Component {
     });
   }
 
-  onChangeAgentsList = selected => {
-    var sid = selected.selectedItems, agents = "", agentsDisplay = "", assignedAgentsDisplay = "";
-    let localAgentsIdList = [];
-    for (let i = 0; i < sid.length; i++) {
-      localAgentsIdList[i] = sid[i].label;
-    }
-    agents = localAgentsIdList;
-    agentsDisplay = localAgentsIdList.toString();
-    assignedAgentsDisplay = localAgentsIdList.join("\n");
-    if (agentsDisplay.length === 0) {
-      agentsDisplay = "Select Agents"
+  onChangeClusterNameList(e) {
+    var sid = e.target.value, clusters = this.props.globalClustersList, cluster = [];
+    for (let i = 0; i < clusters; i++) {
+      if (clusters[i].cluster.name === sid) {
+        cluster = clusters[i];
+      }
     }
     this.setState({
-      clusterAgentsList: agents,
-      agentsListDisplay: agentsDisplay,
-      assignedAgentsListDisplay: assignedAgentsDisplay,
+      clusterName: cluster.cluster.name,
+      clusterType: cluster.cluster.platformType,
+      clusterDomainName: cluster.cluster.domainName,
+      clusterManagedBy: cluster.cluster.managedBy,
+      clusterAgentsList: cluster.cluster.agentsList,
+      agentsListDisplay: cluster.cluster.agentsList,
+      assignedAgentsListDisplay: cluster.cluster.agentsList,
     });
+    return
   }
 
   onChangeClusterName(e) {
@@ -208,7 +203,25 @@ class ClusterEdit extends Component {
     });
     return
   }
-  // Tag related things
+
+  onChangeAgentsList = selected => {
+    var sid = selected.selectedItems, agents = "", agentsDisplay = "", assignedAgentsDisplay = "";
+    let localAgentsIdList = [];
+    for (let i = 0; i < sid.length; i++) {
+      localAgentsIdList[i] = sid[i].label;
+    }
+    agents = localAgentsIdList;
+    agentsDisplay = localAgentsIdList.toString();
+    assignedAgentsDisplay = localAgentsIdList.join("\n");
+    if (agentsDisplay.length === 0) {
+      agentsDisplay = "Select Agents"
+    }
+    this.setState({
+      clusterAgentsList: agents,
+      agentsListDisplay: agentsDisplay,
+      assignedAgentsListDisplay: assignedAgentsDisplay,
+    });
+  }
 
   getApiEntryCreateEndpoint() {
     if (!IsManager) {
@@ -274,7 +287,7 @@ class ClusterEdit extends Component {
       )
   }
   render() {
-    const ClusterType = this.state.clusterTypeList;
+    const ClusterNames = this.state.clusterNameList, ClusterType = this.state.clusterTypeList;
     return (
       <div>
         <div className="cluster-edit">
@@ -290,10 +303,10 @@ class ClusterEdit extends Component {
                   aria-required="true"
                   ariaLabel="clustertype-drop-down"
                   id="clustertype-drop-down"
-                  items={ClusterType}
+                  items={ClusterNames}
                   label="Select Cluster"
                   titleText="Choose Cluster [*required]"
-                  onChange={this.onChangeClusterType}
+                  onChange={this.onChangeClusterNameList}
                   required />
                 <p className="cluster-helper">i.e. Choose Cluster Name To Edit</p>
               </div>
@@ -304,8 +317,9 @@ class ClusterEdit extends Component {
                   invalidText="A valid value is required - refer to helper text below"
                   labelText="Edit Cluster Name"
                   placeholder="Edit CLUSTER NAME"
+                  defaultValue={this.state.clusterName}
                   onChange={this.onChangeClusterName}
-                   required />
+                  required />
               </div>
               <div className="clustertype-drop-down">
                 <Dropdown
@@ -314,6 +328,7 @@ class ClusterEdit extends Component {
                   items={ClusterType}
                   label="Select Cluster Type"
                   titleText="Edit Cluster Type"
+                  defaultValue={this.state.clusterType}
                   onChange={this.onChangeClusterType}
                   required />
                 <p className="cluster-helper">i.e. Kubernetes, VMs...</p>
@@ -326,6 +341,7 @@ class ClusterEdit extends Component {
                     invalidText="A valid value is required - refer to helper text below"
                     labelText="Cluster Type - Manual Entry"
                     placeholder="Enter Cluster Type"
+                    defaultValue={this.state.clusterType}
                     onChange={(e) => {
                       this.onChangeManualClusterType(e);
                     }}
@@ -338,6 +354,7 @@ class ClusterEdit extends Component {
                   invalidText="A valid value is required - refer to helper text below"
                   labelText="Edit Cluster Domain Name/ URL"
                   placeholder="Edit CLUSTER DOMAIN NAME/ URL"
+                  defaultValue={this.state.clusterDomainName}
                   onChange={this.onChangeClusterDomainName}
                 />
               </div>
@@ -348,7 +365,7 @@ class ClusterEdit extends Component {
                   invalidText="A valid value is required - refer to helper text below"
                   labelText="Edit Cluster Managed By"
                   placeholder="Edit CLUSTER MANAGED BY"
-                  //value={this.state.spiffeId}
+                  defaultValue={this.state.clusterManagedBy}
                   onChange={this.onChangeClusterManagedBy}
                 />
               </div>
@@ -404,6 +421,7 @@ class ClusterEdit extends Component {
 
 const mapStateToProps = (state) => ({
   globalClusterTypeInfo: state.clusters.globalClusterTypeInfo,
+  globalClustersList: state.clusters.globalClustersList,
   globalServerSelected: state.servers.globalServerSelected,
   globalSelectorInfo: state.servers.globalSelectorInfo,
   globalAgentsList: state.agents.globalAgentsList,

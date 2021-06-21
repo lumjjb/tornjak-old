@@ -13,6 +13,7 @@ import {
   tornjakMessageFunc,
   workloadSelectorInfoFunc,
   agentworkloadSelectorInfoFunc,
+  clustersListUpdateFunc,
 } from 'redux/actions';
 
 const Cluster = props => (
@@ -95,12 +96,12 @@ class ClusterList extends Component {
 
 const mapStateToProps = (state) => ({
   globalServerSelected: state.servers.globalServerSelected,
-  globalClustersList: state.agents.globalClustersList,
+  globalClustersList: state.clusters.globalClustersList,
   globalTornjakServerInfo: state.servers.globalTornjakServerInfo,
   globalErrorMessage: state.tornjak.globalErrorMessage,
 })
 
 export default connect(
   mapStateToProps,
-  { serverSelectedFunc, agentsListUpdateFunc, tornjakServerInfoUpdateFunc, serverInfoUpdateFunc, selectorInfoFunc, tornjakMessageFunc, workloadSelectorInfoFunc, agentworkloadSelectorInfoFunc }
+  { serverSelectedFunc, agentsListUpdateFunc, tornjakServerInfoUpdateFunc, serverInfoUpdateFunc, selectorInfoFunc, tornjakMessageFunc, workloadSelectorInfoFunc, agentworkloadSelectorInfoFunc, clustersListUpdateFunc }
 )(ClusterList)

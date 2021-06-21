@@ -230,7 +230,7 @@ class ClusterCreate extends Component {
     var cjtData = {
       "cluster": {
         "name": this.state.clusterName,
-        "type": this.state.clusterType,
+        "platformType": this.state.clusterType,
         "domainName": this.state.clusterDomainName,
         "managedBy": this.state.clusterManagedBy,
         "agentsList": this.state.clusterAgentsList
