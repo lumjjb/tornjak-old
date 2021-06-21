@@ -18,7 +18,6 @@ const {
     TableToolbarSearch,
     TableToolbarContent,
     TableBatchActions,
-    TableBatchAction,
 } = DataTable;
 
 class DataTableRender extends React.Component {

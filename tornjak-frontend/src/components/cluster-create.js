@@ -102,7 +102,7 @@ class ClusterCreate extends Component {
   }
 
   prepareAgentsList() {
-    var prefix = "spiffe://", agentSelectorSet = false;
+    var prefix = "spiffe://";
     let localAgentsIdList = [];
     //agents
     for (let i = 0; i < this.props.globalAgentsList.length; i++) {

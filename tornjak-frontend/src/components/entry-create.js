@@ -541,7 +541,7 @@ class CreateEntry extends Component {
                 items={this.state.selectorsList}
                 label={this.state.selectorsListDisplay}
                 onChange={this.onChangeSelectorsRecommended}
-              required/>
+              />
             </div>
             <div className="selectors-textArea">
               <TextArea

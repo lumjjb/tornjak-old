@@ -5,7 +5,6 @@ import { Dropdown, TextInput, MultiSelect, TextArea } from 'carbon-components-re
 import GetApiServerUri from './helpers';
 import IsManager from './is_manager';
 import TornjakApi from './tornjak-api-helpers';
-import { clusterType } from '../res/data';
 import './style.css';
 import {
   clustersListUpdateFunc,
@@ -110,7 +109,7 @@ class ClusterEdit extends Component {
   }
 
   prepareAgentsList() {
-    var prefix = "spiffe://", agentSelectorSet = false;
+    var prefix = "spiffe://";
     let localAgentsIdList = [];
     //agents
     for (let i = 0; i < this.props.globalAgentsList.length; i++) {
