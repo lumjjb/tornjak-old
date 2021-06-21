@@ -144,7 +144,7 @@ func runTornjakCmd(cmd string, opt cliOptions) error {
 		fmt.Println(serverInfo)
 	case "api":
 		// default to spire-server binary
-		RunSpireApi(config, opt.apiOptions.args)
+		RunSpireAPI(config, opt.apiOptions.args)
 	case "http":
 		serverInfo, err := GetServerInfo(config)
 		if err != nil {
@@ -202,7 +202,7 @@ func GetServerInfo(config *run.Config) (agentapi.TornjakServerInfo, error) {
 
 // Call API to show example of policy enforcement, will be deprecated, used only for
 // debugging/demo purposes.
-func RunSpireApi(config *run.Config, apiArgs []string) {
+func RunSpireAPI(config *run.Config, apiArgs []string) {
 	spireBin := "/opt/spire/bin/spire-server"
 	var args []string
 
