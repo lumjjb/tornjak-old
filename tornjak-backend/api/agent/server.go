@@ -23,7 +23,7 @@ type Server struct {
 	SpireServerAddr string
 	CertPath        string
 	KeyPath         string
-	TlsEnabled      bool
+	TLSEnabled      bool
 	MTlsEnabled     bool
 
 	// SpireServerInfo provides config info for the spire server
@@ -484,7 +484,7 @@ func (s *Server) HandleRequests() {
 	rtr.PathPrefix("/").Handler(spa)
 
 	// TLS Stack handling
-	if s.TlsEnabled || s.MTlsEnabled {
+	if s.TLSEnabled || s.MTlsEnabled {
 
 		// Create a CA certificate pool and add cert.pem to it
 		caCert, err := ioutil.ReadFile(s.CertPath)

@@ -156,7 +156,7 @@ func runTornjakCmd(cmd string, opt cliOptions) error {
 			ListenAddr:      opt.httpOptions.listenAddr,
 			CertPath:        opt.httpOptions.certPath,
 			KeyPath:         opt.httpOptions.keyPath,
-			TlsEnabled:      opt.httpOptions.tls,
+			TLSEnabled:      opt.httpOptions.tls,
 			MTlsEnabled:     opt.httpOptions.mtls,
 			SpireServerInfo: serverInfo,
 			Db:              agentdb,
