@@ -3,7 +3,7 @@ package db
 import (
 	"database/sql"
 
-	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/mattn/go-sqlite3" //sqlite3
 	"github.com/pkg/errors"
 
 	"github.com/lumjjb/tornjak/tornjak-backend/pkg/agent/types"

@@ -35,9 +35,8 @@ func corsHandler(f func(w http.ResponseWriter, r *http.Request)) http.HandlerFun
 		if r.Method == "OPTIONS" {
 			cors(w, r)
 			return
-		} else {
-			f(w, r)
 		}
+		f(w, r)
 	}
 }
 

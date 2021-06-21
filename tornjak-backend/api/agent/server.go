@@ -101,13 +101,12 @@ func (s *Server) agentBan(w http.ResponseWriter, r *http.Request) {
 		emsg := fmt.Sprintf("Error: no data provided - Total number of bytes - %d", n)
 		retError(w, emsg, http.StatusBadRequest)
 		return
-	} else {
-		err := json.Unmarshal([]byte(data), &input)
-		if err != nil {
-			emsg := fmt.Sprintf("Error parsing data: %v", err.Error())
-			retError(w, emsg, http.StatusBadRequest)
-			return
-		}
+	}
+	err = json.Unmarshal([]byte(data), &input)
+	if err != nil {
+		emsg := fmt.Sprintf("Error parsing data: %v", err.Error())
+		retError(w, emsg, http.StatusBadRequest)
+		return
 	}
 
 	err = s.BanAgent(input)
@@ -145,13 +144,12 @@ func (s *Server) agentDelete(w http.ResponseWriter, r *http.Request) {
 		emsg := fmt.Sprintf("Error: no data provided - Total number of bytes - %d", n)
 		retError(w, emsg, http.StatusBadRequest)
 		return
-	} else {
-		err := json.Unmarshal([]byte(data), &input)
-		if err != nil {
-			emsg := fmt.Sprintf("Error parsing data: %v", err.Error())
-			retError(w, emsg, http.StatusBadRequest)
-			return
-		}
+	}
+	err = json.Unmarshal([]byte(data), &input)
+	if err != nil {
+		emsg := fmt.Sprintf("Error parsing data: %v", err.Error())
+		retError(w, emsg, http.StatusBadRequest)
+		return
 	}
 
 	err = s.DeleteAgent(input)
@@ -367,9 +365,8 @@ func corsHandler(f func(w http.ResponseWriter, r *http.Request)) http.HandlerFun
 		if r.Method == "OPTIONS" {
 			cors(w, r)
 			return
-		} else {
-			f(w, r)
 		}
+		f(w, r)
 	}
 }
 
@@ -514,10 +511,9 @@ func (s *Server) HandleRequests() {
 		fmt.Printf("Starting to listen with TLS on %s...\n", s.ListenAddr)
 		log.Fatal(server.ListenAndServeTLS(s.CertPath, s.KeyPath))
 		return
-	} else {
-		fmt.Printf("Starting to listen on %s...\n", s.ListenAddr)
-		log.Fatal(http.ListenAndServe(s.ListenAddr, rtr))
 	}
+	fmt.Printf("Starting to listen on %s...\n", s.ListenAddr)
+	log.Fatal(http.ListenAndServe(s.ListenAddr, rtr))
 }
 
 // NewAgentsDB returns a new agents DB, given a DB connection string
