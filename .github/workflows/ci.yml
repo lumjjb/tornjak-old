@@ -20,7 +20,7 @@ jobs:
         uses: golangci/golangci-lint-action@v2
         with:
           version: v1.29
-          args: --timeout 5m --disable-all --enable=revive
+          args: --timeout 5m --disable-all --enable=golint #Enabling only Necessary linters since some don't matter such as mutex (not being used)
       - name: Run make all
         run: make all
       - run: echo "🍏 This job's status is ${{ job.status }}."
