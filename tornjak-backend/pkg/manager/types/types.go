@@ -11,7 +11,7 @@ type ServerInfo struct {
 	Key     []byte `json:"key,omitempty"`
 }
 
-// ServerInfo contains the information about servers
+// ServerInfoList contains the information about servers
 type ServerInfoList struct {
 	Servers []ServerInfo `json:"servers"`
 }

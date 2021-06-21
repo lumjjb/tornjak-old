@@ -20,7 +20,7 @@ func (s ServerInfo) HTTPClient() (*http.Client, error) {
 		caCertPool := x509.NewCertPool()
 		caCertPool.AppendCertsFromPEM(caCert)
 
-		var mTLSCerts []tls.Certificate = nil
+		var mTLSCerts []tls.Certificate
 		if s.MTLS {
 			// TODO: Add ability to support different cert for mTLS
 			if len(s.Cert) == 0 || len(s.Key) == 0 {

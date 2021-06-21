@@ -200,7 +200,7 @@ func GetServerInfo(config *run.Config) (agentapi.TornjakServerInfo, error) {
 	}, nil
 }
 
-// Call API to show example of policy enforcement, will be deprecated, used only for
+// RunSpireAPI Call API to show example of policy enforcement, will be deprecated, used only for
 // debugging/demo purposes.
 func RunSpireAPI(config *run.Config, apiArgs []string) {
 	spireBin := "/opt/spire/bin/spire-server"
@@ -248,7 +248,7 @@ func noAdmin(args []string) error {
 	return nil
 }
 
-var checkList []checkFn = []checkFn{
+var checkList = []checkFn{
 	denyTokenGenerate,
 	noAdmin,
 }

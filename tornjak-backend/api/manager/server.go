@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	jsonContentType string = "application/json"
+	jsonContentType = "application/json"
 )
 
 type Server struct {
