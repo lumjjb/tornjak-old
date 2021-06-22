@@ -33,12 +33,6 @@ type Server struct {
 	Db agentdb.AgentDB
 }
 
-// func (_ *Server) homePage(w http.ResponseWriter, r *http.Request) {
-// 	fmt.Fprintf(w, "Welcome to the HomePage!")
-// 	fmt.Println("Endpoint Hit: homePage")
-// 	cors(w, r)
-// }
-
 func (s *Server) agentList(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Endpoint Hit: Agent List")
 
@@ -73,7 +67,6 @@ func (s *Server) agentList(w http.ResponseWriter, r *http.Request) {
 
 	cors(w, r)
 	je := json.NewEncoder(w)
-	// Shouldn't error here
 	err = je.Encode(ret)
 
 	if err != nil {

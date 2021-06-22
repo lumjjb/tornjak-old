@@ -23,12 +23,6 @@ type Server struct {
 	db         managerdb.ManagerDB
 }
 
-// func (_ *Server) homePage(w http.ResponseWriter, r *http.Request) {
-// 	fmt.Fprintf(w, "Welcome to the HomePage!")
-// 	fmt.Println("Endpoint Hit: homePage")
-// 	cors(w, r)
-// }
-
 // Handle preflight checks
 func corsHandler(f func(w http.ResponseWriter, r *http.Request)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

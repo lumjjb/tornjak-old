@@ -25,7 +25,6 @@ type cliOptions struct {
 		tls        bool
 		mtls       bool
 	}
-	//serverinfoOptions struct{}
 	apiOptions struct {
 		args []string
 	}
