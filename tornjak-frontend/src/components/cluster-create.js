@@ -5,7 +5,7 @@ import { Dropdown, TextInput, MultiSelect, TextArea } from 'carbon-components-re
 import GetApiServerUri from './helpers';
 import IsManager from './is_manager';
 import TornjakApi from './tornjak-api-helpers';
-import { clusterType } from '../res/data';
+import { clusterType } from '../data/data';
 import './style.css';
 import {
   clusterTypeInfoFunc,
