@@ -431,10 +431,10 @@ func (s *Server) HandleRequests() {
 	rtr.HandleFunc("/api/tornjak/selectors/register", corsHandler(s.pluginDefine))
 	rtr.HandleFunc("/api/tornjak/selectors/list", corsHandler(s.agentsList))
 
-  // Clusters
-  rtr.HandleFunc("/api/tornjak/clusters/list", corsHandler(s.clusterList))
-  rtr.HandleFunc("/api/tornjak/cluster/create", corsHandler(s.clusterCreate))
-  rtr.HandleFunc("/api/tornjak/cluster/edit", corsHandler(s.clusterCreate)) //TODO
+	// Clusters
+	rtr.HandleFunc("/api/tornjak/clusters/list", corsHandler(s.clusterList))
+	rtr.HandleFunc("/api/tornjak/cluster/create", corsHandler(s.clusterCreate))
+	rtr.HandleFunc("/api/tornjak/cluster/edit", corsHandler(s.clusterCreate)) //TODO
 
 	// UI
 	spa := spaHandler{staticPath: "ui-agent", indexPath: "index.html"}
@@ -550,45 +550,45 @@ func (s *Server) pluginDefine(w http.ResponseWriter, r *http.Request) {
 
 /********* CLUSTER *********/
 
-func (s* Server) clusterList(w http.ResponseWriter, r *http.Request) {
+func (s *Server) clusterList(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Endpoint Hit: Cluster List")
 
-  var input ListClustersRequest
-  buf := new(strings.Builder)
+	var input ListClustersRequest
+	buf := new(strings.Builder)
 
-  n, err := io.Copy(buf, r.Body)
-  if err != nil {
-    emsg := fmt.Sprintf("Error parsing data: %v", err.Error())
-    retError(w, emsg, http.StatusBadRequest)
-    return
-  }
-  data := buf.String()
+	n, err := io.Copy(buf, r.Body)
+	if err != nil {
+		emsg := fmt.Sprintf("Error parsing data: %v", err.Error())
+		retError(w, emsg, http.StatusBadRequest)
+		return
+	}
+	data := buf.String()
 
-  if n == 0 {
-    input = ListClustersRequest{}
-  } else {
-    err := json.Unmarshal([]byte(data), &input)
-    if err != nil {
-      emsg := fmt.Sprintf("Error parsing data: %v", err.Error())
-      retError(w, emsg, http.StatusBadRequest)
-      return
-    }
-  }
+	if n == 0 {
+		input = ListClustersRequest{}
+	} else {
+		err := json.Unmarshal([]byte(data), &input)
+		if err != nil {
+			emsg := fmt.Sprintf("Error parsing data: %v", err.Error())
+			retError(w, emsg, http.StatusBadRequest)
+			return
+		}
+	}
 
-  ret, err := s.ListClusters(input)
-  if err != nil {
-    emsg := fmt.Sprintf("Error: %v", err.Error())
-    retError(w, emsg, http.StatusBadRequest)
-    return
-  }
-  cors(w, r)
-  je := json.NewEncoder(w)
-  je.Encode(ret)
+	ret, err := s.ListClusters(input)
+	if err != nil {
+		emsg := fmt.Sprintf("Error: %v", err.Error())
+		retError(w, emsg, http.StatusBadRequest)
+		return
+	}
+	cors(w, r)
+	je := json.NewEncoder(w)
+	je.Encode(ret)
 
-  return
+	return
 }
 
-func (s* Server) clusterCreate(w http.ResponseWriter, r *http.Request) {
+func (s *Server) clusterCreate(w http.ResponseWriter, r *http.Request) {
 	buf := new(strings.Builder)
 	n, err := io.Copy(buf, r.Body)
 	if err != nil {
@@ -619,5 +619,3 @@ func (s* Server) clusterCreate(w http.ResponseWriter, r *http.Request) {
 }
 
 /********* END CLUSTER *********/
-
-

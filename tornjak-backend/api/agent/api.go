@@ -213,15 +213,16 @@ func (s *Server) DefineSelectors(inp RegisterSelectorRequest) error {
 
 type ListClustersRequest struct{}
 type ListClustersResponse agentTypes.ClusterInfoList
+
 // ListClusters returns list of clusters from the local DB with the following info
 // name string
 // details json
 func (s *Server) ListClusters(inp ListClustersRequest) (*ListClustersResponse, error) {
-  retVal, err := s.Db.GetClusters()
-  if err != nil {
-    return nil, err
-  }
-  return (*ListClustersResponse)(&retVal), nil
+	retVal, err := s.Db.GetClusters()
+	if err != nil {
+		return nil, err
+	}
+	return (*ListClustersResponse)(&retVal), nil
 }
 
 type RegisterClusterRequest agentTypes.ClusterInfo
@@ -230,10 +231,9 @@ type RegisterClusterRequest agentTypes.ClusterInfo
 // name string
 // details json
 func (s *Server) DefineCluster(inp RegisterClusterRequest) error {
-  cinfo := agentTypes.ClusterInfo(inp)
-  if len(cinfo.Name) == 0 {
-    return errors.New("agent's name missing mandatory field - Name")
-  }
-  return s.Db.CreateClusterEntry(cinfo)
+	cinfo := agentTypes.ClusterInfo(inp)
+	if len(cinfo.Name) == 0 {
+		return errors.New("agent's name missing mandatory field - Name")
+	}
+	return s.Db.CreateClusterEntry(cinfo)
 }
-

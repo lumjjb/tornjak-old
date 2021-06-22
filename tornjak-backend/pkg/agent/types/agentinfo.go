@@ -1,6 +1,5 @@
 package types
 
-
 // AgentInfo contains the information about agents workload attestor plugin
 type AgentInfo struct {
 	Spiffeid string `json:"spiffeid"`
@@ -11,5 +10,3 @@ type AgentInfo struct {
 type AgentInfoList struct {
 	Agents []AgentInfo `json:"agents"`
 }
-
-
