@@ -46,6 +46,7 @@ class DataTableRender extends React.Component {
         const { data } = this.props;
         let listData = [...data];
         let listtabledata = [];
+        console.log(listData)
         for (let i = 0; i < listData.length; i++) {
             listtabledata[i] = {};
             listtabledata[i]["id"] = i + 1;
@@ -53,7 +54,7 @@ class DataTableRender extends React.Component {
             listtabledata[i]["clusterType"] = listData[i].props.cluster.platformType;
             listtabledata[i]["clusterManagedBy"] = listData[i].props.cluster.managedBy;
             listtabledata[i]["clusterDomainName"] = listData[i].props.cluster.domainName;
-            listtabledata[i]["clusterAssignedAgents"] = JSON.stringify(listData[i].props.cluster.agentsList, null, ' ');
+            listtabledata[i]["clusterAssignedAgents"] = <pre>{JSON.stringify(listData[i].props.cluster.agentsList, null, ' ')}</pre>
         }
         this.setState({
             listTableData: listtabledata

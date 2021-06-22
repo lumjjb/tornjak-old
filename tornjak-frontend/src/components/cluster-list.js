@@ -17,12 +17,12 @@ import {
 
 const Cluster = props => (
   <tr>
-    <td>{props.cluster.name}</td>
-    <td>{props.cluster.type}</td>
-    <td>{props.cluster.domainName}</td>
-    <td>{props.cluster.managedBy}</td>
+    <td>{props.name}</td>
+    <td>{props.platformType}</td>
+    <td>{props.domainName}</td>
+    <td>{props.managedBy}</td>
     <td><div style={{ overflowX: 'auto', width: "400px" }}>
-      <pre>{JSON.stringify(props.cluster.agentsList, null, ' ')}</pre>
+      <pre>{JSON.stringify(props.agentsList, null, ' ')}</pre>
     </div></td>
   </tr>
 )
@@ -43,7 +43,7 @@ class ClusterList extends Component {
       }
     } else {
       this.TornjakApi.populateLocalClustersUpdate(this.props.clustersListUpdateFunc, this.props.tornjakMessageFunc);
-      if(this.props.globalTornjakServerInfo !== "") {
+      if (this.props.globalTornjakServerInfo !== "") {
         this.TornjakApi.populateServerInfo(this.props.globalTornjakServerInfo, this.props.serverInfoUpdateFunc);
       }
     }
@@ -55,17 +55,36 @@ class ClusterList extends Component {
         this.TornjakApi.populateClustersUpdate(this.props.globalServerSelected, this.props.clustersListUpdateFunc, this.props.tornjakMessageFunc);
       }
     } else {
-      if(prevProps.globalTornjakServerInfo !== this.props.globalTornjakServerInfo) {
+      if (prevProps.globalTornjakServerInfo !== this.props.globalTornjakServerInfo) {
         this.TornjakApi.populateServerInfo(this.props.globalTornjakServerInfo, this.props.serverInfoUpdateFunc);
       }
     }
   }
 
   clusterList() {
-    if (typeof this.props.globalClustersList !== 'undefined') {
-      return this.props.globalClustersList.map(currentCluster => {
-        return <Cluster key={currentCluster.cluster.name}
-          agent={currentCluster}/>;
+    var clusters =
+    [
+        {
+          "name": "cluster1",
+          "domainName": "example.org",
+          "managedBy": "personA",
+          "platformType": "K8s",
+          "agentsList": ['spiffe://example.org/spire/agent/k8s_sat/minikube/7f1676c6-d79a-44af-b8f5-43f3fc393632','spiffe://example.org/spire/agent/k8s_sat/minikube/7f1676c6-d79a-44af-b8f5-43f3fc393632']
+        },
+        {
+          "name": "cluster2",
+          "domainName": "abc.org",
+          "managedBy": "personB",
+          "platformType": "Docker",
+          "agentsList": ['agent3','agent4']
+        }
+    ];
+    //if (typeof this.props.globalClustersList !== 'undefined') {
+      //return this.props.globalClustersList.map(currentCluster => {
+    if (typeof clusters !== 'undefined') {
+      return clusters.map(currentCluster => {
+        return <Cluster key={currentCluster.name}
+          cluster={currentCluster} />;
       })
     } else {
       return ""

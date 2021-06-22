@@ -59,12 +59,14 @@ class ClusterEdit extends Component {
         this.setState({ selectedServer: this.props.globalServerSelected });
         this.prepareClusterNameList();
         this.prepareAgentsList();
+        this.prepareClusterTypeList();
       }
     } else {
       this.TornjakApi.populateLocalClustersUpdate(this.props.clustersListUpdateFunc, this.props.tornjakMessageFunc);
       this.setState({})
       this.prepareClusterNameList();
       this.prepareAgentsList();
+      this.prepareClusterTypeList();
     }
   }
 
@@ -93,15 +95,48 @@ class ClusterEdit extends Component {
     }
   }
 
+  prepareClusterTypeList() {
+    let localClusterTypeList = [];
+    if (this.props.globalServerInfo.length === 0) {
+      return
+    }
+    //user prefered option
+    localClusterTypeList[0] = this.state.clusterTypeManualEntryOption;
+    //agents
+    for (let i = 0; i < this.props.globalClusterTypeInfo.length; i++) {
+      localClusterTypeList[i + 1] = this.props.globalClusterTypeInfo[i];
+    }
+    this.setState({
+      clusterTypeList: localClusterTypeList
+    });
+  }
+
   prepareClusterNameList() {
-    var clusters = this.props.globalClustersList;
+    var clusters =
+    [
+        {
+          "name": "cluster1",
+          "domainName": "example.org",
+          "managedBy": "personA",
+          "platformType": "K8s",
+          "agentsList": ['spiffe://example.org/spire/agent/k8s_sat/minikube/7f1676c6-d79a-44af-b8f5-43f3fc393632','spiffe://example.org/spire/agent/k8s_sat/minikube/7f1676c6-d79a-44af-b8f5-43f3fc393632']
+        },
+        {
+          "name": "cluster2",
+          "domainName": "abc.org",
+          "managedBy": "personB",
+          "platformType": "Docker",
+          "agentsList": ['agent3','agent4']
+        }
+    ];
+    //var clusters = this.props.globalClustersList;
     let localClusterNameList = [];
     if (this.props.globalServerInfo.length === 0) {
       return
     }
 
     for (let i = 0; i < clusters.length; i++) {
-      localClusterNameList[i] = clusters[i].cluster.name;
+      localClusterNameList[i] = clusters[i].name;
     }
     this.setState({
       clusterNameList: localClusterNameList
@@ -123,20 +158,38 @@ class ClusterEdit extends Component {
   }
 
   onChangeClusterNameList(e) {
-    var sid = e.target.value, clusters = this.props.globalClustersList, cluster = [];
-    for (let i = 0; i < clusters; i++) {
-      if (clusters[i].cluster.name === sid) {
+    var clusters =
+    [
+        {
+          "name": "cluster1",
+          "domainName": "example.org",
+          "managedBy": "personA",
+          "platformType": "K8s",
+          "agentsList": ['spiffe://example.org/spire/agent/k8s_sat/minikube/7f1676c6-d79a-44af-b8f5-43f3fc393632','spiffe://example.org/spire/agent/k8s_sat/minikube/7f1676c6-d79a-44af-b8f5-43f3fc393632']
+        },
+        {
+          "name": "cluster2",
+          "domainName": "abc.org",
+          "managedBy": "personB",
+          "platformType": "Docker",
+          "agentsList": ['agent3','agent4']
+        }
+    ];
+    //var sid = e.selectedItem, clusters = this.props.globalClustersList, cluster = [];
+    var sid = e.selectedItem, cluster = [];
+    for (let i = 0; i < clusters.length; i++) {
+      if (clusters[i].name === sid) {
         cluster = clusters[i];
       }
     }
     this.setState({
-      clusterName: cluster.cluster.name,
-      clusterType: cluster.cluster.platformType,
-      clusterDomainName: cluster.cluster.domainName,
-      clusterManagedBy: cluster.cluster.managedBy,
-      clusterAgentsList: cluster.cluster.agentsList,
-      agentsListDisplay: cluster.cluster.agentsList,
-      assignedAgentsListDisplay: cluster.cluster.agentsList,
+      clusterName: cluster.name,
+      clusterType: cluster.platformType,
+      clusterDomainName: cluster.domainName,
+      clusterManagedBy: cluster.managedBy,
+      clusterAgentsList: cluster.agentsList,
+      agentsListDisplay: cluster.agentsList,
+      assignedAgentsListDisplay: cluster.agentsList,
     });
     return
   }
@@ -224,9 +277,9 @@ class ClusterEdit extends Component {
 
   getApiEntryCreateEndpoint() {
     if (!IsManager) {
-      return GetApiServerUri('/api/tornjak/cluster/edit')
+      return GetApiServerUri('/api/tornjak/cluster/create')
     } else if (IsManager && this.state.selectedServer !== "") {
-      return GetApiServerUri('/manager-api/tornjak/cluster/edit') + "/" + this.state.selectedServer
+      return GetApiServerUri('/manager-api/tornjak/cluster/create') + "/" + this.state.selectedServer
     } else {
       this.setState({ message: "Error: No server selected" })
       return ""
@@ -252,20 +305,20 @@ class ClusterEdit extends Component {
       return
     }
 
-    if (this.state.clusterAgentsList.length !== 0) {
-      agentsList = this.state.clusterAgentsList.split(',').map(x => x.trim())
-    }
-
+    // if (this.state.clusterAgentsList.length !== 0) {
+    //   agentsList = this.state.clusterAgentsList.split(',').map(x => x.trim())
+    // }
     var cjtData = {
-      "clusters": [{
+      "cluster": {
         "clusterName": this.state.clusterName,
         "clusterType": this.state.clusterType,
         "clusterDomainName": this.state.clusterDomainName,
         "clusterManagedBy": this.state.clusterManagedBy,
-        "clusterAgentsList": agentsList
-      }]
+        "clusterAgentsList": this.state.clusterAgentsList
+      }
     }
 
+    console.log(cjtData)
     let endpoint = this.getApiEntryCreateEndpoint();
     if (endpoint === "") {
       return
@@ -340,7 +393,6 @@ class ClusterEdit extends Component {
                     invalidText="A valid value is required - refer to helper text below"
                     labelText="Cluster Type - Manual Entry"
                     placeholder="Enter Cluster Type"
-                    defaultValue={this.state.clusterType}
                     onChange={(e) => {
                       this.onChangeManualClusterType(e);
                     }}

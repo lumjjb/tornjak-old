@@ -54,8 +54,8 @@ class ClusterCreate extends Component {
     this.props.clusterTypeInfoFunc(clusterType); //set cluster type info
     if (IsManager) {
       if (this.props.globalServerSelected !== "" && (this.props.globalErrorMessage === "OK" || this.props.globalErrorMessage === "")) {
-        this.TornjakApi.populateAgentsUpdate(this.props.globalServerSelected, this.props.agentsListUpdateFunc, this.props.tornjakMessageFunc)
-        this.TornjakApi.refreshSelectorsState(this.props.globalServerSelected, this.props.agentworkloadSelectorInfoFunc);
+        this.TornjakApi.populateAgentsUpdate(this.props.globalServerSelected, this.props.agentsListUpdateFunc, this.props.tornjakMessageFunc);
+        this.TornjakApi.populateTornjakServerInfo(this.props.globalServerSelected, this.props.tornjakServerInfoUpdateFunc, this.props.tornjakMessageFunc);
         this.setState({ selectedServer: this.props.globalServerSelected });
         this.prepareClusterTypeList();
         this.prepareAgentsList();
@@ -64,7 +64,6 @@ class ClusterCreate extends Component {
       this.TornjakApi.populateLocalAgentsUpdate(this.props.agentsListUpdateFunc, this.props.tornjakMessageFunc);
       this.TornjakApi.populateLocalTornjakServerInfo(this.props.tornjakServerInfoUpdateFunc, this.props.tornjakMessageFunc);
       this.TornjakApi.populateServerInfo(this.props.globalTornjakServerInfo, this.props.serverInfoUpdateFunc);
-      this.setState({})
       this.prepareClusterTypeList();
       this.prepareAgentsList();
     }
@@ -144,36 +143,22 @@ class ClusterCreate extends Component {
 
   onChangeClusterType = selected => {
     var sid = selected.selectedItem;
-    if (sid.length === 0) {
-      this.setState({
-        clusterType: sid,
-      });
-      return
-    }
     if (sid === this.state.clusterTypeManualEntryOption) {
       this.setState({
         clusterTypeManualEntry: true,
         clusterType: sid,
       });
-      return
-    }
-    this.setState({
-      clusterTypeManualEntry: false
-    });
-    this.setState({
-      clusterType: sid,
-    });
+    } else {
+        this.setState({
+          clusterType: sid,
+          clusterTypeManualEntry: false
+        });
+      }
     return
   }
 
   onChangeManualClusterType(e) {
     var sid = e.target.value;
-    if (sid.length === 0) {
-      this.setState({
-        clusterType: sid
-      });
-      return
-    }
     this.setState({
       clusterType: sid
     });
