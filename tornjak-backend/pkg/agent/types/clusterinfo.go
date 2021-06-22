@@ -7,7 +7,7 @@ type ClusterInfo struct {
 	DomainName   string `json:"domainName"`
 	ManagedBy    string `json:"managedBy"`
 	PlatformType string `json:"platformType"`
-	AgentsList   string `json:"agentsList"`
+	AgentsList   []string `json:"agentsList"`
 }
 
 // ClusterInfoList contains the meta-information about clusters

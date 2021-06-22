@@ -11,8 +11,9 @@ import (
 
 // TO DO: DELETE deleted agents from the db
 const (
-	initAgentsTable   = "CREATE TABLE IF NOT EXISTS agents (spiffeid TEXT PRIMARY KEY, plugin TEXT)"                                                       //creates agentdb with fields spiffeid and plugin
-	initClustersTable = "CREATE TABLE IF NOT EXISTS clusters (name TEXT PRIMARY KEY, domainName TEXT, PlatformType TEXT, managedBy TEXT, agentsList TEXT)" //TODO need other fields?
+	initAgentsTable   = "CREATE TABLE IF NOT EXISTS agents (id INTEGER PRIMARY KEY AUTOINCREMENT, spiffeid TEXT, plugin TEXT)"                                                       //creates agentdb with fields spiffeid and plugin
+	initClustersTable = "CREATE TABLE IF NOT EXISTS clusters (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, domainName TEXT, PlatformType TEXT, managedBy TEXT, UNIQUE (name))" //TODO need other fields?
+  initClusterMemberTable = "CREATE TABLE IF NOT EXISTS clusterMemberships (id INTEGER PRIMARY KEY AUTOINCREMENT, spiffeid TEXT, clusterName TEXT, UNIQUE (spiffeid))"
 )
 
 type LocalSqliteDb struct {
@@ -44,6 +45,17 @@ func NewLocalSqliteDB(dbpath string) (AgentDB, error) {
 	if err != nil {
 		return nil, errors.Errorf("Unable to execute SQL query :%v", initClustersTable)
 	}
+
+	// Table for clusters-agent membership
+	statement, err = database.Prepare(initClusterMemberTable)
+	if err != nil {
+		return nil, errors.Errorf("Unable to execute SQL query :%v", initClusterMemberTable)
+	}
+	_, err = statement.Exec()
+	if err != nil {
+		return nil, errors.Errorf("Unable to execute SQL query :%v", initClusterMemberTable)
+	}
+
 
 	return &LocalSqliteDb{
 		database: database,
@@ -98,9 +110,39 @@ func (db *LocalSqliteDb) GetAgentPluginInfo(name string) (types.AgentInfo, error
 	return sinfo, nil
 }
 
+func (db *LocalSqliteDb) GetClusterAgents(name string) ([]string, error){
+  rows, err := db.database.Query("SELECT spiffeid FROM clusterMemberships WHERE clusterName=?", name)
+  if err != nil {
+    return nil, errors.Errorf("Unable to execute SQL query: %v", err)
+  }
+
+  spiffeids := []string{}
+  var spiffeid string
+
+  for rows.Next() {
+    if err = rows.Scan(&spiffeid); err != nil {
+      return nil, err
+    }
+    spiffeids = append(spiffeids, spiffeid)
+  }
+
+  return spiffeids, nil
+}
+
+func (db *LocalSqliteDb) GetAgentClusterName(name string) (string, error) {
+  row := db.database.QueryRow("SELECT clusterName FROM clusterMemberships WHERE spiffeid=?", name)
+
+  var clusterName string
+  err := row.Scan(&clusterName)
+  if err != nil {
+    return "", err
+  }
+  return clusterName, nil
+}
+
 func (db *LocalSqliteDb) GetClusters() (types.ClusterInfoList, error) {
 	//rows, err := db.database.Query("SELECT name, details FROM clusters, json_each(clusters.details, '$.foo1')")
-	rows, err := db.database.Query("SELECT name, domainName, managedBy, platformType, agentsList from clusters")
+	rows, err := db.database.Query("SELECT name, domainName, managedBy, platformType from clusters")
 	if err != nil {
 		return types.ClusterInfoList{}, errors.Errorf("Unable to execute SQL query: %v", err)
 	}
@@ -111,19 +153,23 @@ func (db *LocalSqliteDb) GetClusters() (types.ClusterInfoList, error) {
 		domainName   string
 		managedBy    string
 		platformType string
-		agentsList   string
+    agentsList   []string
 	)
 	for rows.Next() {
-		if err = rows.Scan(&name, &domainName, &managedBy, &platformType, &agentsList); err != nil {
+		if err = rows.Scan(&name, &domainName, &managedBy, &platformType); err != nil {
 			return types.ClusterInfoList{}, err
 		}
 
+    agentsList, err = db.GetClusterAgents(name)
+    if err != nil {
+      return types.ClusterInfoList{}, errors.Errorf("Error getting cluster agents: %v", err)
+    }
 		sinfos = append(sinfos, types.ClusterInfo{
 			Name:         name,
 			DomainName:   domainName,
 			ManagedBy:    managedBy,
 			PlatformType: platformType,
-			AgentsList:   agentsList,
+      AgentsList:   agentsList,
 		})
 	}
 
@@ -132,11 +178,29 @@ func (db *LocalSqliteDb) GetClusters() (types.ClusterInfoList, error) {
 	}, nil
 }
 
+func (db *LocalSqliteDb) AssignAgentCluster(spiffeid string, clusterName string) (error){
+  statement, err := db.database.Prepare("INSERT OR REPLACE INTO clusterMemberships (spiffeid, clusterName) VALUES (?,?)")
+  if err != nil {
+    return errors.Errorf("Unable to execute SQL query: %v", err)
+  }
+  _, err = statement.Exec(spiffeid, clusterName)
+  return err
+}
+
 func (db *LocalSqliteDb) CreateClusterEntry(cinfo types.ClusterInfo) error {
-	statement, err := db.database.Prepare("INSERT OR REPLACE INTO clusters (name, domainName, managedBy, platformType, agentsList) VALUES (?,?,?,?,?)")
+	statement, err := db.database.Prepare("INSERT OR REPLACE INTO clusters (name, domainName, managedBy, platformType) VALUES (?,?,?,?)")
 	if err != nil {
 		return errors.Errorf("Unable to execute SQL query: %v", err)
 	}
-	_, err = statement.Exec(cinfo.Name, cinfo.DomainName, cinfo.ManagedBy, cinfo.PlatformType, cinfo.AgentsList)
+	_, err = statement.Exec(cinfo.Name, cinfo.DomainName, cinfo.ManagedBy, cinfo.PlatformType)
+
+  // enter into clusterMemberships table
+  for i := 0; i < len(cinfo.AgentsList); i++ {
+    err = db.AssignAgentCluster(cinfo.AgentsList[i], cinfo.Name)
+    if err != nil {
+      return errors.Errorf("Unable to add to cluster: %v", err) //TODO should probably keep trying on others
+    }
+  }
+
 	return err
 }
