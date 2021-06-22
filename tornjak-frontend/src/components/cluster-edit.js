@@ -287,7 +287,7 @@ class ClusterEdit extends Component {
   }
 
   onSubmit(e) {
-    let agentsList = [];
+    //let agentsList = [];
     e.preventDefault();
 
     // if (this.state.chooseCluster.length === 0) {
