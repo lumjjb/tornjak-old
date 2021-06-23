@@ -20,7 +20,6 @@ type LocalSqliteDb struct {
 	database *sql.DB
 }
 
-
 func NewLocalSqliteDB(dbpath string) (AgentDB, error) {
 	database, err := sql.Open("sqlite3", dbpath)
 	if err != nil {
@@ -195,15 +194,15 @@ func (db *LocalSqliteDb) RemoveClusterAgents(name string) error {
 }
 
 func (db *LocalSqliteDb) CreateClusterEntry(cinfo types.ClusterInfo) error {
-  // CHECK IF EXISTS, throw error if it does
-  var name string
-  err := db.database.QueryRow("SELECT name FROM clusters WHERE name=?", cinfo.Name).Scan(&name)
-  if err == nil {
-    return errors.Errorf("Error: cluster %v already exists", cinfo.Name)
-  }
-  if err != sql.ErrNoRows{
-    return errors.Errorf("Error checking query: %v", err)
-  }
+	// CHECK IF EXISTS, throw error if it does
+	var name string
+	err := db.database.QueryRow("SELECT name FROM clusters WHERE name=?", cinfo.Name).Scan(&name)
+	if err == nil {
+		return errors.Errorf("Error: cluster %v already exists", cinfo.Name)
+	}
+	if err != sql.ErrNoRows {
+		return errors.Errorf("Error checking query: %v", err)
+	}
 
 	statement, err := db.database.Prepare("INSERT INTO clusters (name, domainName, managedBy, platformType) VALUES (?,?,?,?)")
 	if err != nil {
@@ -222,16 +221,16 @@ func (db *LocalSqliteDb) CreateClusterEntry(cinfo types.ClusterInfo) error {
 }
 
 func (db *LocalSqliteDb) EditClusterEntry(cinfo types.ClusterInfo) error {
-  // CHECK IF EXISTS, throw error if doesn't
-  var name string
-  err := db.database.QueryRow("SELECT name FROM clusters WHERE name=?", cinfo.Name).Scan(&name)
-  if err != nil {
-    if err == sql.ErrNoRows{
-      return errors.Errorf("Error: cluster %v does not exist", cinfo.Name)
-    } else {
-      return errors.Errorf("Error checking query: %v", err)
-    }
-  }
+	// CHECK IF EXISTS, throw error if doesn't
+	var name string
+	err := db.database.QueryRow("SELECT name FROM clusters WHERE name=?", cinfo.Name).Scan(&name)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return errors.Errorf("Error: cluster %v does not exist", cinfo.Name)
+		} else {
+			return errors.Errorf("Error checking query: %v", err)
+		}
+	}
 
 	statement, err := db.database.Prepare("UPDATE clusters SET domainName=?, managedBy=?, platformType=? WHERE name=?")
 	if err != nil {
@@ -253,5 +252,3 @@ func (db *LocalSqliteDb) EditClusterEntry(cinfo types.ClusterInfo) error {
 
 	return err
 }
-
-

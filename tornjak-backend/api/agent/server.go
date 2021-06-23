@@ -619,19 +619,19 @@ func (s *Server) clusterCreate(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) clusterEdit(w http.ResponseWriter, r *http.Request) {
-  buf := new(strings.Builder)
-  n, err := io.Copy(buf, r.Body)
-  if err != nil {
-    emsg := fmt.Sprintf("Error parsing data: %v", err.Error())
-    retError(w, emsg, http.StatusBadRequest)
-    return
-  }
-  data := buf.String()
-  var input EditClusterRequest
-  if n == 0 {
-    input = EditClusterRequest{}
-  } else {
-    err := json.Unmarshal([]byte(data), &input)
+	buf := new(strings.Builder)
+	n, err := io.Copy(buf, r.Body)
+	if err != nil {
+		emsg := fmt.Sprintf("Error parsing data: %v", err.Error())
+		retError(w, emsg, http.StatusBadRequest)
+		return
+	}
+	data := buf.String()
+	var input EditClusterRequest
+	if n == 0 {
+		input = EditClusterRequest{}
+	} else {
+		err := json.Unmarshal([]byte(data), &input)
 		if err != nil {
 			emsg := fmt.Sprintf("Error parsing data: %v", err.Error())
 			retError(w, emsg, http.StatusBadRequest)

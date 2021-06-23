@@ -235,8 +235,8 @@ func (s *Server) DefineCluster(inp RegisterClusterRequest) error {
 	if len(cinfo.Name) == 0 {
 		return errors.New("cluster definition missing mandatory field - Name")
 	} else if len(cinfo.PlatformType) == 0 {
-    return errors.New("cluster definition missing mandatory field PlatformType")
-  }
+		return errors.New("cluster definition missing mandatory field PlatformType")
+	}
 	return s.Db.CreateClusterEntry(cinfo)
 }
 
@@ -249,13 +249,8 @@ func (s *Server) EditCluster(inp EditClusterRequest) error {
 	cinfo := agentTypes.ClusterInfo(inp)
 	if len(cinfo.Name) == 0 {
 		return errors.New("cluster definition missing mandatory field - Name")
-	} else if len(cinfo.PlatformType) == 0{
-    return errors.New("cluster definition missing mandatory field PlatformType")
-  }
+	} else if len(cinfo.PlatformType) == 0 {
+		return errors.New("cluster definition missing mandatory field PlatformType")
+	}
 	return s.Db.EditClusterEntry(cinfo)
 }
-
-
-
-
-
