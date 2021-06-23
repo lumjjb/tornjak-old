@@ -9,10 +9,9 @@ import (
 	"github.com/lumjjb/tornjak/tornjak-backend/pkg/agent/types"
 )
 
-// TO DO: DELETE deleted agents from the db
 const (
 	initAgentsTable        = "CREATE TABLE IF NOT EXISTS agents (id INTEGER PRIMARY KEY AUTOINCREMENT, spiffeid TEXT, plugin TEXT)"                                                     //creates agentdb with fields spiffeid and plugin
-	initClustersTable      = "CREATE TABLE IF NOT EXISTS clusters (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, domainName TEXT, PlatformType TEXT, managedBy TEXT, UNIQUE (name))" //TODO need other fields?
+	initClustersTable      = "CREATE TABLE IF NOT EXISTS clusters (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, domainName TEXT, PlatformType TEXT, managedBy TEXT, UNIQUE (name))"
 	initClusterMemberTable = "CREATE TABLE IF NOT EXISTS clusterMemberships (id INTEGER PRIMARY KEY AUTOINCREMENT, spiffeid TEXT, clusterName TEXT, UNIQUE (spiffeid))"
 )
 
@@ -20,41 +19,41 @@ type LocalSqliteDb struct {
 	database *sql.DB
 }
 
+func createDBTable(database *sql.DB, cmd string)(error){
+  statement, err := database.Prepare(cmd)
+  if err != nil {
+    return errors.Errorf("Unable to execute SQL query: %v", cmd)
+  }
+  _, err = statement.Exec()
+  if err != nil {
+    return errors.Errorf("Unable to execute SQL query: %v", cmd)
+  }
+  return nil
+}
+
 func NewLocalSqliteDB(dbpath string) (AgentDB, error) {
-	database, err := sql.Open("sqlite3", dbpath)
+	database, err := sql.Open("sqlite3", dbpath) // TODO close DB upon error? 
 	if err != nil {
 		return nil, errors.New("Unable to open connection to DB")
 	}
 
 	// Table for workload selectors
-	statement, err := database.Prepare(initAgentsTable)
-	if err != nil {
-		return nil, errors.Errorf("Unable to execute SQL query :%v", initAgentsTable)
-	}
-	_, err = statement.Exec()
-	if err != nil {
-		return nil, errors.Errorf("Unable to execute SQL query :%v", initAgentsTable)
-	}
+  err = createDBTable(database, initAgentsTable)
+  if err != nil {
+    return nil, err
+  }
 
 	// Table for clusters
-	statement, err = database.Prepare(initClustersTable)
-	if err != nil {
-		return nil, errors.Errorf("Unable to execute SQL query :%v", initClustersTable)
-	}
-	_, err = statement.Exec()
-	if err != nil {
-		return nil, errors.Errorf("Unable to execute SQL query :%v", initClustersTable)
-	}
+  err = createDBTable(database, initClustersTable)
+  if err != nil {
+    return nil, err
+  }
 
 	// Table for clusters-agent membership
-	statement, err = database.Prepare(initClusterMemberTable)
-	if err != nil {
-		return nil, errors.Errorf("Unable to execute SQL query :%v", initClusterMemberTable)
-	}
-	_, err = statement.Exec()
-	if err != nil {
-		return nil, errors.Errorf("Unable to execute SQL query :%v", initClusterMemberTable)
-	}
+  err = createDBTable(database, initClusterMemberTable)
+  if err != nil {
+    return nil, err
+  }
 
 	return &LocalSqliteDb{
 		database: database,
@@ -176,6 +175,16 @@ func (db *LocalSqliteDb) GetClusters() (types.ClusterInfoList, error) {
 }
 
 func (db *LocalSqliteDb) AssignAgentCluster(spiffeid string, clusterName string) error {
+  // CHECK IF EXISTS, throw error if it does
+  var isMember string
+  err := db.database.QueryRow("SELECT clusterName FROM clusterMemberships WHERE spiffeid=?", spiffeid).Scan(&isMember)
+  if err == nil {
+    return errors.Errorf("Error: agent %v already assigned to %v", spiffeid, isMember)
+  }
+  if err != sql.ErrNoRows{
+    return errors.Errorf("Error checking query: %v", err)
+  }
+
 	statement, err := db.database.Prepare("INSERT OR REPLACE INTO clusterMemberships (spiffeid, clusterName) VALUES (?,?)")
 	if err != nil {
 		return errors.Errorf("Unable to execute SQL query: %v", err)
@@ -193,6 +202,21 @@ func (db *LocalSqliteDb) RemoveClusterAgents(name string) error {
 	return err
 }
 
+func (db *LocalSqliteDb) AssignAgentsCluster(spiffeids []string, clusterName string) error {
+  var errorAcc error
+  for i := 0; i < len(spiffeids); i++ {
+    err := db.AssignAgentCluster(spiffeids[i], clusterName)
+    if err != nil {
+      if errorAcc == nil {
+        errorAcc = errors.Errorf("Unable to add to cluster: %v [%v]", spiffeids[i], err)
+      } else {
+        errorAcc = errors.Errorf("%v, %v [%v]", errorAcc, spiffeids[i], err)
+      }
+    }
+  }
+  return errorAcc
+}
+
 func (db *LocalSqliteDb) CreateClusterEntry(cinfo types.ClusterInfo) error {
 	// CHECK IF EXISTS, throw error if it does
 	var name string
@@ -208,15 +232,16 @@ func (db *LocalSqliteDb) CreateClusterEntry(cinfo types.ClusterInfo) error {
 	if err != nil {
 		return errors.Errorf("Unable to execute SQL query: %v", err)
 	}
-	_, err = statement.Exec(cinfo.Name, cinfo.DomainName, cinfo.ManagedBy, cinfo.PlatformType)
+	_, err = statement.Exec(cinfo.Name, cinfo.DomainName, cinfo.ManagedBy, cinfo.PlatformType) // TODO add error handler here
+  if err != nil {
+    return errors.Errorf("Error creating cluster: %v", err)
+  }
 
-	for i := 0; i < len(cinfo.AgentsList); i++ {
-		err = db.AssignAgentCluster(cinfo.AgentsList[i], cinfo.Name)
-		if err != nil {
-			return errors.Errorf("Unable to add to cluster: %v", err) //TODO should probably keep trying on others
-		}
-	}
-
+  err = db.RemoveClusterAgents(cinfo.Name)
+  if err != nil {
+    return errors.Errorf("Error clearing agents from cluster: %v", err)
+  }
+	err = db.AssignAgentsCluster(cinfo.AgentsList, cinfo.Name)
 	return err
 }
 
@@ -237,18 +262,33 @@ func (db *LocalSqliteDb) EditClusterEntry(cinfo types.ClusterInfo) error {
 		return errors.Errorf("Unable to execute SQL query: %v", err)
 	}
 	_, err = statement.Exec(cinfo.DomainName, cinfo.ManagedBy, cinfo.PlatformType, cinfo.Name)
+  if err != nil {
+    return errors.Errorf("Error creating cluster: %v", err)
+  }
 
-	// enter into clusterMemberships table
-	err = db.RemoveClusterAgents(cinfo.Name)
-	if err != nil {
-		return errors.Errorf("Unable to clear clusterMemberships: %v", err)
-	}
-	for i := 0; i < len(cinfo.AgentsList); i++ {
-		err = db.AssignAgentCluster(cinfo.AgentsList[i], cinfo.Name)
-		if err != nil {
-			return errors.Errorf("Unable to add to cluster: %v", err) //TODO should probably keep trying on others
-		}
-	}
+  err = db.RemoveClusterAgents(cinfo.Name)
+  if err != nil {
+    return errors.Errorf("Error clearing agents from cluster: %v", err)
+  }
 
+  err = db.AssignAgentsCluster(cinfo.AgentsList, cinfo.Name)
 	return err
 }
+
+func (db *LocalSqliteDb) DeleteClusterEntry(clusterName string) error {
+  err := db.RemoveClusterAgents(clusterName)
+  if err != nil {
+    return errors.Errorf("Error: Unable to remove all cluster agents from cluster: %v", err)
+  }
+
+  statement, err := db.database.Prepare("DELETE FROM clusters WHERE name=?")
+  if err != nil {
+    return errors.Errorf("Unable to execute SQL query: %v", err)
+  }
+  _, err = statement.Exec(clusterName)
+  if err != nil {
+    return errors.Errorf("Error deleting cluster: %v", err)
+  }
+  return nil
+}
+

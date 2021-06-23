@@ -227,9 +227,7 @@ func (s *Server) ListClusters(inp ListClustersRequest) (*ListClustersResponse, e
 
 type RegisterClusterRequest agentTypes.ClusterInfo
 
-// DefineCluster registers cluster to local DB with following info
-// name string
-// details json
+// DefineCluster registers cluster to local DB
 func (s *Server) DefineCluster(inp RegisterClusterRequest) error {
 	cinfo := agentTypes.ClusterInfo(inp)
 	if len(cinfo.Name) == 0 {
@@ -241,10 +239,7 @@ func (s *Server) DefineCluster(inp RegisterClusterRequest) error {
 }
 
 type EditClusterRequest agentTypes.ClusterInfo
-
-// EditCluster registers cluster to local DB with following info
-// name string
-// details json
+// EditCluster registers cluster to local DB
 func (s *Server) EditCluster(inp EditClusterRequest) error {
 	cinfo := agentTypes.ClusterInfo(inp)
 	if len(cinfo.Name) == 0 {
