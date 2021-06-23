@@ -233,7 +233,29 @@ type RegisterClusterRequest agentTypes.ClusterInfo
 func (s *Server) DefineCluster(inp RegisterClusterRequest) error {
 	cinfo := agentTypes.ClusterInfo(inp)
 	if len(cinfo.Name) == 0 {
-		return errors.New("agent's name missing mandatory field - Name")
-	}
+		return errors.New("cluster definition missing mandatory field - Name")
+	} else if len(cinfo.PlatformType) == 0 {
+    return errors.New("cluster definition missing mandatory field PlatformType")
+  }
 	return s.Db.CreateClusterEntry(cinfo)
 }
+
+type EditClusterRequest agentTypes.ClusterInfo
+
+// EditCluster registers cluster to local DB with following info
+// name string
+// details json
+func (s *Server) EditCluster(inp EditClusterRequest) error {
+	cinfo := agentTypes.ClusterInfo(inp)
+	if len(cinfo.Name) == 0 {
+		return errors.New("cluster definition missing mandatory field - Name")
+	} else if len(cinfo.PlatformType) == 0{
+    return errors.New("cluster definition missing mandatory field PlatformType")
+  }
+	return s.Db.EditClusterEntry(cinfo)
+}
+
+
+
+
+

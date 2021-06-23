@@ -20,6 +20,7 @@ type LocalSqliteDb struct {
 	database *sql.DB
 }
 
+
 func NewLocalSqliteDB(dbpath string) (AgentDB, error) {
 	database, err := sql.Open("sqlite3", dbpath)
 	if err != nil {
@@ -194,11 +195,49 @@ func (db *LocalSqliteDb) RemoveClusterAgents(name string) error {
 }
 
 func (db *LocalSqliteDb) CreateClusterEntry(cinfo types.ClusterInfo) error {
-	statement, err := db.database.Prepare("INSERT OR REPLACE INTO clusters (name, domainName, managedBy, platformType) VALUES (?,?,?,?)")
+  // CHECK IF EXISTS, throw error if it does
+  var name string
+  err := db.database.QueryRow("SELECT name FROM clusters WHERE name=?", cinfo.Name).Scan(&name)
+  if err == nil {
+    return errors.Errorf("Error: cluster %v already exists", cinfo.Name)
+  }
+  if err != sql.ErrNoRows{
+    return errors.Errorf("Error checking query: %v", err)
+  }
+
+	statement, err := db.database.Prepare("INSERT INTO clusters (name, domainName, managedBy, platformType) VALUES (?,?,?,?)")
 	if err != nil {
 		return errors.Errorf("Unable to execute SQL query: %v", err)
 	}
 	_, err = statement.Exec(cinfo.Name, cinfo.DomainName, cinfo.ManagedBy, cinfo.PlatformType)
+
+	for i := 0; i < len(cinfo.AgentsList); i++ {
+		err = db.AssignAgentCluster(cinfo.AgentsList[i], cinfo.Name)
+		if err != nil {
+			return errors.Errorf("Unable to add to cluster: %v", err) //TODO should probably keep trying on others
+		}
+	}
+
+	return err
+}
+
+func (db *LocalSqliteDb) EditClusterEntry(cinfo types.ClusterInfo) error {
+  // CHECK IF EXISTS, throw error if doesn't
+  var name string
+  err := db.database.QueryRow("SELECT name FROM clusters WHERE name=?", cinfo.Name).Scan(&name)
+  if err != nil {
+    if err == sql.ErrNoRows{
+      return errors.Errorf("Error: cluster %v does not exist", cinfo.Name)
+    } else {
+      return errors.Errorf("Error checking query: %v", err)
+    }
+  }
+
+	statement, err := db.database.Prepare("UPDATE clusters SET domainName=?, managedBy=?, platformType=? WHERE name=?")
+	if err != nil {
+		return errors.Errorf("Unable to execute SQL query: %v", err)
+	}
+	_, err = statement.Exec(cinfo.DomainName, cinfo.ManagedBy, cinfo.PlatformType, cinfo.Name)
 
 	// enter into clusterMemberships table
 	err = db.RemoveClusterAgents(cinfo.Name)
@@ -214,3 +253,5 @@ func (db *LocalSqliteDb) CreateClusterEntry(cinfo types.ClusterInfo) error {
 
 	return err
 }
+
+

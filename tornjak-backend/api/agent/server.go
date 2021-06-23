@@ -434,7 +434,7 @@ func (s *Server) HandleRequests() {
 	// Clusters
 	rtr.HandleFunc("/api/tornjak/clusters/list", corsHandler(s.clusterList))
 	rtr.HandleFunc("/api/tornjak/cluster/create", corsHandler(s.clusterCreate))
-	rtr.HandleFunc("/api/tornjak/cluster/edit", corsHandler(s.clusterCreate)) //TODO
+	rtr.HandleFunc("/api/tornjak/cluster/edit", corsHandler(s.clusterEdit))
 
 	// UI
 	spa := spaHandler{staticPath: "ui-agent", indexPath: "index.html"}
@@ -616,6 +616,37 @@ func (s *Server) clusterCreate(w http.ResponseWriter, r *http.Request) {
 	}
 	cors(w, r)
 	w.Write([]byte("SUCCESS"))
+}
+
+func (s *Server) clusterEdit(w http.ResponseWriter, r *http.Request) {
+  buf := new(strings.Builder)
+  n, err := io.Copy(buf, r.Body)
+  if err != nil {
+    emsg := fmt.Sprintf("Error parsing data: %v", err.Error())
+    retError(w, emsg, http.StatusBadRequest)
+    return
+  }
+  data := buf.String()
+  var input EditClusterRequest
+  if n == 0 {
+    input = EditClusterRequest{}
+  } else {
+    err := json.Unmarshal([]byte(data), &input)
+		if err != nil {
+			emsg := fmt.Sprintf("Error parsing data: %v", err.Error())
+			retError(w, emsg, http.StatusBadRequest)
+			return
+		}
+	}
+	err = s.EditCluster(input)
+	if err != nil {
+		emsg := fmt.Sprintf("Error: %v", err.Error())
+		retError(w, emsg, http.StatusBadRequest)
+		return
+	}
+	cors(w, r)
+	w.Write([]byte("SUCCESS"))
+
 }
 
 /********* END CLUSTER *********/
