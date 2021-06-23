@@ -239,6 +239,7 @@ func (s *Server) DefineCluster(inp RegisterClusterRequest) error {
 }
 
 type EditClusterRequest agentTypes.ClusterInfo
+
 // EditCluster registers cluster to local DB
 func (s *Server) EditCluster(inp EditClusterRequest) error {
 	cinfo := agentTypes.ClusterInfo(inp)

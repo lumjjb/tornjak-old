@@ -14,6 +14,7 @@ type AgentDB interface {
 	GetClusters() (types.ClusterInfoList, error)
 	CreateClusterEntry(cinfo types.ClusterInfo) error
 	EditClusterEntry(cinfo types.ClusterInfo) error
+	DeleteClusterEntry(name string) error
 
 	// AGENT - CLUSTER interface
 	GetAgentClusterName(spiffeid string) (string, error)
