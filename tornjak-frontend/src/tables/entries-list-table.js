@@ -54,6 +54,7 @@ class DataTableRender extends React.Component {
         let i = 0;
         for (i = 0; i < listData.length; i++) {
             listtabledata[i] = {};
+            listtabledata[i]["no"] = i + 1;
             listtabledata[i]["id"] = listData[i].props.entry.id;
             listtabledata[i]["spiffeid"] = "spiffe://" + listData[i].props.entry.spiffe_id.trust_domain + listData[i].props.entry.spiffe_id.path;
             listtabledata[i]["parentid"] = "spiffe://" + listData[i].props.entry.parent_id.trust_domain + listData[i].props.entry.parent_id.path;
@@ -99,7 +100,11 @@ class DataTableRender extends React.Component {
         const { listTableData } = this.state;
         const headerData = [
             {
-                header: 'ID',
+                header: '#No',
+                key: 'no',
+            },
+            {
+                header: 'Id',
                 key: 'id',
             },
             {

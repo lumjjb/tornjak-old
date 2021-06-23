@@ -62,27 +62,8 @@ class ClusterList extends Component {
   }
 
   clusterList() {
-    var clusters =
-    [
-        {
-          "name": "cluster1",
-          "domainName": "example.org",
-          "managedBy": "personA",
-          "platformType": "K8s",
-          "agentsList": ['spiffe://example.org/spire/agent/k8s_sat/minikube/7f1676c6-d79a-44af-b8f5-43f3fc393632','spiffe://example.org/spire/agent/k8s_sat/minikube/7f1676c6-d79a-44af-b8f5-43f3fc393632']
-        },
-        {
-          "name": "cluster2",
-          "domainName": "abc.org",
-          "managedBy": "personB",
-          "platformType": "Docker",
-          "agentsList": ['agent3','agent4']
-        }
-    ];
-    //if (typeof this.props.globalClustersList !== 'undefined') {
-      //return this.props.globalClustersList.map(currentCluster => {
-    if (typeof clusters !== 'undefined') {
-      return clusters.map(currentCluster => {
+    if (typeof this.props.globalClustersList !== 'undefined') {
+      return this.props.globalClustersList.map(currentCluster => {
         return <Cluster key={currentCluster.name}
           cluster={currentCluster} />;
       })

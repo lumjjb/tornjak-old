@@ -26,8 +26,6 @@ class ClusterCreate extends Component {
     this.onChangeManualClusterType = this.onChangeManualClusterType.bind(this);
     this.onChangeClusterDomainName = this.onChangeClusterDomainName.bind(this);
     this.onChangeClusterManagedBy = this.onChangeClusterManagedBy.bind(this);
-    this.prepareClusterTypeList = this.prepareClusterTypeList.bind(this);
-    this.prepareAgentsList = this.prepareAgentsList.bind(this);
     this.onChangeAgentsList = this.onChangeAgentsList.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
 
@@ -37,14 +35,14 @@ class ClusterCreate extends Component {
       clusterDomainName: "",
       clusterManagedBy: "",
       clusterAgentsList: "",
-      clusterTypeList: [],
+      clusterTypeList: this.props.clusterTypeList,
       clusterTypeManualEntryOption: "----Select this option and Enter Custom Cluster Type Below----",
       clusterTypeManualEntry: false,
       message: "",
       statusOK: "",
       successJsonMessege: "",
       selectedServer: "",
-      agentsList: [],
+      agentsList: this.props.agentsList,
       agentsListDisplay: "Select Agents",
       assignedAgentsListDisplay: "",
     }
@@ -57,15 +55,11 @@ class ClusterCreate extends Component {
         this.TornjakApi.populateAgentsUpdate(this.props.globalServerSelected, this.props.agentsListUpdateFunc, this.props.tornjakMessageFunc);
         this.TornjakApi.populateTornjakServerInfo(this.props.globalServerSelected, this.props.tornjakServerInfoUpdateFunc, this.props.tornjakMessageFunc);
         this.setState({ selectedServer: this.props.globalServerSelected });
-        this.prepareClusterTypeList();
-        this.prepareAgentsList();
       }
     } else {
       this.TornjakApi.populateLocalAgentsUpdate(this.props.agentsListUpdateFunc, this.props.tornjakMessageFunc);
       this.TornjakApi.populateLocalTornjakServerInfo(this.props.tornjakServerInfoUpdateFunc, this.props.tornjakMessageFunc);
       this.TornjakApi.populateServerInfo(this.props.globalTornjakServerInfo, this.props.serverInfoUpdateFunc);
-      this.prepareClusterTypeList();
-      this.prepareAgentsList();
     }
   }
 
@@ -74,44 +68,7 @@ class ClusterCreate extends Component {
       if (prevProps.globalServerSelected !== this.props.globalServerSelected) {
         this.setState({ selectedServer: this.props.globalServerSelected });
       }
-      if (prevProps.globalServerInfo !== this.props.globalServerInfo) {
-        this.prepareAgentsList();
-      }
-    } else {
-      if (prevProps.globalServerInfo !== this.props.globalServerInfo) {
-        this.prepareAgentsList();
-      }
     }
-  }
-
-  prepareClusterTypeList() {
-    let localClusterTypeList = [];
-    if (this.props.globalServerInfo.length === 0) {
-      return
-    }
-    //user prefered option
-    localClusterTypeList[0] = this.state.clusterTypeManualEntryOption;
-    //agents
-    for (let i = 0; i < this.props.globalClusterTypeInfo.length; i++) {
-      localClusterTypeList[i + 1] = this.props.globalClusterTypeInfo[i];
-    }
-    this.setState({
-      clusterTypeList: localClusterTypeList
-    });
-  }
-
-  prepareAgentsList() {
-    var prefix = "spiffe://";
-    let localAgentsIdList = [];
-    //agents
-    for (let i = 0; i < this.props.globalAgentsList.length; i++) {
-      localAgentsIdList[i] = {}
-      localAgentsIdList[i]["label"] = prefix + this.props.globalAgentsList[i].id.trust_domain + this.props.globalAgentsList[i].id.path;
-    }
-    this.setState({
-      agentsList: localAgentsIdList,
-      agentsListDisplay: "Select Agents",
-    });
   }
 
   onChangeAgentsList = selected => {
@@ -149,11 +106,11 @@ class ClusterCreate extends Component {
         clusterType: sid,
       });
     } else {
-        this.setState({
-          clusterType: sid,
-          clusterTypeManualEntry: false
-        });
-      }
+      this.setState({
+        clusterType: sid,
+        clusterTypeManualEntry: false
+      });
+    }
     return
   }
 
@@ -180,7 +137,6 @@ class ClusterCreate extends Component {
     });
     return
   }
-  // Tag related things
 
   getApiEntryCreateEndpoint() {
     if (!IsManager) {
@@ -194,7 +150,6 @@ class ClusterCreate extends Component {
   }
 
   onSubmit(e) {
-    //let agentsList = [];
     e.preventDefault();
 
     if (this.state.clusterName.length === 0) {
@@ -207,11 +162,6 @@ class ClusterCreate extends Component {
       return
     }
 
-    // console.log(this.state.clusterAgentsList)
-    // if (this.state.clusterAgentsList.length !== 0) {
-    //   agentsList = this.state.clusterAgentsList.split(',').map(x => x.trim())
-    // }
-
     var cjtData = {
       "cluster": {
         "name": this.state.clusterName,
@@ -222,7 +172,6 @@ class ClusterCreate extends Component {
       }
     }
 
-    console.log(cjtData)
     let endpoint = this.getApiEntryCreateEndpoint();
     if (endpoint === "") {
       return
@@ -243,7 +192,7 @@ class ClusterCreate extends Component {
       )
   }
   render() {
-    const ClusterType = this.state.clusterTypeList;
+    const ClusterType = this.props.clusterTypeList;
     return (
       <div>
         <div className="cluster-create">
@@ -307,7 +256,6 @@ class ClusterCreate extends Component {
                   invalidText="A valid value is required - refer to helper text below"
                   labelText="Cluster Managed By"
                   placeholder="Enter CLUSTER MANAGED BY"
-                  //value={this.state.spiffeId}
                   onChange={this.onChangeClusterManagedBy}
                 />
               </div>
@@ -318,7 +266,7 @@ class ClusterCreate extends Component {
                   placeholder={this.state.agentsListDisplay}
                   ariaLabel="selectors-multiselect"
                   id="selectors-multiselect"
-                  items={this.state.agentsList}
+                  items={this.props.agentsList}
                   label={this.state.agentsListDisplay}
                   onChange={this.onChangeAgentsList}
                 />
