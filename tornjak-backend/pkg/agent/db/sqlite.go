@@ -204,7 +204,7 @@ func (db *LocalSqliteDb) AssignAgentCluster(spiffeid string, clusterName string)
 func (db *LocalSqliteDb) RemoveClusterAgents(name string) error {
 	statement, err := db.database.Prepare("DELETE FROM clusterMemberships WHERE clusterName=?")
 	if err != nil {
-		return errors.Errorf("Unable to execute SQL query: $v", err)
+		return errors.Errorf("Unable to execute SQL query: %v", err)
 	}
 	_, err = statement.Exec(name)
 	return err
