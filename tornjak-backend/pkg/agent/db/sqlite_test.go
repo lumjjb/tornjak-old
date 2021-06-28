@@ -100,7 +100,7 @@ func TestClusterCreate(t *testing.T) {
 	}
 
 	// TEST GetClusterAgents with nonexistent cluster
-	_, err := db.GetClusterAgents(cluster1)
+	_, err = db.GetClusterAgents(cluster1)
 	if err == nil {
 		t.Fatal("Cannot get agents from nonexistent cluster")
 	}
@@ -125,7 +125,7 @@ func TestClusterCreate(t *testing.T) {
 	}
 
 	// TEST GetClusterAgents
-	agents, err = db.GetClusterAgents(cluster1)
+	agents, err := db.GetClusterAgents(cluster1)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -184,9 +184,9 @@ func TestClusterCreate(t *testing.T) {
 		t.Fatal(err)
 	}
 	agents3, err := db.GetClusterAgents(cluster3)
-  if err != nil {
-    t.Fatal(err)
-  }
+	if err != nil {
+		t.Fatal(err)
+	}
 	if len(agents1) != 2 || len(agents2) != 1 || len(agents3) != 1 {
 		t.Fatal("Clusters do not all contain correct agents")
 	}
@@ -304,9 +304,9 @@ func TestClusterEdit(t *testing.T) {
 		t.Fatal("Problem editing cluster metadata")
 	}
 	agents, err = db.GetClusterAgents(cluster1)
-  if err != nil {
-    t.Fatal(err)
-  }
+	if err != nil {
+		t.Fatal(err)
+	}
 	if len(agents) != 2 || agents[0] != agent1 || agents[1] != agent3 {
 		t.Fatal("Problem editing agent registration on clusterEdit")
 	}
