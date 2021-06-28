@@ -10,5 +10,11 @@ type ClusterInfo struct {
 	AgentsList   []string `json:"agentsList"`
 }
 
+type ClusterInput struct {
+	ClusterInstance ClusterInfo `json:"cluster"`
+}
+
 // ClusterInfoList contains the meta-information about clusters
-type ClusterInfoList []ClusterInfo
+type ClusterInfoList struct {
+	Clusters []ClusterInfo `json:"clusters"`
+}

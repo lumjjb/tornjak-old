@@ -225,11 +225,11 @@ func (s *Server) ListClusters(inp ListClustersRequest) (*ListClustersResponse, e
 	return (*ListClustersResponse)(&retVal), nil
 }
 
-type RegisterClusterRequest agentTypes.ClusterInfo
+type RegisterClusterRequest agentTypes.ClusterInput
 
 // DefineCluster registers cluster to local DB
 func (s *Server) DefineCluster(inp RegisterClusterRequest) error {
-	cinfo := agentTypes.ClusterInfo(inp)
+	cinfo := agentTypes.ClusterInfo(inp.ClusterInstance)
 	if len(cinfo.Name) == 0 {
 		return errors.New("cluster definition missing mandatory field - Name")
 	} else if len(cinfo.PlatformType) == 0 {
@@ -238,11 +238,11 @@ func (s *Server) DefineCluster(inp RegisterClusterRequest) error {
 	return s.Db.CreateClusterEntry(cinfo)
 }
 
-type EditClusterRequest agentTypes.ClusterInfo
+type EditClusterRequest agentTypes.ClusterInput
 
 // EditCluster registers cluster to local DB
 func (s *Server) EditCluster(inp EditClusterRequest) error {
-	cinfo := agentTypes.ClusterInfo(inp)
+	cinfo := agentTypes.ClusterInfo(inp.ClusterInstance)
 	if len(cinfo.Name) == 0 {
 		return errors.New("cluster definition missing mandatory field - Name")
 	} else if len(cinfo.PlatformType) == 0 {
