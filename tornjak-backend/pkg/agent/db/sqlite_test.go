@@ -1,7 +1,7 @@
 package db
 
 import (
-  "fmt"
+	"fmt"
 	"os"
 	"testing"
 
@@ -53,7 +53,7 @@ func TestServerCreate(t *testing.T) {
 /***************************************************************/
 
 func TestClusterCreate(t *testing.T) {
-  cleanup()
+	cleanup()
 	defer cleanup()
 	db, err := NewLocalSqliteDB("./local-agentstest-db")
 	if err != nil {
@@ -364,7 +364,6 @@ func TestClusterEdit(t *testing.T) {
 		t.Fatal("agent4 not in cluster2")
 	}
 
-
 	// TODO TEST EditClusterEntry renaming
 
 }
@@ -401,11 +400,11 @@ func TestClusterDelete(t *testing.T) {
 		PlatformType: vms,
 		AgentsList:   []string{agent1, agent2},
 	}
-  cinfo1New := types.ClusterInfo{
-    Name: cluster1,
-    PlatformType: vms,
-    AgentsList: []string{},
-  }
+	cinfo1New := types.ClusterInfo{
+		Name:         cluster1,
+		PlatformType: vms,
+		AgentsList:   []string{},
+	}
 	cinfo2 := types.ClusterInfo{
 		Name:         cluster2,
 		PlatformType: k8s,

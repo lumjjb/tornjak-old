@@ -32,5 +32,3 @@ type PostFailure struct {
 func (e PostFailure) Error() string {
 	return e.Message
 }
-
-
