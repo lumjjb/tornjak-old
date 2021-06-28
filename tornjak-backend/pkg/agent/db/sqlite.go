@@ -4,6 +4,7 @@ import (
   "context"
 	"database/sql"
 	"fmt"
+  "strings"
 
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/pkg/errors"
@@ -14,7 +15,7 @@ import (
 const (
 	initAgentsTable        = "CREATE TABLE IF NOT EXISTS agents (id INTEGER PRIMARY KEY AUTOINCREMENT, spiffeid TEXT, plugin TEXT)" //creates agentdb with fields spiffeid and plugin
 	initClustersTable      = "CREATE TABLE IF NOT EXISTS clusters (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, domainName TEXT, PlatformType TEXT, managedBy TEXT, UNIQUE (name))"
-	initClusterMemberTable = "CREATE TABLE IF NOT EXISTS clusterMemberships (id INTEGER PRIMARY KEY AUTOINCREMENT, spiffeid TEXT, clusterName TEXT, UNIQUE (spiffeid))"
+	initClusterMemberTable = "CREATE TABLE IF NOT EXISTS clusterMemberships (id INTEGER PRIMARY KEY AUTOINCREMENT, spiffeid TEXT, clusterID int, clusterName TEXT, FOREIGN KEY (clusterID) REFERENCES clusters(id), UNIQUE (spiffeid))"
 )
 
 type LocalSqliteDb struct {
@@ -134,6 +135,23 @@ func (db *LocalSqliteDb) checkClusterExistence(ctx context.Context, tx *sql.Tx, 
   return false, nil
 }
 
+func (db *LocalSqliteDb) getClusterID(ctx context.Context, tx *sql.Tx, name string) (int, error){
+  cmdGet := "SELECT id FROM clusters WHERE name=?"
+  rows, err := tx.QueryContext(ctx, cmdGet, name)
+  if err != nil {
+    return -1, SQLError{cmdGet, err}
+  }
+  var id int
+  if !rows.Next(){
+    return -1, GetError{fmt.Sprintf("Cluster %v does not exist", name)}
+  }
+  if err = rows.Scan(&id); err != nil {
+    return -1, SQLError{cmdGet, err}
+  }
+  return id, nil
+}
+
+// assumes existence of cluster
 func (db *LocalSqliteDb) addAgentsToCluster(ctx context.Context, tx *sql.Tx, clusterName string, agentsList []string) (error){
   // assign agents
   cmdCheck := "SELECT clusterName FROM clusterMemberships WHERE spiffeid=?"
@@ -158,6 +176,7 @@ func (db *LocalSqliteDb) addAgentsToCluster(ctx context.Context, tx *sql.Tx, clu
   return nil
 }
 
+// assumes existence of cluster
 func (db *LocalSqliteDb) deleteClusterAgents(ctx context.Context, tx *sql.Tx, name string) (error) {
   cmdDelete := "DELETE FROM clusterMemberships WHERE clusterName=?"
   statementDelete, err := tx.PrepareContext(ctx, cmdDelete)
@@ -221,9 +240,17 @@ func (db *LocalSqliteDb) GetAgentClusterName(spiffeid string) (string, error) {
 
 // GetClusters outputs a list of ClusterInfo structs with information on currently registered clusters
 func (db *LocalSqliteDb) GetClusters() (types.ClusterInfoList, error) {
-	cmd := "SELECT name, domainName, managedBy, platformType FROM clusters"
-	rows, err := db.database.Query(cmd)
+  ctx := context.Background()
+  tx, err := db.database.BeginTx(ctx, nil)
+  if err != nil {
+    return types.ClusterInfoList{}, errors.New("Could not get context")
+  }
+
+  cmd := "SELECT clusters.name, clusters.domainName, clusters.managedBy, clusters.platformType, GROUP_CONCAT(clusterMemberships.spiffeid) FROM clusters LEFT JOIN clusterMemberships ON clusters.id=clusterMemberships.clusterID GROUP BY clusters.name"
+
+	rows, err := tx.QueryContext(ctx, cmd)
 	if err != nil {
+    tx.Rollback()
 		return types.ClusterInfoList{}, SQLError{cmd, err}
 	}
 
@@ -233,16 +260,19 @@ func (db *LocalSqliteDb) GetClusters() (types.ClusterInfoList, error) {
 		domainName   string
 		managedBy    string
 		platformType string
+    agentsListConcatted sql.NullString
 		agentsList   []string
 	)
 	for rows.Next() {
-		if err = rows.Scan(&name, &domainName, &managedBy, &platformType); err != nil {
-			return types.ClusterInfoList{}, SQLError{cmd, err}
+		if err = rows.Scan(&name, &domainName, &managedBy, &platformType, &agentsListConcatted); err != nil {
+			tx.Rollback()
+      return types.ClusterInfoList{}, SQLError{cmd, err}
 		}
-		agentsList, err = db.GetClusterAgents(name)
-		if err != nil {
-			return types.ClusterInfoList{}, SQLError{"Getting cluster agents", err}
-		}
+    if agentsListConcatted.Valid{// handle clusters with no assigned agents
+      agentsList = strings.Split(agentsListConcatted.String, ",")
+    } else {
+      agentsList = []string{""}
+    }
 		sinfos = append(sinfos, types.ClusterInfo{
 			Name:         name,
 			DomainName:   domainName,
@@ -252,6 +282,10 @@ func (db *LocalSqliteDb) GetClusters() (types.ClusterInfoList, error) {
 		})
 	}
 
+  err = tx.Commit()
+  if err != nil {
+    return types.ClusterInfoList{}, err
+  }
 	return types.ClusterInfoList{
 		Clusters: sinfos,
 	}, nil
