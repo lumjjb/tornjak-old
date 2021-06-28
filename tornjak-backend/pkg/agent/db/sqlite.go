@@ -1,6 +1,7 @@
 package db
 
 import (
+  "context"
 	"database/sql"
 	"fmt"
 
@@ -121,6 +122,55 @@ func (db *LocalSqliteDb) GetAgentPluginInfo(spiffeid string) (types.AgentInfo, e
 
 // CLUSTER HANDLERS
 
+func (db *LocalSqliteDb) checkClusterExistence(ctx context.Context, tx *sql.Tx, name string) (bool, error) {
+  cmdFindCluster := "SELECT name FROM clusters WHERE name=?"
+  rows, err := tx.QueryContext(ctx, cmdFindCluster, name)
+  if err != nil {
+    return false, SQLError{"Could not check cluster existence", err}
+  }
+  if rows.Next(){
+    return true, nil
+  }
+  return false, nil
+}
+
+func (db *LocalSqliteDb) addAgentsToCluster(ctx context.Context, tx *sql.Tx, clusterName string, agentsList []string) (error){
+  // assign agents
+  cmdCheck := "SELECT clusterName FROM clusterMemberships WHERE spiffeid=?"
+  cmdInsertMember := "INSERT OR REPLACE INTO clusterMemberships (spiffeid, clusterName) VALUES (?,?)"
+  statementInsert, err := tx.PrepareContext(ctx, cmdInsertMember)
+  if err != nil {
+    return SQLError{cmdCheck, err}
+  }
+  for i := 0; i < len(agentsList); i++ {
+    spiffeid := agentsList[i]
+    rows, err := tx.QueryContext(ctx, cmdCheck, spiffeid)
+    if err != nil {
+      return SQLError{"Could not check if agent is assigned", err}
+    } else if rows.Next() {
+      return PostFailure{fmt.Sprintf("agent %v already assigned to a cluster", spiffeid)}
+    }
+    _, err = statementInsert.ExecContext(ctx, spiffeid, clusterName)
+    if err != nil {
+      return SQLError{cmdInsertMember, err}
+    }
+  }
+  return nil
+}
+
+func (db *LocalSqliteDb) deleteClusterAgents(ctx context.Context, tx *sql.Tx, name string) (error) {
+  cmdDelete := "DELETE FROM clusterMemberships WHERE clusterName=?"
+  statementDelete, err := tx.PrepareContext(ctx, cmdDelete)
+  if err != nil {
+    return SQLError{cmdDelete, err}
+  }
+  _, err = statementDelete.ExecContext(ctx, name)
+  if err != nil {
+    return SQLError{cmdDelete, err}
+  }
+  return nil
+}
+
 // GetClusterAgents takes in string cluster name and outputs array of spiffeids of agents assigned to the cluster
 func (db *LocalSqliteDb) GetClusterAgents(name string) ([]string, error) {
 	// test for cluster existence
@@ -189,7 +239,6 @@ func (db *LocalSqliteDb) GetClusters() (types.ClusterInfoList, error) {
 		if err = rows.Scan(&name, &domainName, &managedBy, &platformType); err != nil {
 			return types.ClusterInfoList{}, SQLError{cmd, err}
 		}
-
 		agentsList, err = db.GetClusterAgents(name)
 		if err != nil {
 			return types.ClusterInfoList{}, SQLError{"Getting cluster agents", err}
@@ -208,152 +257,132 @@ func (db *LocalSqliteDb) GetClusters() (types.ClusterInfoList, error) {
 	}, nil
 }
 
-// AssignAgentCluster assigns an agent with SPIFFEID spiffeid to cluster clusterName.  This returns an error if the agent has already been assigned to a cluster.
-func (db *LocalSqliteDb) AssignAgentCluster(spiffeid string, clusterName string) error {
-	// TODO check if cluster clusterName exists
-	// CHECK IF EXISTS, throw error if it does
-	_, err := db.GetAgentClusterName(spiffeid)
-	if err == nil {
-		return PostFailure{fmt.Sprintf("Error: Agent %v already assigned", spiffeid)}
-	} else {
-		serr, ok := err.(GetError)
-		if !ok {
-			return SQLError{"Could not check if agent is assigned", serr}
-		}
-	}
-
-	cmdInsert := "INSERT OR REPLACE INTO clusterMemberships (spiffeid, clusterName) VALUES (?,?)"
-	statement, err := db.database.Prepare(cmdInsert)
-	if err != nil {
-		return SQLError{cmdInsert, err}
-	}
-	_, err = statement.Exec(spiffeid, clusterName)
-	if err != nil {
-		return SQLError{cmdInsert, err}
-	}
-	return nil
-}
-
-// RemoveClusterAgents clears all agents from assignment to cluster name.
-func (db *LocalSqliteDb) RemoveClusterAgents(name string) error { // TODO check if cluster exists
-	cmdDelete := "DELETE FROM clusterMemberships WHERE clusterName=?"
-	statement, err := db.database.Prepare(cmdDelete)
-	if err != nil {
-		return SQLError{cmdDelete, err}
-	}
-	_, err = statement.Exec(name)
-	if err != nil {
-		return SQLError{cmdDelete, err}
-	}
-	return nil
-}
-
-// AssignAgentsCluster takes in array of spiffeids and a clustername, and assigns each spiffeid to the cluster.  This attempts all assignments and returns all errors on failure of assigning all spiffeids.
-func (db *LocalSqliteDb) AssignAgentsCluster(spiffeids []string, clusterName string) error {
-	var errorAcc error
-	for i := 0; i < len(spiffeids); i++ {
-		err := db.AssignAgentCluster(spiffeids[i], clusterName)
-		if err != nil {
-			if errorAcc == nil {
-				errorAcc = errors.Errorf("Unable to add to cluster: %v [%v]", spiffeids[i], err)
-			} else {
-				errorAcc = errors.Errorf("%v, %v [%v]", errorAcc, spiffeids[i], err)
-			}
-		}
-	}
-	if errorAcc != nil {
-		return PostPartialFailure{errorAcc.Error()}
-	}
-	return nil
-}
-
 // CreateClusterEntry takes in struct cinfo of type ClusterInfo.  If a cluster with cinfo.Name already registered, returns error.
 func (db *LocalSqliteDb) CreateClusterEntry(cinfo types.ClusterInfo) error {
-	var name string
-	cmdFindCluster := "SELECT name FROM clusters WHERE name=?"
-	err := db.database.QueryRow(cmdFindCluster, cinfo.Name).Scan(&name)
-	if err == nil { // existence throws error
-		return PostFailure{fmt.Sprintf("Error, cluster %v already exists", cinfo.Name)}
-	}
-	if err != sql.ErrNoRows {
-		return SQLError{cmdFindCluster, err}
-	}
+  ctx := context.Background()
+  tx, err := db.database.BeginTx(ctx, nil)
+  if err != nil {
+    return errors.New("Could not get context")
+  }
 
+  // CHECK existence of cluster
+  clusterExists, err := db.checkClusterExistence(ctx, tx, cinfo.Name)
+  if err != nil {
+    tx.Rollback()
+    return err
+  } else if clusterExists {
+    tx.Rollback()
+    return PostFailure{fmt.Sprintf("Error: cluster %v already exists", cinfo.Name)}
+  }
+
+  // INSERT cluster metadata
 	cmdInsert := "INSERT INTO clusters (name, domainName, managedBy, platformType) VALUES (?,?,?,?)"
-	statement, err := db.database.Prepare(cmdInsert)
+	statement, err := tx.PrepareContext(ctx, cmdInsert)
 	if err != nil {
+    tx.Rollback()
 		return SQLError{cmdInsert, err}
 	}
-	_, err = statement.Exec(cinfo.Name, cinfo.DomainName, cinfo.ManagedBy, cinfo.PlatformType)
+  defer statement.Close()
+	_, err = statement.ExecContext(ctx, cinfo.Name, cinfo.DomainName, cinfo.ManagedBy, cinfo.PlatformType)
 	if err != nil {
+    tx.Rollback()
 		return SQLError{cmdInsert, err}
 	}
 
-	err = db.AssignAgentsCluster(cinfo.AgentsList, cinfo.Name)
-	if err != nil {
-		return PostPartialFailure{err.Error()}
-	}
-	return nil
+  // ADD agents to cluster
+  err = db.addAgentsToCluster(ctx, tx, cinfo.Name, cinfo.AgentsList)
+  if err != nil {
+    tx.Rollback()
+    return err
+  }
+	return tx.Commit()
 }
 
 // EditClusterEntry takes in struct cinfo of type ClusterInfo.  If cluster with cinfo.Name does not exist, throws error.
 func (db *LocalSqliteDb) EditClusterEntry(cinfo types.ClusterInfo) error {
-	var name string
-	cmdFindCluster := "SELECT name FROM clusters WHERE name=?"
-	err := db.database.QueryRow(cmdFindCluster, cinfo.Name).Scan(&name)
-	if err == sql.ErrNoRows {
-		return PostFailure{fmt.Sprintf("Error: cluster %v does not exist", cinfo.Name)}
-	} else if err != nil {
-		return SQLError{cmdFindCluster, err}
-	}
+  ctx := context.Background()
+  tx, err := db.database.BeginTx(ctx, nil)
+  if err != nil {
+    return errors.New("Could not get context")
+  }
 
+  // CHECK existence of cluster
+  clusterExists, err := db.checkClusterExistence(ctx, tx, cinfo.Name)
+  if err != nil {
+    tx.Rollback()
+    return err
+  } else if !clusterExists {
+    tx.Rollback()
+    return PostFailure{fmt.Sprintf("Error: cluster %v does not exist", cinfo.Name)}
+  }
+
+  // UPDATE cluster metadata
 	cmdUpdate := "UPDATE clusters SET domainName=?, managedBy=?, platformType=? WHERE name=?"
-	statement, err := db.database.Prepare(cmdUpdate)
+	statement, err := tx.PrepareContext(ctx, cmdUpdate)
 	if err != nil {
+    tx.Rollback()
 		return SQLError{cmdUpdate, err}
 	}
-	_, err = statement.Exec(cinfo.DomainName, cinfo.ManagedBy, cinfo.PlatformType, cinfo.Name)
+  defer statement.Close()
+	_, err = statement.ExecContext(ctx, cinfo.DomainName, cinfo.ManagedBy, cinfo.PlatformType, cinfo.Name)
 	if err != nil {
+    tx.Rollback()
 		return SQLError{cmdUpdate, err}
 	}
 
-	err = db.RemoveClusterAgents(cinfo.Name)
-	if err != nil {
-		return PostPartialFailure{fmt.Sprintf("Error clearing previous cluster agents: %v", err.Error())}
-	}
+  // REMOVE all currently assigned cluster agents
+  err = db.deleteClusterAgents(ctx, tx, cinfo.Name)
+  if err != nil {
+    tx.Rollback()
+    return err
+  }
 
-	err = db.AssignAgentsCluster(cinfo.AgentsList, cinfo.Name)
-	if err != nil {
-		return PostPartialFailure{fmt.Sprintf("Error assigning cluster agents: %v", err.Error())}
-	}
-	return nil
+  // ADD agents to cluster
+  err = db.addAgentsToCluster(ctx, tx, cinfo.Name, cinfo.AgentsList)
+  if err != nil {
+    tx.Rollback()
+    return err
+  }
+
+	return tx.Commit()
 }
 
 // DeleteClusterEntry takes in string name of cluster and removes cluster information and agent membership of cluster from the database.  If not all agents can be removed from the cluster, cluster information remains in the database.
 func (db *LocalSqliteDb) DeleteClusterEntry(clusterName string) error {
-	// check existence
-	var name string
-	cmdFindCluster := "SELECT name FROM clusters WHERE name=?"
-	err := db.database.QueryRow(cmdFindCluster, clusterName).Scan(&name)
-	if err == sql.ErrNoRows {
-		return PostFailure{fmt.Sprintf("Error: cluster %v does not exist", clusterName)}
-	} else if err != nil {
-		return SQLError{cmdFindCluster, err}
-	}
+  ctx := context.Background()
+  tx, err := db.database.BeginTx(ctx, nil)
+  if err != nil {
+    return errors.New("could not get context")
+  }
 
-	err = db.RemoveClusterAgents(clusterName)
-	if err != nil {
-		return PostPartialFailure{fmt.Sprintf("Error: Unable to remove all cluster agents from cluster: %v", err)}
-	}
+  // CHECK existence of cluster
+  clusterExists, err := db.checkClusterExistence(ctx, tx, clusterName)
+  if err != nil {
+    tx.Rollback()
+    return err
+  } else if !clusterExists {
+    tx.Rollback()
+    return PostFailure{fmt.Sprintf("Error: cluster %v does not exist", clusterName)}
+  }
 
-	cmdDelete := "DELETE FROM clusters WHERE name=?"
-	statement, err := db.database.Prepare(cmdDelete)
+  // REMOVE all currently assigned cluster agents
+  err = db.deleteClusterAgents(ctx, tx, clusterName)
+  if err != nil {
+    tx.Rollback()
+    return err
+  }
+
+  // REMOVE cluster metadata
+	cmdDeleteEntry := "DELETE FROM clusters WHERE name=?"
+	statement, err := tx.PrepareContext(ctx, cmdDeleteEntry)
 	if err != nil {
-		return SQLError{cmdDelete, err}
+    tx.Rollback()
+		return SQLError{cmdDeleteEntry, err}
 	}
-	_, err = statement.Exec(clusterName)
+	_, err = statement.ExecContext(ctx, clusterName)
 	if err != nil {
-		return PostPartialFailure{fmt.Sprintf("Error: Unable to remove cluster metadata: %v", err.Error())}
+    tx.Rollback()
+		return PostFailure{fmt.Sprintf("Error: Unable to remove cluster metadata: %v", err.Error())}
 	}
-	return nil
+	return tx.Commit()
 }

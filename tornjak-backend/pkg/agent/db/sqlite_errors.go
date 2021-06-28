@@ -33,11 +33,4 @@ func (e PostFailure) Error() string {
 	return e.Message
 }
 
-// PostPartialFailure is meant to signify when the state of the database has changed
-type PostPartialFailure struct {
-	Message string
-}
 
-func (e PostPartialFailure) Error() string {
-	return e.Message
-}

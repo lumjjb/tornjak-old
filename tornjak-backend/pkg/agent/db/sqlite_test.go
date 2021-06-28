@@ -1,7 +1,7 @@
 package db
 
 import (
-	"fmt"
+  "fmt"
 	"os"
 	"testing"
 
@@ -53,6 +53,7 @@ func TestServerCreate(t *testing.T) {
 /***************************************************************/
 
 func TestClusterCreate(t *testing.T) {
+  cleanup()
 	defer cleanup()
 	db, err := NewLocalSqliteDB("./local-agentstest-db")
 	if err != nil {
@@ -154,7 +155,7 @@ func TestClusterCreate(t *testing.T) {
 	}
 	cList = cListObject.Clusters
 	if len(cList) != 2 {
-		t.Fatal("Clusters list after 2 insertions should have 2 clusters")
+		t.Fatal("Clusters list after 2 good insertions should have 2 clusters")
 	}
 
 	// TEST Create with conflicting agent assignment
@@ -162,7 +163,7 @@ func TestClusterCreate(t *testing.T) {
 	if err == nil {
 		t.Fatal("Failure to report failure to assign already assigned agent")
 	}
-	_, ok = err.(PostPartialFailure)
+	_, ok = err.(PostFailure)
 	if !ok {
 		t.Fatal(fmt.Sprintf("Wrong error on agent assignment: %v", err.Error()))
 	}
@@ -171,23 +172,23 @@ func TestClusterCreate(t *testing.T) {
 		t.Fatal(err)
 	}
 	cList = cListObject.Clusters
-	if len(cList) != 3 {
-		t.Fatal("Cluster list after 3 insertions should have 3 clusters")
+	if len(cList) != 2 {
+		t.Fatal("Cluster list after 2 good insertions should have 2 clusters")
 	}
 	// check agent memberships; want 2 in cluster 1, 1 in cluster 2, 1 in cluster 3
 	agents1, err := db.GetClusterAgents(cluster1)
 	if err != nil {
 		t.Fatal(err)
 	}
-	agents2, err := db.GetClusterAgents(cluster2)
-	if err != nil {
-		t.Fatal(err)
+	_, err = db.GetClusterAgents(cluster2)
+	if err == nil {
+		t.Fatal("should not be able to get cluster agents of unsuccessfully assigned cluster")
 	}
 	agents3, err := db.GetClusterAgents(cluster3)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(agents1) != 2 || len(agents2) != 1 || len(agents3) != 1 {
+	if len(agents1) != 2 || len(agents3) != 1 {
 		t.Fatal("Clusters do not all contain correct agents")
 	}
 	agent1Cluster, err := db.GetAgentClusterName(agent1)
@@ -203,8 +204,8 @@ func TestClusterCreate(t *testing.T) {
 		t.Fatal(err)
 	}
 	agent4Cluster, err := db.GetAgentClusterName(agent4)
-	if err != nil {
-		t.Fatal(err)
+	if err == nil {
+		t.Fatal("agent4 should not be assigned")
 	}
 	if agent1Cluster != cluster1 {
 		t.Fatal("agent1 not in cluster1")
@@ -215,8 +216,8 @@ func TestClusterCreate(t *testing.T) {
 	if agent3Cluster != cluster3 {
 		t.Fatal("agent3 not in cluster3")
 	}
-	if agent4Cluster != cluster2 {
-		t.Fatal("agent4 not in cluster2")
+	if agent4Cluster == cluster2 {
+		t.Fatal("agent4 in cluster2")
 	}
 
 }
@@ -330,10 +331,39 @@ func TestClusterEdit(t *testing.T) {
 	if err == nil {
 		t.Fatal("Failed to report failure of agent assignment already taken")
 	}
-	_, ok = err.(PostPartialFailure)
+	_, ok = err.(PostFailure)
 	if !ok {
 		t.Fatal(fmt.Sprintf("Wrong error on assignment of already assigned agent: %v", err.Error()))
 	}
+	agent1Cluster, err := db.GetAgentClusterName(agent1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	agent2Cluster, err := db.GetAgentClusterName(agent2)
+	if err != nil {
+		t.Fatal(err)
+	}
+	agent3Cluster, err := db.GetAgentClusterName(agent3)
+	if err != nil {
+		t.Fatal(err)
+	}
+	agent4Cluster, err := db.GetAgentClusterName(agent4)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if agent1Cluster != cluster1 {
+		t.Fatal("agent1 not in cluster1")
+	}
+	if agent2Cluster != cluster2 {
+		t.Fatal("agent2 not in cluster1")
+	}
+	if agent3Cluster != cluster1 {
+		t.Fatal("agent3 not in cluster`")
+	}
+	if agent4Cluster != cluster2 {
+		t.Fatal("agent4 not in cluster2")
+	}
+
 
 	// TODO TEST EditClusterEntry renaming
 
@@ -371,6 +401,11 @@ func TestClusterDelete(t *testing.T) {
 		PlatformType: vms,
 		AgentsList:   []string{agent1, agent2},
 	}
+  cinfo1New := types.ClusterInfo{
+    Name: cluster1,
+    PlatformType: vms,
+    AgentsList: []string{},
+  }
 	cinfo2 := types.ClusterInfo{
 		Name:         cluster2,
 		PlatformType: k8s,
@@ -402,7 +437,7 @@ func TestClusterDelete(t *testing.T) {
 	}
 
 	// TEST RemoveClusterAgents
-	err = db.RemoveClusterAgents(cluster1)
+	err = db.EditClusterEntry(cinfo1New)
 	if err != nil {
 		t.Fatal(err)
 	}
