@@ -281,7 +281,7 @@ func (db *LocalSqliteDb) GetClusters() (types.ClusterInfoList, error) {
 		if agentsListConcatted.Valid { // handle clusters with no assigned agents
 			agentsList = strings.Split(agentsListConcatted.String, ",")
 		} else {
-			agentsList = []string{""}
+			agentsList = []string{}
 		}
 		sinfos = append(sinfos, types.ClusterInfo{
 			Name:         name,
