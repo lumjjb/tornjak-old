@@ -470,8 +470,8 @@ func (s *Server) HandleRequests() {
 
 	// Clusters
 	rtr.HandleFunc("/api/tornjak/clusters/list", corsHandler(s.clusterList))
-	rtr.HandleFunc("/api/tornjak/cluster/create", corsHandler(s.clusterCreate))
-	rtr.HandleFunc("/api/tornjak/cluster/edit", corsHandler(s.clusterEdit))
+	rtr.HandleFunc("/api/tornjak/clusters/create", corsHandler(s.clusterCreate))
+	rtr.HandleFunc("/api/tornjak/clusters/edit", corsHandler(s.clusterEdit))
 
 	// UI
 	spa := spaHandler{staticPath: "ui-agent", indexPath: "index.html"}
@@ -588,11 +588,11 @@ func (s *Server) pluginDefine(w http.ResponseWriter, r *http.Request) {
 	}
 	cors(w, r)
 	_, err = w.Write([]byte("SUCCESS"))
-  if err != nil {
-    emsg := fmt.Sprintf("Error: %v", err.Error())
-    retError(w, emsg, http.StatusBadRequest)
-    return
-  }
+	if err != nil {
+		emsg := fmt.Sprintf("Error: %v", err.Error())
+		retError(w, emsg, http.StatusBadRequest)
+		return
+	}
 }
 
 /********* CLUSTER *********/
@@ -630,15 +630,17 @@ func (s *Server) clusterList(w http.ResponseWriter, r *http.Request) {
 	}
 	cors(w, r)
 	je := json.NewEncoder(w)
-  err = je.Encode(ret)
-  if err != nil {
-    emsg := fmt.Sprintf("Error: %v", err.Error())
-    retError(w, emsg, http.StatusBadRequest)
-    return
-  }
+	err = je.Encode(ret)
+	if err != nil {
+		emsg := fmt.Sprintf("Error: %v", err.Error())
+		retError(w, emsg, http.StatusBadRequest)
+		return
+	}
 }
 
 func (s *Server) clusterCreate(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Endpoint Hit: Cluster Create")
+
 	buf := new(strings.Builder)
 	n, err := io.Copy(buf, r.Body)
 	if err != nil {
@@ -666,14 +668,16 @@ func (s *Server) clusterCreate(w http.ResponseWriter, r *http.Request) {
 	}
 	cors(w, r)
 	_, err = w.Write([]byte("SUCCESS"))
-  if err != nil {
-    emsg := fmt.Sprintf("Error: %v", err.Error())
-    retError(w, emsg, http.StatusBadRequest)
-    return
-  }
+	if err != nil {
+		emsg := fmt.Sprintf("Error: %v", err.Error())
+		retError(w, emsg, http.StatusBadRequest)
+		return
+	}
 }
 
 func (s *Server) clusterEdit(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Endpoint Hit: Cluster Edit")
+
 	buf := new(strings.Builder)
 	n, err := io.Copy(buf, r.Body)
 	if err != nil {
@@ -701,11 +705,11 @@ func (s *Server) clusterEdit(w http.ResponseWriter, r *http.Request) {
 	}
 	cors(w, r)
 	_, err = w.Write([]byte("SUCCESS"))
-  if err != nil {
-    emsg := fmt.Sprintf("Error: %v", err.Error())
-    retError(w, emsg, http.StatusBadRequest)
-    return
-  }
+	if err != nil {
+		emsg := fmt.Sprintf("Error: %v", err.Error())
+		retError(w, emsg, http.StatusBadRequest)
+		return
+	}
 }
 
 /********* END CLUSTER *********/

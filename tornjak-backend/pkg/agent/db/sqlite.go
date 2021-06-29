@@ -8,22 +8,22 @@ import (
 
 	//_ "github.com/mattn/go-sqlite3"
 	"github.com/mattn/go-sqlite3"
-  "github.com/pkg/errors"
+	"github.com/pkg/errors"
 
 	"github.com/lumjjb/tornjak/tornjak-backend/pkg/agent/types"
 )
 
 const (
-  // agent table with fields spiffeid and plugin
-	initAgentsTable        = `CREATE TABLE IF NOT EXISTS agents 
+	// agent table with fields spiffeid and plugin
+	initAgentsTable = `CREATE TABLE IF NOT EXISTS agents 
                             (id INTEGER PRIMARY KEY AUTOINCREMENT, spiffeid TEXT, plugin TEXT)`
 	// cluster table with fields name, domainName, platformtype, managedby
-  initClustersTable      = `CREATE TABLE IF NOT EXISTS clusters 
+	initClustersTable = `CREATE TABLE IF NOT EXISTS clusters 
                             (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, domainName TEXT, 
                             PlatformType TEXT, managedBy TEXT, UNIQUE (name))`
 	// cluster - agent relation table specifying by clusterid and spiffeid
-  //                                enforces uniqueness of spiffeid
-  initClusterMemberTable = `CREATE TABLE IF NOT EXISTS clusterMemberships 
+	//                                enforces uniqueness of spiffeid
+	initClusterMemberTable = `CREATE TABLE IF NOT EXISTS clusterMemberships 
                             (id INTEGER PRIMARY KEY AUTOINCREMENT, spiffeid TEXT, clusterID int,
                             FOREIGN KEY (clusterID) REFERENCES clusters(id), UNIQUE (spiffeid))`
 )
@@ -50,14 +50,14 @@ func NewLocalSqliteDB(dbpath string) (AgentDB, error) {
 		return nil, errors.New("Unable to open connection to DB")
 	}
 
-  initTableList := []string{initAgentsTable, initClustersTable, initClusterMemberTable}
+	initTableList := []string{initAgentsTable, initClustersTable, initClusterMemberTable}
 
-  for i := 0; i < len(initTableList); i++ {
-    err = createDBTable(database, initTableList[i])
-    if err != nil {
-      return nil, err
-    }
-  }
+	for i := 0; i < len(initTableList); i++ {
+		err = createDBTable(database, initTableList[i])
+		if err != nil {
+			return nil, err
+		}
+	}
 
 	return &LocalSqliteDb{
 		database: database,
@@ -137,17 +137,17 @@ func (db *LocalSqliteDb) GetClusterAgents(name string) ([]string, error) {
 	spiffeidList := []string{}
 	var spiffeids sql.NullString
 
-  err := row.Scan(&spiffeids)
-  if err == sql.ErrNoRows{
-    return nil, GetError{fmt.Sprintf("Cluster %v not registered", name)}
-  } else if err != nil {
-    return nil, SQLError{cmdGetMemberships, err}
-  }
-  if spiffeids.Valid{
-    spiffeidList = strings.Split(spiffeids.String, ",")
-  } else {
-    spiffeidList = []string{}
-  }
+	err := row.Scan(&spiffeids)
+	if err == sql.ErrNoRows {
+		return nil, GetError{fmt.Sprintf("Cluster %v not registered", name)}
+	} else if err != nil {
+		return nil, SQLError{cmdGetMemberships, err}
+	}
+	if spiffeids.Valid {
+		spiffeidList = strings.Split(spiffeids.String, ",")
+	} else {
+		spiffeidList = []string{}
+	}
 
 	return spiffeidList, nil
 
@@ -167,13 +167,12 @@ func (db *LocalSqliteDb) GetAgentClusterName(spiffeid string) (string, error) {
 	} else if err != nil {
 		return "", SQLError{cmdGetName, err}
 	}
-  if clusterName.Valid{
-    return clusterName.String, nil
-  } else {
-    return "", GetError{fmt.Sprintf("Agent %v assinged to unregistered cluster", spiffeid)}
-  }
+	if clusterName.Valid {
+		return clusterName.String, nil
+	} else {
+		return "", GetError{fmt.Sprintf("Agent %v assinged to unregistered cluster", spiffeid)}
+	}
 }
-
 
 // GetClusters outputs a list of ClusterInfo structs with information on currently registered clusters
 func (db *LocalSqliteDb) GetClusters() (types.ClusterInfoList, error) {
@@ -239,7 +238,7 @@ func (db *LocalSqliteDb) CreateClusterEntry(cinfo types.ClusterInfo) error {
 	if err != nil {
 		return errors.Errorf("Error initializing context: %v", err)
 	}
-  txHelper := getTornjakTxHelper(ctx, tx)
+	txHelper := getTornjakTxHelper(ctx, tx)
 
 	// INSERT cluster metadata
 	cmdInsert := `INSERT INTO clusters (name, domainName, managedBy, platformType) VALUES (?,?,?,?)`
@@ -251,12 +250,12 @@ func (db *LocalSqliteDb) CreateClusterEntry(cinfo types.ClusterInfo) error {
 	defer statement.Close()
 	_, err = statement.ExecContext(ctx, cinfo.Name, cinfo.DomainName, cinfo.ManagedBy, cinfo.PlatformType)
 	if err != nil {
-    if serr, ok := err.(sqlite3.Error); ok {
-      if serr.Code == sqlite3.ErrConstraint{
-        tx.Rollback()
-        return PostFailure{fmt.Sprintf("cluster does not exist")}
-      }
-    }
+		if serr, ok := err.(sqlite3.Error); ok {
+			if serr.Code == sqlite3.ErrConstraint {
+				tx.Rollback()
+				return PostFailure{fmt.Sprintf("cluster does not exist")}
+			}
+		}
 		tx.Rollback()
 		return SQLError{cmdInsert, err}
 	}
@@ -282,7 +281,7 @@ func (db *LocalSqliteDb) EditClusterEntry(cinfo types.ClusterInfo) error {
 	if err != nil {
 		return errors.Errorf("Error initializing context: %v", err)
 	}
-  txHelper := getTornjakTxHelper(ctx, tx)
+	txHelper := getTornjakTxHelper(ctx, tx)
 
 	// UPDATE cluster metadata
 	cmdUpdate := `UPDATE clusters SET domainName=?, managedBy=?, platformType=? WHERE name=?`
@@ -297,16 +296,16 @@ func (db *LocalSqliteDb) EditClusterEntry(cinfo types.ClusterInfo) error {
 		tx.Rollback()
 		return SQLError{cmdUpdate, err}
 	}
-  // check if update was successful
-  numRows, err := res.RowsAffected()
-  if err != nil {
-    tx.Rollback()
-    return SQLError{cmdUpdate, err}
-  }
-  if numRows != 1 {
-    tx.Rollback()
-    return PostFailure{fmt.Sprintf("cluster does not exist")}
-  }
+	// check if update was successful
+	numRows, err := res.RowsAffected()
+	if err != nil {
+		tx.Rollback()
+		return SQLError{cmdUpdate, err}
+	}
+	if numRows != 1 {
+		tx.Rollback()
+		return PostFailure{fmt.Sprintf("cluster does not exist")}
+	}
 
 	clusterID, err := txHelper.getClusterID(cinfo.Name)
 	if err != nil {
@@ -338,7 +337,7 @@ func (db *LocalSqliteDb) DeleteClusterEntry(clusterName string) error {
 	if err != nil {
 		return errors.Errorf("Error initializing context: %v", err)
 	}
-  txHelper := getTornjakTxHelper(ctx, tx)
+	txHelper := getTornjakTxHelper(ctx, tx)
 
 	clusterID, err := txHelper.getClusterID(clusterName)
 	if err != nil {
@@ -365,15 +364,15 @@ func (db *LocalSqliteDb) DeleteClusterEntry(clusterName string) error {
 		tx.Rollback()
 		return PostFailure{fmt.Sprintf("Error: Unable to remove cluster metadata: %v", err.Error())}
 	}
-  numRows, err := res.RowsAffected()
-  if err != nil {
-    tx.Rollback()
-    return SQLError{cmdDeleteEntry, err}
-  }
-  if numRows != 1 {
-    tx.Rollback()
-    return PostFailure{fmt.Sprintf("Cluster does not exist")}
-  }
+	numRows, err := res.RowsAffected()
+	if err != nil {
+		tx.Rollback()
+		return SQLError{cmdDeleteEntry, err}
+	}
+	if numRows != 1 {
+		tx.Rollback()
+		return PostFailure{fmt.Sprintf("Cluster does not exist")}
+	}
 
 	return tx.Commit()
 }
