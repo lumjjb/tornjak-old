@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	_ "github.com/mattn/go-sqlite3"
+  //"github.com/mattn/go-sqlite3"
 	"github.com/pkg/errors"
 
 	"github.com/lumjjb/tornjak/tornjak-backend/pkg/agent/types"
@@ -122,73 +123,6 @@ func (db *LocalSqliteDb) GetAgentPluginInfo(spiffeid string) (types.AgentInfo, e
 }
 
 // CLUSTER HANDLERS
-
-func (db *LocalSqliteDb) checkClusterExistence(ctx context.Context, tx *sql.Tx, name string) (bool, error) {
-	cmdFindCluster := "SELECT name FROM clusters WHERE name=?"
-	rows, err := tx.QueryContext(ctx, cmdFindCluster, name)
-	if err != nil {
-		return false, SQLError{"Could not check cluster existence", err}
-	}
-	if rows.Next() {
-		return true, nil
-	}
-	return false, nil
-}
-
-func (db *LocalSqliteDb) getClusterID(ctx context.Context, tx *sql.Tx, name string) (int, error) {
-	cmdGet := "SELECT id FROM clusters WHERE name=?"
-	rows, err := tx.QueryContext(ctx, cmdGet, name)
-	if err != nil {
-		return -1, SQLError{cmdGet, err}
-	}
-	var id int
-	if !rows.Next() {
-		return -1, GetError{fmt.Sprintf("Cluster %v does not exist", name)}
-	}
-	if err = rows.Scan(&id); err != nil {
-		return -1, SQLError{cmdGet, err}
-	}
-	return id, nil
-}
-
-// assumes existence of cluster
-func (db *LocalSqliteDb) addAgentsToCluster(ctx context.Context, tx *sql.Tx, clusterID int, agentsList []string) error {
-	// assign agents
-	cmdCheck := "SELECT clusterID FROM clusterMemberships WHERE spiffeid=?"
-	cmdInsertMember := "INSERT OR REPLACE INTO clusterMemberships (spiffeid, clusterID) VALUES (?,?)"
-	statementInsert, err := tx.PrepareContext(ctx, cmdInsertMember)
-	if err != nil {
-		return SQLError{cmdCheck, err}
-	}
-	for i := 0; i < len(agentsList); i++ {
-		spiffeid := agentsList[i]
-		rows, err := tx.QueryContext(ctx, cmdCheck, spiffeid)
-		if err != nil {
-			return SQLError{"Could not check if agent is assigned", err}
-		} else if rows.Next() {
-			return PostFailure{fmt.Sprintf("agent %v already assigned to a cluster", spiffeid)}
-		}
-		_, err = statementInsert.ExecContext(ctx, spiffeid, clusterID)
-		if err != nil {
-			return SQLError{cmdInsertMember, err}
-		}
-	}
-	return nil
-}
-
-// assumes existence of cluster
-func (db *LocalSqliteDb) deleteClusterAgents(ctx context.Context, tx *sql.Tx, clusterID int) error {
-	cmdDelete := "DELETE FROM clusterMemberships WHERE clusterID=?"
-	statementDelete, err := tx.PrepareContext(ctx, cmdDelete)
-	if err != nil {
-		return SQLError{cmdDelete, err}
-	}
-	_, err = statementDelete.ExecContext(ctx, clusterID)
-	if err != nil {
-		return SQLError{cmdDelete, err}
-	}
-	return nil
-}
 
 // GetClusterAgents takes in string cluster name and outputs array of spiffeids of agents assigned to the cluster
 func (db *LocalSqliteDb) GetClusterAgents(name string) ([]string, error) {
@@ -308,9 +242,10 @@ func (db *LocalSqliteDb) CreateClusterEntry(cinfo types.ClusterInfo) error {
 	if err != nil {
 		return errors.New("Could not get context")
 	}
+  txHelper := getTornjakTxHelper(ctx, tx)
 
 	// CHECK existence of cluster
-	clusterExists, err := db.checkClusterExistence(ctx, tx, cinfo.Name)
+	clusterExists, err := txHelper.checkClusterExistence(cinfo.Name)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -333,13 +268,13 @@ func (db *LocalSqliteDb) CreateClusterEntry(cinfo types.ClusterInfo) error {
 		return SQLError{cmdInsert, err}
 	}
 
-	clusterID, err := db.getClusterID(ctx, tx, cinfo.Name)
+	clusterID, err := txHelper.getClusterID(cinfo.Name)
 	if err != nil {
 		tx.Rollback()
 		return err
 	}
 	// ADD agents to cluster
-	err = db.addAgentsToCluster(ctx, tx, clusterID, cinfo.AgentsList)
+	err = txHelper.addAgentBatchToCluster(clusterID, cinfo.AgentsList)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -354,9 +289,10 @@ func (db *LocalSqliteDb) EditClusterEntry(cinfo types.ClusterInfo) error {
 	if err != nil {
 		return errors.New("Could not get context")
 	}
+  txHelper := getTornjakTxHelper(ctx, tx)
 
 	// CHECK existence of cluster
-	clusterExists, err := db.checkClusterExistence(ctx, tx, cinfo.Name)
+	clusterExists, err := txHelper.checkClusterExistence(cinfo.Name)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -379,21 +315,21 @@ func (db *LocalSqliteDb) EditClusterEntry(cinfo types.ClusterInfo) error {
 		return SQLError{cmdUpdate, err}
 	}
 
-	clusterID, err := db.getClusterID(ctx, tx, cinfo.Name)
+	clusterID, err := txHelper.getClusterID(cinfo.Name)
 	if err != nil {
 		tx.Rollback()
 		return err
 	}
 
 	// REMOVE all currently assigned cluster agents
-	err = db.deleteClusterAgents(ctx, tx, clusterID)
+	err = txHelper.deleteClusterAgents(clusterID)
 	if err != nil {
 		tx.Rollback()
 		return err
 	}
 
 	// ADD agents to cluster
-	err = db.addAgentsToCluster(ctx, tx, clusterID, cinfo.AgentsList)
+	err = txHelper.addAgentBatchToCluster(clusterID, cinfo.AgentsList)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -409,9 +345,10 @@ func (db *LocalSqliteDb) DeleteClusterEntry(clusterName string) error {
 	if err != nil {
 		return errors.New("could not get context")
 	}
+  txHelper := getTornjakTxHelper(ctx, tx)
 
 	// CHECK existence of cluster
-	clusterExists, err := db.checkClusterExistence(ctx, tx, clusterName)
+	clusterExists, err := txHelper.checkClusterExistence(clusterName)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -420,14 +357,14 @@ func (db *LocalSqliteDb) DeleteClusterEntry(clusterName string) error {
 		return PostFailure{fmt.Sprintf("Error: cluster %v does not exist", clusterName)}
 	}
 
-	clusterID, err := db.getClusterID(ctx, tx, clusterName)
+	clusterID, err := txHelper.getClusterID(clusterName)
 	if err != nil {
 		tx.Rollback()
 		return err
 	}
 
 	// REMOVE all currently assigned cluster agents
-	err = db.deleteClusterAgents(ctx, tx, clusterID)
+	err = txHelper.deleteClusterAgents(clusterID)
 	if err != nil {
 		tx.Rollback()
 		return err
