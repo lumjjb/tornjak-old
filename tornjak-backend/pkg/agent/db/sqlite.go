@@ -126,61 +126,47 @@ func (db *LocalSqliteDb) GetAgentPluginInfo(spiffeid string) (types.AgentInfo, e
 
 // GetClusterAgents takes in string cluster name and outputs array of spiffeids of agents assigned to the cluster
 func (db *LocalSqliteDb) GetClusterAgents(name string) ([]string, error) {
-	// test for cluster existence
-	cmdCheckExistence := "SELECT id FROM clusters WHERE name=?"
-	row := db.database.QueryRow(cmdCheckExistence, name)
-	var clusterID int
-	err := row.Scan(&clusterID)
-	if err == sql.ErrNoRows {
-		return nil, GetError{fmt.Sprintf("Cluster %v not registered", name)}
-	} else if err != nil {
-		return nil, SQLError{cmdCheckExistence, err}
-	}
-
 	// search in clusterMemberships table
-	cmdGetMemberships := "SELECT spiffeid FROM clusterMemberships WHERE clusterID=?"
-	rows, err := db.database.Query(cmdGetMemberships, clusterID)
-	if err != nil {
-		return nil, SQLError{cmdGetMemberships, err}
-	}
+	cmdGetMemberships := "SELECT GROUP_CONCAT(clusterMemberships.spiffeid) FROM clusters LEFT JOIN clusterMemberships ON clusters.id=clusterMemberships.clusterID WHERE clusters.name=? GROUP BY clusters.name"
+	row := db.database.QueryRow(cmdGetMemberships, name)
 
-	spiffeids := []string{}
-	var spiffeid string
+	spiffeidList := []string{}
+	var spiffeids sql.NullString
 
-	for rows.Next() {
-		if err = rows.Scan(&spiffeid); err != nil {
-			return nil, SQLError{cmdGetMemberships, err}
-		}
-		spiffeids = append(spiffeids, spiffeid)
-	}
+  err := row.Scan(&spiffeids)
+  if err == sql.ErrNoRows{
+    return nil, GetError{fmt.Sprintf("Cluster %v not registered", name)}
+  } else if err != nil {
+    return nil, SQLError{cmdGetMemberships, err}
+  }
+  if spiffeids.Valid{
+    spiffeidList = strings.Split(spiffeids.String, ",")
+  } else {
+    spiffeidList = []string{}
+  }
 
-	return spiffeids, nil
+	return spiffeidList, nil
+
 }
 
 // GetAgentClusterName takes in string of spiffeid of agent and outputs the name of the cluster
 func (db *LocalSqliteDb) GetAgentClusterName(spiffeid string) (string, error) {
-	cmd := "SELECT clusterID FROM clusterMemberships WHERE spiffeid=?"
-	row := db.database.QueryRow(cmd, spiffeid)
-
-	var clusterID int
-	err := row.Scan(&clusterID)
+	var clusterName sql.NullString
+	cmdGetName := "SELECT clusters.name FROM clusterMemberships LEFT JOIN clusters ON clusters.id=clusterMemberships.clusterID WHERE clusterMemberships.spiffeid=?"
+	row := db.database.QueryRow(cmdGetName, spiffeid)
+	err := row.Scan(&clusterName)
 	if err == sql.ErrNoRows {
 		return "", GetError{fmt.Sprintf("Agent %v unassigned to any cluster", spiffeid)}
 	} else if err != nil {
-		return "", SQLError{cmd, err}
-	}
-
-	var clusterName string
-	cmdGetName := "SELECT name FROM clusters WHERE id=?"
-	row = db.database.QueryRow(cmdGetName, clusterID)
-	err = row.Scan(&clusterName)
-	if err == sql.ErrNoRows {
-		return "", GetError{fmt.Sprintf("Agent %v assigned to clusterID %v with no associated cluster", spiffeid, clusterID)}
-	} else if err != nil {
 		return "", SQLError{cmdGetName, err}
 	}
-	return clusterName, nil
+  if clusterName.Valid{
+    return clusterName.String, nil
+  } else {
+    return "", GetError{fmt.Sprintf("Agent %v assinged to unregistered cluster", spiffeid)}
+  }
 }
+
 
 // GetClusters outputs a list of ClusterInfo structs with information on currently registered clusters
 func (db *LocalSqliteDb) GetClusters() (types.ClusterInfoList, error) {
