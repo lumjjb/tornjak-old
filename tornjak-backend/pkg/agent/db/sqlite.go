@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"strings"
 
-	//_ "github.com/mattn/go-sqlite3"
-	"github.com/mattn/go-sqlite3"
+	_ "github.com/mattn/go-sqlite3"
+	//"github.com/mattn/go-sqlite3"
 	"github.com/pkg/errors"
 
 	"github.com/lumjjb/tornjak/tornjak-backend/pkg/agent/types"
@@ -176,6 +176,7 @@ func (db *LocalSqliteDb) GetAgentClusterName(spiffeid string) (string, error) {
 
 // GetClusters outputs a list of ClusterInfo structs with information on currently registered clusters
 func (db *LocalSqliteDb) GetClusters() (types.ClusterInfoList, error) {
+  // BEGIN transaction
 	ctx := context.Background()
 	tx, err := db.database.BeginTx(ctx, nil)
 	if err != nil {
@@ -233,6 +234,7 @@ func (db *LocalSqliteDb) GetClusters() (types.ClusterInfoList, error) {
 
 // CreateClusterEntry takes in struct cinfo of type ClusterInfo.  If a cluster with cinfo.Name already registered, returns error.
 func (db *LocalSqliteDb) CreateClusterEntry(cinfo types.ClusterInfo) error {
+  // BEGIN transaction
 	ctx := context.Background()
 	tx, err := db.database.BeginTx(ctx, nil)
 	if err != nil {
@@ -241,32 +243,14 @@ func (db *LocalSqliteDb) CreateClusterEntry(cinfo types.ClusterInfo) error {
 	txHelper := getTornjakTxHelper(ctx, tx)
 
 	// INSERT cluster metadata
-	cmdInsert := `INSERT INTO clusters (name, domainName, managedBy, platformType) VALUES (?,?,?,?)`
-	statement, err := tx.PrepareContext(ctx, cmdInsert)
-	if err != nil {
-		tx.Rollback()
-		return SQLError{cmdInsert, err}
-	}
-	defer statement.Close()
-	_, err = statement.ExecContext(ctx, cinfo.Name, cinfo.DomainName, cinfo.ManagedBy, cinfo.PlatformType)
-	if err != nil {
-		if serr, ok := err.(sqlite3.Error); ok {
-			if serr.Code == sqlite3.ErrConstraint {
-				tx.Rollback()
-				return PostFailure{fmt.Sprintf("cluster does not exist")}
-			}
-		}
-		tx.Rollback()
-		return SQLError{cmdInsert, err}
-	}
+  err = txHelper.insertClusterMetadata(cinfo)
+  if err != nil {
+    tx.Rollback()
+    return err
+  }
 
-	clusterID, err := txHelper.getClusterID(cinfo.Name)
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
 	// ADD agents to cluster
-	err = txHelper.addAgentBatchToCluster(clusterID, cinfo.AgentsList)
+	err = txHelper.addAgentBatchToCluster(cinfo.Name, cinfo.AgentsList)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -276,6 +260,7 @@ func (db *LocalSqliteDb) CreateClusterEntry(cinfo types.ClusterInfo) error {
 
 // EditClusterEntry takes in struct cinfo of type ClusterInfo.  If cluster with cinfo.Name does not exist, throws error.
 func (db *LocalSqliteDb) EditClusterEntry(cinfo types.ClusterInfo) error {
+  // BEGIN transaction
 	ctx := context.Background()
 	tx, err := db.database.BeginTx(ctx, nil)
 	if err != nil {
@@ -284,44 +269,22 @@ func (db *LocalSqliteDb) EditClusterEntry(cinfo types.ClusterInfo) error {
 	txHelper := getTornjakTxHelper(ctx, tx)
 
 	// UPDATE cluster metadata
-	cmdUpdate := `UPDATE clusters SET domainName=?, managedBy=?, platformType=? WHERE name=?`
-	statement, err := tx.PrepareContext(ctx, cmdUpdate)
-	if err != nil {
-		tx.Rollback()
-		return SQLError{cmdUpdate, err}
-	}
-	defer statement.Close()
-	res, err := statement.ExecContext(ctx, cinfo.DomainName, cinfo.ManagedBy, cinfo.PlatformType, cinfo.Name)
-	if err != nil {
-		tx.Rollback()
-		return SQLError{cmdUpdate, err}
-	}
-	// check if update was successful
-	numRows, err := res.RowsAffected()
-	if err != nil {
-		tx.Rollback()
-		return SQLError{cmdUpdate, err}
-	}
-	if numRows != 1 {
-		tx.Rollback()
-		return PostFailure{fmt.Sprintf("cluster does not exist")}
-	}
+  err = txHelper.updateClusterMetadata(cinfo)
+  if err != nil {
+    tx.Rollback()
+    return err
+  }
 
-	clusterID, err := txHelper.getClusterID(cinfo.Name)
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
 
 	// REMOVE all currently assigned cluster agents
-	err = txHelper.deleteClusterAgents(clusterID)
+	err = txHelper.deleteClusterAgents(cinfo.Name)
 	if err != nil {
 		tx.Rollback()
 		return err
 	}
 
 	// ADD agents to cluster
-	err = txHelper.addAgentBatchToCluster(clusterID, cinfo.AgentsList)
+	err = txHelper.addAgentBatchToCluster(cinfo.Name, cinfo.AgentsList)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -332,6 +295,7 @@ func (db *LocalSqliteDb) EditClusterEntry(cinfo types.ClusterInfo) error {
 
 // DeleteClusterEntry takes in string name of cluster and removes cluster information and agent membership of cluster from the database.  If not all agents can be removed from the cluster, cluster information remains in the database.
 func (db *LocalSqliteDb) DeleteClusterEntry(clusterName string) error {
+  // BEGIN transaction
 	ctx := context.Background()
 	tx, err := db.database.BeginTx(ctx, nil)
 	if err != nil {
@@ -339,39 +303,18 @@ func (db *LocalSqliteDb) DeleteClusterEntry(clusterName string) error {
 	}
 	txHelper := getTornjakTxHelper(ctx, tx)
 
-	clusterID, err := txHelper.getClusterID(clusterName)
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
+	// REMOVE cluster metadata
+  err = txHelper.deleteClusterMetadata(clusterName)
+  if err != nil {
+    tx.Rollback()
+    return err
+  }
 
 	// REMOVE all currently assigned cluster agents
-	err = txHelper.deleteClusterAgents(clusterID)
+	err = txHelper.deleteClusterAgents(clusterName)
 	if err != nil {
 		tx.Rollback()
 		return err
-	}
-
-	// REMOVE cluster metadata
-	cmdDeleteEntry := `DELETE FROM clusters WHERE name=?`
-	statement, err := tx.PrepareContext(ctx, cmdDeleteEntry)
-	if err != nil {
-		tx.Rollback()
-		return SQLError{cmdDeleteEntry, err}
-	}
-	res, err := statement.ExecContext(ctx, clusterName)
-	if err != nil {
-		tx.Rollback()
-		return PostFailure{fmt.Sprintf("Error: Unable to remove cluster metadata: %v", err.Error())}
-	}
-	numRows, err := res.RowsAffected()
-	if err != nil {
-		tx.Rollback()
-		return SQLError{cmdDeleteEntry, err}
-	}
-	if numRows != 1 {
-		tx.Rollback()
-		return PostFailure{fmt.Sprintf("Cluster does not exist")}
 	}
 
 	return tx.Commit()

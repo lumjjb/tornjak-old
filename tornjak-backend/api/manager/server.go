@@ -159,8 +159,8 @@ func (s *Server) HandleRequests() {
 	rtr.HandleFunc("/manager-api/tornjak/selectors/register/{server:.*}", corsHandler(s.apiServerProxyFunc("/api/tornjak/selectors/register")))
 	rtr.HandleFunc("/manager-api/tornjak/selectors/list/{server:.*}", corsHandler(s.apiServerProxyFunc("/api/tornjak/selectors/list")))
 	//Agents Clusters
-	rtr.HandleFunc("/manager-api/tornjak/cluster/create/{server:.*}", corsHandler(s.apiServerProxyFunc("/api/tornjak/cluster/create")))
-	rtr.HandleFunc("/manager-api/tornjak/cluster/edit/{server:.*}", corsHandler(s.apiServerProxyFunc("/api/tornjak/cluster/edit")))
+	rtr.HandleFunc("/manager-api/tornjak/clusters/create/{server:.*}", corsHandler(s.apiServerProxyFunc("/api/tornjak/cluster/create")))
+	rtr.HandleFunc("/manager-api/tornjak/clusters/edit/{server:.*}", corsHandler(s.apiServerProxyFunc("/api/tornjak/cluster/edit")))
 	rtr.HandleFunc("/manager-api/tornjak/clusters/list/{server:.*}", corsHandler(s.apiServerProxyFunc("/api/tornjak/clusters/list")))
 
 	//http.HandleFunc("/manager-api/get-server-info", s.agentList)
