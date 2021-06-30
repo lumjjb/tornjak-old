@@ -22,8 +22,8 @@ func getTornjakTxHelper(ctx context.Context, tx *sql.Tx) *tornjakTxHelper {
 
 func (t *tornjakTxHelper) rollbackHandler(err error) error {
 	if err == nil { // THIS SHOULD NOT HAPPEN
-    return nil
-  } else {
+		return errors.New("Rollback handler called upon no error")
+	} else {
 		rollbackErr := t.tx.Rollback()
 		var rollbackStatus string
 		if rollbackErr != nil {
@@ -31,15 +31,15 @@ func (t *tornjakTxHelper) rollbackHandler(err error) error {
 		} else {
 			rollbackStatus = "- Successful rollback upon error"
 		}
-    if serr, ok := err.(SQLError); ok {
-      return SQLError{serr.Cmd, errors.Errorf("%v%v", serr.Err, rollbackStatus)}
-    } else if serr, ok := err.(GetError); ok {
-      return GetError{fmt.Sprintf("%v%v", serr.Message, rollbackStatus)}
-    } else if serr, ok := err.(PostFailure); ok {
-      return PostFailure{fmt.Sprintf("%v%v", serr.Message, rollbackStatus)}
-    } else {
-      return errors.Errorf("%v%v", err.Error(), rollbackStatus)
-    }
+		if serr, ok := err.(SQLError); ok {
+			return SQLError{serr.Cmd, errors.Errorf("%v%v", serr.Err, rollbackStatus)}
+		} else if serr, ok := err.(GetError); ok {
+			return GetError{fmt.Sprintf("%v%v", serr.Message, rollbackStatus)}
+		} else if serr, ok := err.(PostFailure); ok {
+			return PostFailure{fmt.Sprintf("%v%v", serr.Message, rollbackStatus)}
+		} else {
+			return errors.Errorf("%v%v", err.Error(), rollbackStatus)
+		}
 	}
 }
 

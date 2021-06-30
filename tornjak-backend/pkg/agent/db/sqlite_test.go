@@ -122,7 +122,7 @@ func TestSelectorDB(t *testing.T) {
 	}
 
 	// CHECK get agent plugin of nonexisting agent [GetAgentPluginInfo]
-	info, err = db.GetAgentPluginInfo("super secret agent")
+	_, err = db.GetAgentPluginInfo("super secret agent")
 	if err == nil {
 		t.Fatal("Failed to report non-existing agent in GetAgentPluginInfo")
 	}
