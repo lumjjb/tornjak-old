@@ -7,7 +7,7 @@ import (
 
 	"github.com/mattn/go-sqlite3"
 
-  "github.com/lumjjb/tornjak/tornjak-backend/pkg/agent/types"
+	"github.com/lumjjb/tornjak/tornjak-backend/pkg/agent/types"
 )
 
 type tornjakTxHelper struct {
@@ -21,71 +21,71 @@ func getTornjakTxHelper(ctx context.Context, tx *sql.Tx) *tornjakTxHelper {
 
 // insertClusterMetadata attempts insert into table clusters
 // returns SQLError upon failure and PostFailure on cluster existence
-func (t *tornjakTxHelper) insertClusterMetadata(cinfo types.ClusterInfo)(error){
-  cmdInsert := `INSERT INTO clusters (name, domainName, managedBy, platformType) VALUES (?,?,?,?)`
-  statement, err := t.tx.PrepareContext(t.ctx, cmdInsert)
-  if err != nil {
-    return SQLError{cmdInsert, err}
-  }
-  defer statement.Close()
-  _, err = statement.ExecContext(t.ctx, cinfo.Name, cinfo.DomainName, cinfo.ManagedBy, cinfo.PlatformType)
-  if err != nil {
-    if serr, ok := err.(sqlite3.Error); ok {
-      if serr.Code == sqlite3.ErrConstraint{
-        return PostFailure{fmt.Sprintf("Cluster already exists; use Edit Cluster")}
-      }
-    }
-    return SQLError{cmdInsert, err}
-  }
-  return nil
+func (t *tornjakTxHelper) insertClusterMetadata(cinfo types.ClusterInfo) error {
+	cmdInsert := `INSERT INTO clusters (name, domainName, managedBy, platformType) VALUES (?,?,?,?)`
+	statement, err := t.tx.PrepareContext(t.ctx, cmdInsert)
+	if err != nil {
+		return SQLError{cmdInsert, err}
+	}
+	defer statement.Close()
+	_, err = statement.ExecContext(t.ctx, cinfo.Name, cinfo.DomainName, cinfo.ManagedBy, cinfo.PlatformType)
+	if err != nil {
+		if serr, ok := err.(sqlite3.Error); ok {
+			if serr.Code == sqlite3.ErrConstraint {
+				return PostFailure{fmt.Sprintf("Cluster already exists; use Edit Cluster")}
+			}
+		}
+		return SQLError{cmdInsert, err}
+	}
+	return nil
 }
 
 // updateClusterMetadata attempts update of entry in table clusters
 // returns SQLError on failure and PostFailure on cluster non-existence
-func (t *tornjakTxHelper) updateClusterMetadata(cinfo types.ClusterInfo)(error){
-  cmdUpdate := `UPDATE clusters SET domainName=?, managedBy=?, platformType=? WHERE name=?`
-  statement, err := t.tx.PrepareContext(t.ctx, cmdUpdate)
-  if err != nil {
-    return SQLError{cmdUpdate, err}
-  }
-  defer statement.Close()
-  res, err := statement.ExecContext(t.ctx, cinfo.DomainName, cinfo.ManagedBy, cinfo.PlatformType, cinfo.Name)
-  if err != nil {
-    return SQLError{cmdUpdate, err}
-  }
+func (t *tornjakTxHelper) updateClusterMetadata(cinfo types.ClusterInfo) error {
+	cmdUpdate := `UPDATE clusters SET domainName=?, managedBy=?, platformType=? WHERE name=?`
+	statement, err := t.tx.PrepareContext(t.ctx, cmdUpdate)
+	if err != nil {
+		return SQLError{cmdUpdate, err}
+	}
+	defer statement.Close()
+	res, err := statement.ExecContext(t.ctx, cinfo.DomainName, cinfo.ManagedBy, cinfo.PlatformType, cinfo.Name)
+	if err != nil {
+		return SQLError{cmdUpdate, err}
+	}
 
-  // check if update was successful
-  numRows, err := res.RowsAffected()
-  if err != nil {
-    return SQLError{cmdUpdate, err}
-  }
-  if numRows != 1 {
-    return PostFailure{fmt.Sprintf("Cluster does not exist; use Create Cluster")}
-  }
+	// check if update was successful
+	numRows, err := res.RowsAffected()
+	if err != nil {
+		return SQLError{cmdUpdate, err}
+	}
+	if numRows != 1 {
+		return PostFailure{fmt.Sprintf("Cluster does not exist; use Create Cluster")}
+	}
 
-  return nil
+	return nil
 }
 
 // deleteClusterMetadata attemps delete of entry in table clusters
 // returns SQLError on failure and PostFailure on cluster non-existence
-func (t *tornjakTxHelper) deleteClusterMetadata(name string) (error){
-  cmdDelete := `DELETE FROM clusters WHERE name=?`
-  statement, err := t.tx.PrepareContext(t.ctx, cmdDelete)
-  if err != nil {
-    return SQLError{cmdDelete, err}
-  }
-  res, err := statement.ExecContext(t.ctx, name)
-  if err != nil {
-    return SQLError{cmdDelete, err}
-  }
-  numRows, err := res.RowsAffected()
-  if err != nil {
-    return SQLError{cmdDelete, err}
-  }
-  if numRows != 1 {
-    return PostFailure{fmt.Sprintf("Cluster does not exist")}
-  }
-  return nil
+func (t *tornjakTxHelper) deleteClusterMetadata(name string) error {
+	cmdDelete := `DELETE FROM clusters WHERE name=?`
+	statement, err := t.tx.PrepareContext(t.ctx, cmdDelete)
+	if err != nil {
+		return SQLError{cmdDelete, err}
+	}
+	res, err := statement.ExecContext(t.ctx, name)
+	if err != nil {
+		return SQLError{cmdDelete, err}
+	}
+	numRows, err := res.RowsAffected()
+	if err != nil {
+		return SQLError{cmdDelete, err}
+	}
+	if numRows != 1 {
+		return PostFailure{fmt.Sprintf("Cluster does not exist")}
+	}
+	return nil
 }
 
 // addAgentBatchToCluster adds entries in clusterMemberships table
@@ -113,7 +113,7 @@ func (t *tornjakTxHelper) addAgentBatchToCluster(clustername string, agentsList 
 	if err != nil {
 		if serr, ok := err.(sqlite3.Error); ok {
 			if serr.Code == sqlite3.ErrConstraint {
-        // TODO add more details of agent conflict?
+				// TODO add more details of agent conflict?
 				return PostFailure{fmt.Sprintf("agent already assigned to cluster")}
 			}
 		}
@@ -137,4 +137,3 @@ func (t *tornjakTxHelper) deleteClusterAgents(clustername string) error {
 	}
 	return nil
 }
-

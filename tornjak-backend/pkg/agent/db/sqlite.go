@@ -176,7 +176,7 @@ func (db *LocalSqliteDb) GetAgentClusterName(spiffeid string) (string, error) {
 
 // GetClusters outputs a list of ClusterInfo structs with information on currently registered clusters
 func (db *LocalSqliteDb) GetClusters() (types.ClusterInfoList, error) {
-  // BEGIN transaction
+	// BEGIN transaction
 	ctx := context.Background()
 	tx, err := db.database.BeginTx(ctx, nil)
 	if err != nil {
@@ -234,7 +234,7 @@ func (db *LocalSqliteDb) GetClusters() (types.ClusterInfoList, error) {
 
 // CreateClusterEntry takes in struct cinfo of type ClusterInfo.  If a cluster with cinfo.Name already registered, returns error.
 func (db *LocalSqliteDb) CreateClusterEntry(cinfo types.ClusterInfo) error {
-  // BEGIN transaction
+	// BEGIN transaction
 	ctx := context.Background()
 	tx, err := db.database.BeginTx(ctx, nil)
 	if err != nil {
@@ -243,11 +243,11 @@ func (db *LocalSqliteDb) CreateClusterEntry(cinfo types.ClusterInfo) error {
 	txHelper := getTornjakTxHelper(ctx, tx)
 
 	// INSERT cluster metadata
-  err = txHelper.insertClusterMetadata(cinfo)
-  if err != nil {
-    tx.Rollback()
-    return err
-  }
+	err = txHelper.insertClusterMetadata(cinfo)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
 
 	// ADD agents to cluster
 	err = txHelper.addAgentBatchToCluster(cinfo.Name, cinfo.AgentsList)
@@ -260,7 +260,7 @@ func (db *LocalSqliteDb) CreateClusterEntry(cinfo types.ClusterInfo) error {
 
 // EditClusterEntry takes in struct cinfo of type ClusterInfo.  If cluster with cinfo.Name does not exist, throws error.
 func (db *LocalSqliteDb) EditClusterEntry(cinfo types.ClusterInfo) error {
-  // BEGIN transaction
+	// BEGIN transaction
 	ctx := context.Background()
 	tx, err := db.database.BeginTx(ctx, nil)
 	if err != nil {
@@ -269,12 +269,11 @@ func (db *LocalSqliteDb) EditClusterEntry(cinfo types.ClusterInfo) error {
 	txHelper := getTornjakTxHelper(ctx, tx)
 
 	// UPDATE cluster metadata
-  err = txHelper.updateClusterMetadata(cinfo)
-  if err != nil {
-    tx.Rollback()
-    return err
-  }
-
+	err = txHelper.updateClusterMetadata(cinfo)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
 
 	// REMOVE all currently assigned cluster agents
 	err = txHelper.deleteClusterAgents(cinfo.Name)
@@ -295,7 +294,7 @@ func (db *LocalSqliteDb) EditClusterEntry(cinfo types.ClusterInfo) error {
 
 // DeleteClusterEntry takes in string name of cluster and removes cluster information and agent membership of cluster from the database.  If not all agents can be removed from the cluster, cluster information remains in the database.
 func (db *LocalSqliteDb) DeleteClusterEntry(clusterName string) error {
-  // BEGIN transaction
+	// BEGIN transaction
 	ctx := context.Background()
 	tx, err := db.database.BeginTx(ctx, nil)
 	if err != nil {
@@ -304,11 +303,11 @@ func (db *LocalSqliteDb) DeleteClusterEntry(clusterName string) error {
 	txHelper := getTornjakTxHelper(ctx, tx)
 
 	// REMOVE cluster metadata
-  err = txHelper.deleteClusterMetadata(clusterName)
-  if err != nil {
-    tx.Rollback()
-    return err
-  }
+	err = txHelper.deleteClusterMetadata(clusterName)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
 
 	// REMOVE all currently assigned cluster agents
 	err = txHelper.deleteClusterAgents(clusterName)
