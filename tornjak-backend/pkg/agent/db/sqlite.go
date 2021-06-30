@@ -134,7 +134,7 @@ func (db *LocalSqliteDb) GetClusterAgents(name string) ([]string, error) {
                         GROUP BY clusters.name`
 	row := db.database.QueryRow(cmdGetMemberships, name)
 
-	spiffeidList := []string{}
+	var spiffeidList []string
 	var spiffeids sql.NullString
 
 	err := row.Scan(&spiffeids)
@@ -182,6 +182,7 @@ func (db *LocalSqliteDb) GetClusters() (types.ClusterInfoList, error) {
 	if err != nil {
 		return types.ClusterInfoList{}, errors.Errorf("Error initializing context: %v", err)
 	}
+	txHelper := getTornjakTxHelper(ctx, tx)
 
 	cmd := `SELECT clusters.name, clusters.domainName, clusters.managedBy, 
                  clusters.platformType, GROUP_CONCAT(clusterMemberships.spiffeid) 
@@ -191,8 +192,7 @@ func (db *LocalSqliteDb) GetClusters() (types.ClusterInfoList, error) {
 
 	rows, err := tx.QueryContext(ctx, cmd)
 	if err != nil {
-		tx.Rollback()
-		return types.ClusterInfoList{}, SQLError{cmd, err}
+		return types.ClusterInfoList{}, txHelper.rollbackHandler(SQLError{cmd, err})
 	}
 
 	sinfos := []types.ClusterInfo{}
@@ -206,9 +206,9 @@ func (db *LocalSqliteDb) GetClusters() (types.ClusterInfoList, error) {
 	)
 	for rows.Next() {
 		if err = rows.Scan(&name, &domainName, &managedBy, &platformType, &agentsListConcatted); err != nil {
-			tx.Rollback()
-			return types.ClusterInfoList{}, SQLError{cmd, err}
+			return types.ClusterInfoList{}, txHelper.rollbackHandler(SQLError{cmd, err})
 		}
+
 		if agentsListConcatted.Valid { // handle clusters with no assigned agents
 			agentsList = strings.Split(agentsListConcatted.String, ",")
 		} else {
@@ -225,7 +225,7 @@ func (db *LocalSqliteDb) GetClusters() (types.ClusterInfoList, error) {
 
 	err = tx.Commit()
 	if err != nil {
-		return types.ClusterInfoList{}, err
+		return types.ClusterInfoList{}, txHelper.rollbackHandler(err)
 	}
 	return types.ClusterInfoList{
 		Clusters: sinfos,
@@ -245,15 +245,13 @@ func (db *LocalSqliteDb) CreateClusterEntry(cinfo types.ClusterInfo) error {
 	// INSERT cluster metadata
 	err = txHelper.insertClusterMetadata(cinfo)
 	if err != nil {
-		tx.Rollback()
-		return err
+		return txHelper.rollbackHandler(err)
 	}
 
 	// ADD agents to cluster
 	err = txHelper.addAgentBatchToCluster(cinfo.Name, cinfo.AgentsList)
 	if err != nil {
-		tx.Rollback()
-		return err
+		return txHelper.rollbackHandler(err)
 	}
 	return tx.Commit()
 }
@@ -271,22 +269,19 @@ func (db *LocalSqliteDb) EditClusterEntry(cinfo types.ClusterInfo) error {
 	// UPDATE cluster metadata
 	err = txHelper.updateClusterMetadata(cinfo)
 	if err != nil {
-		tx.Rollback()
-		return err
+		return txHelper.rollbackHandler(err)
 	}
 
 	// REMOVE all currently assigned cluster agents
 	err = txHelper.deleteClusterAgents(cinfo.Name)
 	if err != nil {
-		tx.Rollback()
-		return err
+		return txHelper.rollbackHandler(err)
 	}
 
 	// ADD agents to cluster
 	err = txHelper.addAgentBatchToCluster(cinfo.Name, cinfo.AgentsList)
 	if err != nil {
-		tx.Rollback()
-		return err
+		return txHelper.rollbackHandler(err)
 	}
 
 	return tx.Commit()
@@ -305,15 +300,13 @@ func (db *LocalSqliteDb) DeleteClusterEntry(clusterName string) error {
 	// REMOVE cluster metadata
 	err = txHelper.deleteClusterMetadata(clusterName)
 	if err != nil {
-		tx.Rollback()
-		return err
+		return txHelper.rollbackHandler(err)
 	}
 
 	// REMOVE all currently assigned cluster agents
 	err = txHelper.deleteClusterAgents(clusterName)
 	if err != nil {
-		tx.Rollback()
-		return err
+		return txHelper.rollbackHandler(err)
 	}
 
 	return tx.Commit()

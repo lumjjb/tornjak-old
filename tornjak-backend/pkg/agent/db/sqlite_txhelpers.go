@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/mattn/go-sqlite3"
+	"github.com/pkg/errors"
 
 	"github.com/lumjjb/tornjak/tornjak-backend/pkg/agent/types"
 )
@@ -17,6 +18,33 @@ type tornjakTxHelper struct {
 
 func getTornjakTxHelper(ctx context.Context, tx *sql.Tx) *tornjakTxHelper {
 	return &tornjakTxHelper{ctx, tx}
+}
+
+func (t *tornjakTxHelper) rollbackHandler(err error) error {
+	if err != nil {
+		rollbackErr := t.tx.Rollback()
+		var rollbackStatus string
+		if rollbackErr != nil {
+			rollbackStatus = fmt.Sprintf("- Unsuccessful rollback [%v] upon error", rollbackErr.Error())
+		} else {
+			rollbackStatus = "- Successful rollback upon error"
+		}
+		switch err.(type) {
+		case SQLError:
+			serr := err.(SQLError)
+			return SQLError{serr.Cmd, errors.Errorf("%v%v", serr.Err, rollbackStatus)}
+		case GetError:
+			serr := err.(GetError)
+			return GetError{fmt.Sprintf("%v%v", serr.Message, rollbackStatus)}
+		case PostFailure:
+			serr := err.(PostFailure)
+			return PostFailure{fmt.Sprintf("%v%v", serr.Message, rollbackStatus)}
+		default:
+			return errors.Errorf("%v%v", err.Error(), rollbackStatus)
+		}
+	} else { // THIS SHOULD NOT HAPPEN
+		return nil
+	}
 }
 
 // insertClusterMetadata attempts insert into table clusters
@@ -32,7 +60,7 @@ func (t *tornjakTxHelper) insertClusterMetadata(cinfo types.ClusterInfo) error {
 	if err != nil {
 		if serr, ok := err.(sqlite3.Error); ok {
 			if serr.Code == sqlite3.ErrConstraint {
-				return PostFailure{fmt.Sprintf("Cluster already exists; use Edit Cluster")}
+				return PostFailure{"Cluster already exists; use Edit Cluster"}
 			}
 		}
 		return SQLError{cmdInsert, err}
@@ -60,7 +88,7 @@ func (t *tornjakTxHelper) updateClusterMetadata(cinfo types.ClusterInfo) error {
 		return SQLError{cmdUpdate, err}
 	}
 	if numRows != 1 {
-		return PostFailure{fmt.Sprintf("Cluster does not exist; use Create Cluster")}
+		return PostFailure{"Cluster does not exist; use Create Cluster"}
 	}
 
 	return nil
@@ -83,7 +111,7 @@ func (t *tornjakTxHelper) deleteClusterMetadata(name string) error {
 		return SQLError{cmdDelete, err}
 	}
 	if numRows != 1 {
-		return PostFailure{fmt.Sprintf("Cluster does not exist")}
+		return PostFailure{"Cluster does not exist"}
 	}
 	return nil
 }
@@ -114,7 +142,7 @@ func (t *tornjakTxHelper) addAgentBatchToCluster(clustername string, agentsList 
 		if serr, ok := err.(sqlite3.Error); ok {
 			if serr.Code == sqlite3.ErrConstraint {
 				// TODO add more details of agent conflict?
-				return PostFailure{fmt.Sprintf("agent already assigned to cluster")}
+				return PostFailure{"agent already assigned to cluster"}
 			}
 		}
 		return SQLError{cmdBatch, err}
