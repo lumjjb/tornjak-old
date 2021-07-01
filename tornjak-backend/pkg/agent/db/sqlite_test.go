@@ -326,6 +326,8 @@ func TestClusterEdit(t *testing.T) {
 
 	cluster1 := "cluster1"
 	cluster2 := "cluster2"
+	cluster3 := "cluster3"
+	cluster4 := "cluster4"
 	vms := "VMs"
 	k8s := "Kubernetes"
 	agent1 := "agent1"
@@ -335,19 +337,46 @@ func TestClusterEdit(t *testing.T) {
 
 	cinfo1 := types.ClusterInfo{
 		Name:         cluster1,
+		EditedName:   cluster1,
 		PlatformType: vms,
 		AgentsList:   []string{agent1, agent2},
 	}
 	cinfo1New := types.ClusterInfo{
 		Name:         cluster1,
+		EditedName:   cluster1,
 		PlatformType: k8s,
 		ManagedBy:    "MaiaIyer",
 		AgentsList:   []string{agent1, agent3},
 	}
 	cinfo2 := types.ClusterInfo{
 		Name:         cluster2,
+		EditedName:   cluster2,
 		PlatformType: vms,
 		AgentsList:   []string{agent2, agent4},
+	}
+	cinfo3to4 := types.ClusterInfo{
+		Name:         cluster3,
+		EditedName:   cluster4,
+		PlatformType: k8s,
+		AgentsList:   []string{agent2},
+	}
+	cinfo1to3 := types.ClusterInfo{
+		Name:         cluster1,
+		EditedName:   cluster3,
+		PlatformType: k8s,
+		AgentsList:   []string{agent1},
+	}
+	cinfo3to2 := types.ClusterInfo{
+		Name:         cluster3,
+		EditedName:   cluster2,
+		PlatformType: k8s,
+		AgentsList:   []string{agent1},
+	}
+	cinfo3 := types.ClusterInfo{
+		Name:         cluster3,
+		EditedName:   cluster3,
+		PlatformType: k8s,
+		AgentsList:   []string{agent1},
 	}
 
 	// ATTEMPT CreateClusterEntry [CreateClusterEntry, GetClusters]
@@ -411,10 +440,15 @@ func TestClusterEdit(t *testing.T) {
 	if !ok {
 		t.Fatal(fmt.Sprintf("Wrong error on assignment of already assigned agent: %v", err.Error()))
 	}
+	cListObject, err = db.GetClusters()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if clustersComp(cListObject, types.ClusterInfoList{Clusters: []types.ClusterInfo{cinfo2, cinfo1New}}) != nil {
+		t.Fatal("Clusters list does not have correct clusters")
+	}
 
-	// TODO TEST EditClusterEntry renaming
-
-	// FINAL CHECK agent memberships; want cluster1 to have agents 1 and 3 and cluster2 to have agents 2 and 4
+	// CHECK agent memberships; want cluster1 to have agents 1 and 3 and cluster2 to have agents 2 and 4
 	// [GetAgentClusterName]
 	agent1Cluster, err := db.GetAgentClusterName(agent1)
 	if err != nil {
@@ -443,6 +477,53 @@ func TestClusterEdit(t *testing.T) {
 	}
 	if agent4Cluster != cluster2 {
 		t.Fatal("agent4 not in cluster2")
+	}
+
+	// TEST Renaming of cluster that exists to cluster that does not exist; should succeed
+	err = db.EditClusterEntry(cinfo1to3)
+	if err != nil {
+		t.Fatal(err)
+	}
+	cListObject, err = db.GetClusters()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if clustersComp(cListObject, types.ClusterInfoList{Clusters: []types.ClusterInfo{cinfo2, cinfo3}}) != nil {
+		t.Fatal("Clusters list does not have correct clusters")
+	}
+
+	// TEST Renaming of cluster that exists with conflicting new agents; should fail
+	err = db.EditClusterEntry(cinfo3to4)
+	if err == nil {
+		t.Fatal("Renamed edit cluster should throw error with conflicting new agents")
+	}
+	_, ok = err.(PostFailure)
+	if !ok {
+		t.Fatal(fmt.Sprintf("Wrong error on assignment of already assigned agent: %v", err.Error()))
+	}
+	cListObject, err = db.GetClusters()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if clustersComp(cListObject, types.ClusterInfoList{Clusters: []types.ClusterInfo{cinfo2, cinfo3}}) != nil {
+		t.Fatal("Clusters list does not have correct clusters")
+	}
+
+	// TEST Renaming of cluster that exists to cluster that exists; should fail
+	err = db.EditClusterEntry(cinfo3to2)
+	if err == nil {
+		t.Fatal("Renamed edit cluster should throw error when renaming to cluster that exists")
+	}
+	_, ok = err.(PostFailure)
+	if !ok {
+		t.Fatal(fmt.Sprintf("Wrong error on renaming to existing cluster: %v", err.Error()))
+	}
+	cListObject, err = db.GetClusters()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if clustersComp(cListObject, types.ClusterInfoList{Clusters: []types.ClusterInfo{cinfo2, cinfo3}}) != nil {
+		t.Fatal("Clusters list does not have correct clusters")
 	}
 
 }
@@ -480,16 +561,19 @@ func TestClusterDelete(t *testing.T) {
 
 	cinfo1 := types.ClusterInfo{
 		Name:         cluster1,
+		EditedName:   cluster1,
 		PlatformType: vms,
 		AgentsList:   []string{agent1, agent2},
 	}
 	cinfo1New := types.ClusterInfo{
 		Name:         cluster1,
+		EditedName:   cluster1,
 		PlatformType: vms,
 		AgentsList:   []string{},
 	}
 	cinfo2 := types.ClusterInfo{
 		Name:         cluster2,
+		EditedName:   cluster2,
 		PlatformType: k8s,
 		AgentsList:   []string{agent3, agent4},
 	}

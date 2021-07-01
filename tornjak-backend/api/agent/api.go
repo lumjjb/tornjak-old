@@ -10,7 +10,7 @@ import (
 	entry "github.com/spiffe/spire/proto/spire/api/server/entry/v1"
 	types "github.com/spiffe/spire/proto/spire/types"
 
-	agentTypes "github.com/lumjjb/tornjak/tornjak-backend/pkg/agent/types"
+	tornjakTypes "github.com/lumjjb/tornjak/tornjak-backend/pkg/agent/types"
 )
 
 type ListAgentsRequest agent.ListAgentsRequest
@@ -185,7 +185,7 @@ GetEntry(GetEntryRequest) returns (spire.types.Entry);
 */
 
 type ListSelectorsRequest struct{}
-type ListSelectorsResponse agentTypes.AgentInfoList
+type ListSelectorsResponse tornjakTypes.AgentInfoList
 
 // ListSelectors returns list of agents from the local DB with the following info
 // spiffeid string
@@ -198,13 +198,13 @@ func (s *Server) ListSelectors(inp ListSelectorsRequest) (*ListSelectorsResponse
 	return (*ListSelectorsResponse)(&resp), nil
 }
 
-type RegisterSelectorRequest agentTypes.AgentInfo
+type RegisterSelectorRequest tornjakTypes.AgentInfo
 
 // DefineSelectors registers an agent to the loacal DB with the following info
 // spiffeid string
 // plugin   string
 func (s *Server) DefineSelectors(inp RegisterSelectorRequest) error {
-	sinfo := agentTypes.AgentInfo(inp)
+	sinfo := tornjakTypes.AgentInfo(inp)
 	if len(sinfo.Spiffeid) == 0 {
 		return errors.New("agent's info missing mandatory field - Spiffeid")
 	}
@@ -212,7 +212,7 @@ func (s *Server) DefineSelectors(inp RegisterSelectorRequest) error {
 }
 
 type ListClustersRequest struct{}
-type ListClustersResponse agentTypes.ClusterInfoList
+type ListClustersResponse tornjakTypes.ClusterInfoList
 
 // ListClusters returns list of clusters from the local DB with the following info
 // name string
@@ -225,28 +225,43 @@ func (s *Server) ListClusters(inp ListClustersRequest) (*ListClustersResponse, e
 	return (*ListClustersResponse)(&retVal), nil
 }
 
-type RegisterClusterRequest agentTypes.ClusterInput
+type RegisterClusterRequest tornjakTypes.ClusterInput
 
 // DefineCluster registers cluster to local DB
 func (s *Server) DefineCluster(inp RegisterClusterRequest) error {
-	cinfo := agentTypes.ClusterInfo(inp.ClusterInstance)
+	cinfo := tornjakTypes.ClusterInfo(inp.ClusterInstance)
 	if len(cinfo.Name) == 0 {
 		return errors.New("cluster definition missing mandatory field - Name")
 	} else if len(cinfo.PlatformType) == 0 {
-		return errors.New("cluster definition missing mandatory field PlatformType")
+		return errors.New("cluster definition missing mandatory field - PlatformType")
+	} else if len(cinfo.EditedName) > 0 {
+		return errors.New("cluster definition attempts renaming on create cluster - EditedName")
 	}
 	return s.Db.CreateClusterEntry(cinfo)
 }
 
-type EditClusterRequest agentTypes.ClusterInput
+type EditClusterRequest tornjakTypes.ClusterInput
 
 // EditCluster registers cluster to local DB
 func (s *Server) EditCluster(inp EditClusterRequest) error {
-	cinfo := agentTypes.ClusterInfo(inp.ClusterInstance)
+	cinfo := tornjakTypes.ClusterInfo(inp.ClusterInstance)
 	if len(cinfo.Name) == 0 {
 		return errors.New("cluster definition missing mandatory field - Name")
 	} else if len(cinfo.PlatformType) == 0 {
-		return errors.New("cluster definition missing mandatory field PlatformType")
+		return errors.New("cluster definition missing mandatory field - PlatformType")
+	} else if len(cinfo.EditedName) == 0 {
+		return errors.New("cluster definition missing mandatory field - EditedName")
 	}
 	return s.Db.EditClusterEntry(cinfo)
+}
+
+type DeleteClusterRequest tornjakTypes.ClusterInput
+
+// DeleteCluster deletes cluster with name cinfo.Name and assignment to agents
+func (s *Server) DeleteCluster(inp DeleteClusterRequest) error {
+	cinfo := tornjakTypes.ClusterInfo(inp.ClusterInstance)
+	if len(cinfo.Name) == 0 {
+		return errors.New("input missing mandatory field - Name")
+	}
+	return s.Db.DeleteClusterEntry(cinfo.Name)
 }

@@ -472,6 +472,7 @@ func (s *Server) HandleRequests() {
 	rtr.HandleFunc("/api/tornjak/clusters/list", corsHandler(s.clusterList))
 	rtr.HandleFunc("/api/tornjak/clusters/create", corsHandler(s.clusterCreate))
 	rtr.HandleFunc("/api/tornjak/clusters/edit", corsHandler(s.clusterEdit))
+	rtr.HandleFunc("/api/tornjak/clusters/delete", corsHandler(s.clusterDelete))
 
 	// UI
 	spa := spaHandler{staticPath: "ui-agent", indexPath: "index.html"}
@@ -710,6 +711,44 @@ func (s *Server) clusterEdit(w http.ResponseWriter, r *http.Request) {
 		retError(w, emsg, http.StatusBadRequest)
 		return
 	}
+}
+
+func (s *Server) clusterDelete(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Endpoint Hit: Cluster Delete")
+
+	buf := new(strings.Builder)
+	n, err := io.Copy(buf, r.Body)
+	if err != nil {
+		emsg := fmt.Sprintf("Error parsing data: %v", err.Error())
+		retError(w, emsg, http.StatusBadRequest)
+		return
+	}
+	data := buf.String()
+	var input DeleteClusterRequest
+	if n == 0 {
+		input = DeleteClusterRequest{}
+	} else {
+		err := json.Unmarshal([]byte(data), &input)
+		if err != nil {
+			emsg := fmt.Sprintf("Error parsing data: %v", err.Error())
+			retError(w, emsg, http.StatusBadRequest)
+			return
+		}
+	}
+	err = s.DeleteCluster(input)
+	if err != nil {
+		emsg := fmt.Sprintf("Error: %v", err.Error())
+		retError(w, emsg, http.StatusBadRequest)
+		return
+	}
+	cors(w, r)
+	_, err = w.Write([]byte("SUCCESS"))
+	if err != nil {
+		emsg := fmt.Sprintf("Error: %v", err.Error())
+		retError(w, emsg, http.StatusBadRequest)
+		return
+	}
+
 }
 
 /********* END CLUSTER *********/

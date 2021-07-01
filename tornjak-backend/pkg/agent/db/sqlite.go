@@ -273,13 +273,13 @@ func (db *LocalSqliteDb) EditClusterEntry(cinfo types.ClusterInfo) error {
 	}
 
 	// REMOVE all currently assigned cluster agents
-	err = txHelper.deleteClusterAgents(cinfo.Name)
+	err = txHelper.deleteClusterAgents(cinfo.EditedName)
 	if err != nil {
 		return txHelper.rollbackHandler(err)
 	}
 
 	// ADD agents to cluster
-	err = txHelper.addAgentBatchToCluster(cinfo.Name, cinfo.AgentsList)
+	err = txHelper.addAgentBatchToCluster(cinfo.EditedName, cinfo.AgentsList)
 	if err != nil {
 		return txHelper.rollbackHandler(err)
 	}

@@ -27,9 +27,9 @@ func (t *tornjakTxHelper) rollbackHandler(err error) error {
 		rollbackErr := t.tx.Rollback()
 		var rollbackStatus string
 		if rollbackErr != nil {
-			rollbackStatus = fmt.Sprintf("- Unsuccessful rollback [%v] upon error", rollbackErr.Error())
+			rollbackStatus = fmt.Sprintf(" [Unsuccessful rollback [%v] upon error]", rollbackErr.Error())
 		} else {
-			rollbackStatus = "- Successful rollback upon error"
+			rollbackStatus = " [Successful rollback upon error]"
 		}
 		if serr, ok := err.(SQLError); ok {
 			return SQLError{serr.Cmd, errors.Errorf("%v%v", serr.Err, rollbackStatus)}
@@ -67,14 +67,19 @@ func (t *tornjakTxHelper) insertClusterMetadata(cinfo types.ClusterInfo) error {
 // updateClusterMetadata attempts update of entry in table clusters
 // returns SQLError on failure and PostFailure on cluster non-existence
 func (t *tornjakTxHelper) updateClusterMetadata(cinfo types.ClusterInfo) error {
-	cmdUpdate := `UPDATE clusters SET domainName=?, managedBy=?, platformType=? WHERE name=?`
+	cmdUpdate := `UPDATE clusters SET name=?, domainName=?, managedBy=?, platformType=? WHERE name=?`
 	statement, err := t.tx.PrepareContext(t.ctx, cmdUpdate)
 	if err != nil {
 		return SQLError{cmdUpdate, err}
 	}
 	defer statement.Close()
-	res, err := statement.ExecContext(t.ctx, cinfo.DomainName, cinfo.ManagedBy, cinfo.PlatformType, cinfo.Name)
+	res, err := statement.ExecContext(t.ctx, cinfo.EditedName, cinfo.DomainName, cinfo.ManagedBy, cinfo.PlatformType, cinfo.Name)
 	if err != nil {
+		if serr, ok := err.(sqlite3.Error); ok {
+			if serr.Code == sqlite3.ErrConstraint {
+				return PostFailure{"Cluster already exists; use Edit Cluster"}
+			}
+		}
 		return SQLError{cmdUpdate, err}
 	}
 
@@ -138,7 +143,7 @@ func (t *tornjakTxHelper) addAgentBatchToCluster(clustername string, agentsList 
 		if serr, ok := err.(sqlite3.Error); ok {
 			if serr.Code == sqlite3.ErrConstraint {
 				// TODO add more details of agent conflict?
-				return PostFailure{"agent already assigned to cluster"}
+				return PostFailure{"at least one agent already assigned to cluster"}
 			}
 		}
 		return SQLError{cmdBatch, err}
