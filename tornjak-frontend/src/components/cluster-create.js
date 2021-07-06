@@ -40,7 +40,6 @@ class ClusterCreate extends Component {
       clusterTypeManualEntry: false,
       message: "",
       statusOK: "",
-      successJsonMessege: "",
       selectedServer: "",
       agentsList: this.props.agentsList,
       agentsListDisplay: "Select Agents",
@@ -140,9 +139,9 @@ class ClusterCreate extends Component {
 
   getApiEntryCreateEndpoint() {
     if (!IsManager) {
-      return GetApiServerUri('/api/tornjak/cluster/create')
+      return GetApiServerUri('/api/tornjak/clusters/create')
     } else if (IsManager && this.state.selectedServer !== "") {
-      return GetApiServerUri('/manager-api/tornjak/cluster/create') + "/" + this.state.selectedServer
+      return GetApiServerUri('/manager-api/tornjak/clusters/create') + "/" + this.state.selectedServer
     } else {
       this.setState({ message: "Error: No server selected" })
       return ""
@@ -150,6 +149,7 @@ class ClusterCreate extends Component {
   }
 
   onSubmit(e) {
+    var agentsList = [];
     e.preventDefault();
 
     if (this.state.clusterName.length === 0) {
@@ -162,13 +162,17 @@ class ClusterCreate extends Component {
       return
     }
 
+    if (this.state.clusterAgentsList !== "") {
+      agentsList = this.state.clusterAgentsList;
+    }
+
     var cjtData = {
       "cluster": {
         "name": this.state.clusterName,
         "platformType": this.state.clusterType,
         "domainName": this.state.clusterDomainName,
         "managedBy": this.state.clusterManagedBy,
-        "agentsList": this.state.clusterAgentsList
+        "agentsList": agentsList
       }
     }
 
@@ -179,14 +183,13 @@ class ClusterCreate extends Component {
     axios.post(endpoint, cjtData)
       .then(
         res => this.setState({
-          message: "Requst:" + JSON.stringify(cjtData, null, ' ') + "\n\nSuccess:" + JSON.stringify(res.data, null, ' '),
+          message: "Request:" + JSON.stringify(cjtData, null, ' ') + "\n\nSuccess:" + JSON.stringify(res.data, null, ' '),
           statusOK: "OK",
-          successJsonMessege: res.data.results[0].status.message
         })
       )
       .catch(
         err => this.setState({
-          message: "ERROR:" + err,
+          message: "ERROR:" + err.response.data,
           statusOK: "ERROR"
         })
       )
@@ -288,10 +291,10 @@ class ClusterCreate extends Component {
                 <input type="submit" value="Create Cluster" className="btn btn-primary" />
               </div>
               <div>
-                {this.state.statusOK === "OK" && this.state.successJsonMessege === "OK" &&
+                {this.state.statusOK === "OK" &&
                   <p className="success-message">--ENTRY SUCCESSFULLY CREATED--</p>
                 }
-                {(this.state.statusOK === "ERROR" || (this.state.successJsonMessege !== "OK" && this.state.successJsonMessege !== "")) &&
+                {(this.state.statusOK === "ERROR") &&
                   <p className="failed-message">--ENTRY CREATION FAILED--</p>
                 }
               </div>

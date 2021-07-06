@@ -30,13 +30,13 @@ class DataTableRender extends React.Component {
         super(props);
         this.state = {
             listData: props.data,
-            listTableData: [{}]
+            listTableData: [{"id":"0"}],
         };
         this.prepareTableData = this.prepareTableData.bind(this);
     }
 
     componentDidMount() {
-        //this.prepareTableData();
+        this.prepareTableData();
     }
     componentDidUpdate(prevProps, prevState) {
         if (prevProps !== this.props) {
@@ -54,7 +54,7 @@ class DataTableRender extends React.Component {
         let i = 0;
         for (i = 0; i < listData.length; i++) {
             listtabledata[i] = {};
-            listtabledata[i]["no"] = i + 1;
+            listtabledata[i]["no"] = (i + 1).toString();
             listtabledata[i]["id"] = listData[i].props.entry.id;
             listtabledata[i]["spiffeid"] = "spiffe://" + listData[i].props.entry.spiffe_id.trust_domain + listData[i].props.entry.spiffe_id.path;
             listtabledata[i]["parentid"] = "spiffe://" + listData[i].props.entry.parent_id.trust_domain + listData[i].props.entry.parent_id.path;
@@ -173,8 +173,8 @@ class DataTableRender extends React.Component {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {rows.map((row) => (
-                                    <TableRow key={row.id}>
+                                {rows.map((row, key) => (
+                                    <TableRow key={key}>
                                         <TableSelectRow {...getSelectionProps({ row })} />
                                         {row.cells.map((cell) => (
                                             <TableCell key={cell.id}>

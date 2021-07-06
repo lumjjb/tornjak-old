@@ -2,6 +2,12 @@ import React from "react";
 import { DataTable } from "carbon-components-react";
 import { connect } from 'react-redux';
 import {
+    Delete16 as Delete,
+} from '@carbon/icons-react';
+import IsManager from 'components/is_manager';
+import GetApiServerUri from 'components/helpers';
+import axios from 'axios';
+import {
     clustersListUpdateFunc
 } from 'redux/actions';
 const {
@@ -18,6 +24,7 @@ const {
     TableToolbarSearch,
     TableToolbarContent,
     TableBatchActions,
+    TableBatchAction,
 } = DataTable;
 
 class DataTableRender extends React.Component {
@@ -25,7 +32,7 @@ class DataTableRender extends React.Component {
         super(props);
         this.state = {
             listData: props.data,
-            listTableData: [{}]
+            listTableData: [{"id":"0"}],
         };
         this.prepareTableData = this.prepareTableData.bind(this);
     }
@@ -46,10 +53,9 @@ class DataTableRender extends React.Component {
         const { data } = this.props;
         let listData = [...data];
         let listtabledata = [];
-        console.log(listData)
         for (let i = 0; i < listData.length; i++) {
             listtabledata[i] = {};
-            listtabledata[i]["id"] = i + 1;
+            listtabledata[i]["id"] = (i + 1).toString();
             listtabledata[i]["clusterName"] = listData[i].props.cluster.name;
             listtabledata[i]["clusterType"] = listData[i].props.cluster.platformType;
             listtabledata[i]["clusterManagedBy"] = listData[i].props.cluster.managedBy;
@@ -59,6 +65,41 @@ class DataTableRender extends React.Component {
         this.setState({
             listTableData: listtabledata
         })
+    }
+
+    deleteCluster(selectedRows) {
+        var cluster = [], endpoint = "";
+        let promises = [];
+        if (IsManager) {
+            endpoint = GetApiServerUri('/manager-api/tornjak/clusters/delete') + "/" + this.props.globalServerSelected;
+        } else {
+            endpoint = GetApiServerUri('/api/tornjak/clusters/delete');
+        }
+        console.log("selectedRows", selectedRows)
+        if (selectedRows.length !== 0) {
+            for (let i = 0; i < selectedRows.length; i++) {
+                cluster[i] = {}
+                cluster[i]["name"] = selectedRows[i].cells[1].value;
+                console.log("cluster", cluster)
+                promises.push(axios.post(endpoint, {
+                    "cluster": {
+                        "name": cluster[i].name
+                    }
+                }))
+            }
+        } else {
+            return ""
+        }
+        Promise.all(promises)
+            .then(responses => {
+                for (let i = 0; i < responses.length; i++) {
+                    this.props.clustersListUpdateFunc(this.props.globalClustersList.filter(el =>
+                        el.name !== cluster[i].name));
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+            })
     }
 
     render() {
@@ -115,6 +156,16 @@ class DataTableRender extends React.Component {
                             <TableBatchActions
                                 {...getBatchActionProps()}
                             >
+                                <TableBatchAction
+                                    renderIcon={Delete}
+                                    iconDescription="Delete"
+                                    onClick={() => {
+                                        this.deleteCluster(selectedRows);
+                                        getBatchActionProps().onCancel();
+                                    }}
+                                >
+                                    Delete
+                                </TableBatchAction>
                             </TableBatchActions>
                         </TableToolbar>
                         <Table size="short" useZebraStyles>
@@ -130,8 +181,8 @@ class DataTableRender extends React.Component {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {rows.map((row) => (
-                                    <TableRow key={row.id}>
+                                {rows.map((row, key) => (
+                                    <TableRow key={key}>
                                         <TableSelectRow
                                             {...getSelectionProps({ row })} />
                                         {row.cells.map((cell) => (
@@ -156,7 +207,8 @@ class DataTableRender extends React.Component {
 }
 
 const mapStateToProps = (state) => ({
-    globalClustersList: state.agents.globalClustersList,
+    globalServerSelected: state.servers.globalServerSelected,
+    globalClustersList: state.clusters.globalClustersList,
 })
 
 export default connect(

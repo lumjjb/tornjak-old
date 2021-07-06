@@ -458,7 +458,7 @@ class CreateEntry extends Component {
     axios.post(endpoint, cjtData)
       .then(
         res => this.setState({ 
-          message: "Requst:" + JSON.stringify(cjtData, null, ' ') + "\n\nSuccess:" + JSON.stringify(res.data, null, ' '),
+          message: "Request:" + JSON.stringify(cjtData, null, ' ') + "\n\nSuccess:" + JSON.stringify(res.data, null, ' '),
           statusOK: "OK",
           successJsonMessege: res.data.results[0].status.message
         })

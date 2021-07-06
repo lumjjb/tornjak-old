@@ -35,6 +35,9 @@ class WorkLoadAttestor extends React.Component {
         }
     }
     componentDidUpdate(prevProps, prevState) {
+        if(prevProps !== this.props) {
+            this.prepareAgentData();
+        }
     }
 
     prepareAgentData() {

@@ -71,7 +71,7 @@ class AgentList extends Component {
         if(prevProps.globalTornjakServerInfo !== this.props.globalTornjakServerInfo)
         {
           this.TornjakApi.populateServerInfo(this.props.globalTornjakServerInfo, this.props.serverInfoUpdateFunc);
-          this.TornjakApi.refreshSelectorsState(this.props.globalServerSelected, this.props.agentworkloadSelectorInfoFunc);
+          this.TornjakApi.refreshLocalSelectorsState(this.props.agentworkloadSelectorInfoFunc);
         }
     }
   }

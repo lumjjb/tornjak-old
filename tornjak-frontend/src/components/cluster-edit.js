@@ -32,6 +32,7 @@ class ClusterEdit extends Component {
     this.onSubmit = this.onSubmit.bind(this);
 
     this.state = {
+      originalClusterName: "",
       clusterName: "",
       clusterType: "",
       clusterDomainName: "",
@@ -43,7 +44,6 @@ class ClusterEdit extends Component {
       clusterTypeManualEntry: false,
       message: "",
       statusOK: "",
-      successJsonMessege: "",
       selectedServer: "",
       agentsList: this.props.agentsList,
       agentsListDisplay: "Select Agents",
@@ -53,7 +53,6 @@ class ClusterEdit extends Component {
   }
 
   componentDidMount() {
-    this.prepareClusterNameList();
     if (IsManager) {
       if (this.props.globalServerSelected !== "" && (this.props.globalErrorMessage === "OK" || this.props.globalErrorMessage === "")) {
         this.TornjakApi.populateClustersUpdate(this.props.globalServerSelected, this.props.clustersListUpdateFunc, this.props.tornjakMessageFunc)
@@ -62,6 +61,7 @@ class ClusterEdit extends Component {
     } else {
       this.TornjakApi.populateLocalClustersUpdate(this.props.clustersListUpdateFunc, this.props.tornjakMessageFunc);
     }
+    this.prepareClusterNameList();
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -84,7 +84,6 @@ class ClusterEdit extends Component {
     if (this.props.globalServerInfo.length === 0) {
       return
     }
-
     for (let i = 0; i < clusters.length; i++) {
       localClusterNameList[i] = clusters[i].name;
     }
@@ -107,14 +106,15 @@ class ClusterEdit extends Component {
     assignedAgentsDisplay = cluster.agentsList.join("\n");
     agentsDisplay = cluster.agentsList.toString();
     this.setState({
+      originalClusterName: cluster.name,
       clusterName: cluster.name,
       clusterType: cluster.platformType,
       clusterDomainName: cluster.domainName,
       clusterManagedBy: cluster.managedBy,
       clusterAgentsList: cluster.agentsList,
-      agentsListDisplay: agentsDisplay,
-      assignedAgentsListDisplay: assignedAgentsDisplay,
-      agentsListSelected: agentsListSelected,
+      agentsListDisplay: agentsDisplay, //agents list multiselect display
+      assignedAgentsListDisplay: assignedAgentsDisplay, //agents list text box display
+      agentsListSelected: agentsListSelected, //initial selected agents
     });
     return
   }
@@ -185,6 +185,7 @@ class ClusterEdit extends Component {
     for (let i = 0; i < sid.length; i++) {
       localAgentsIdList[i] = sid[i].label;
     }
+    console.log("sid", sid)
     agents = localAgentsIdList;
     agentsDisplay = localAgentsIdList.toString();
     assignedAgentsDisplay = localAgentsIdList.join("\n");
@@ -195,14 +196,15 @@ class ClusterEdit extends Component {
       clusterAgentsList: agents,
       agentsListDisplay: agentsDisplay,
       assignedAgentsListDisplay: assignedAgentsDisplay,
+      agentsListSelected: sid,
     });
   }
 
   getApiEntryCreateEndpoint() {
     if (!IsManager) {
-      return GetApiServerUri('/api/tornjak/cluster/edit')
+      return GetApiServerUri('/api/tornjak/clusters/edit')
     } else if (IsManager && this.state.selectedServer !== "") {
-      return GetApiServerUri('/manager-api/tornjak/cluster/edit') + "/" + this.state.selectedServer
+      return GetApiServerUri('/manager-api/tornjak/clusters/edit') + "/" + this.state.selectedServer
     } else {
       this.setState({ message: "Error: No server selected" })
       return ""
@@ -212,7 +214,7 @@ class ClusterEdit extends Component {
   onSubmit(e) {
     e.preventDefault();
 
-    if (this.state.chooseCluster.length === 0) {
+    if (this.state.originalClusterName.length === 0) {
       this.setState({ message: "ERROR: Please Choose a Cluster" });
       return
     }
@@ -229,11 +231,12 @@ class ClusterEdit extends Component {
 
     var cjtData = {
       "cluster": {
-        "clusterName": this.state.clusterName,
-        "clusterType": this.state.clusterType,
-        "clusterDomainName": this.state.clusterDomainName,
-        "clusterManagedBy": this.state.clusterManagedBy,
-        "clusterAgentsList": this.state.clusterAgentsList
+        "Name": this.state.originalClusterName,
+        "EditedName": this.state.clusterName,
+        "PlatformType": this.state.clusterType,
+        "DomainName": this.state.clusterDomainName,
+        "ManagedBy": this.state.clusterManagedBy,
+        "AgentsList": this.state.clusterAgentsList
       }
     }
 
@@ -244,14 +247,13 @@ class ClusterEdit extends Component {
     axios.post(endpoint, cjtData)
       .then(
         res => this.setState({
-          message: "Requst:" + JSON.stringify(cjtData, null, ' ') + "\n\nSuccess:" + JSON.stringify(res.data, null, ' '),
+          message: "Request:" + JSON.stringify(cjtData, null, ' ') + "\n\nSuccess:" + JSON.stringify(res.data, null, ' '),
           statusOK: "OK",
-          successJsonMessege: res.data.results[0].status.message
         })
       )
       .catch(
         err => this.setState({
-          message: "ERROR:" + err,
+          message: "ERROR:" + err.response.data,
           statusOK: "ERROR"
         })
       )
@@ -369,10 +371,10 @@ class ClusterEdit extends Component {
                 <input type="submit" value="Edit Cluster" className="btn btn-primary" />
               </div>
               <div>
-                {this.state.statusOK === "OK" && this.state.successJsonMessege === "OK" &&
+                {this.state.statusOK === "OK" &&
                   <p className="success-message">--ENTRY SUCCESSFULLY CREATED--</p>
                 }
-                {(this.state.statusOK === "ERROR" || (this.state.successJsonMessege !== "OK" && this.state.successJsonMessege !== "")) &&
+                {(this.state.statusOK === "ERROR") &&
                   <p className="failed-message">--ENTRY CREATION FAILED--</p>
                 }
               </div>

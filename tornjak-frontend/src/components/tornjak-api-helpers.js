@@ -173,7 +173,7 @@ class TornjakApi extends Component {
   populateClustersUpdate = (serverName, clustersListUpdateFunc, tornjakMessageFunc) => {
     axios.get(GetApiServerUri('/manager-api/tornjak/clusters/list/') + serverName, { crossdomain: true })
       .then(response => {
-        clustersListUpdateFunc(response.data["agents"]);
+        clustersListUpdateFunc(response.data["clusters"]);
         tornjakMessageFunc(response.statusText);
       }).catch(error => {
         clustersListUpdateFunc([]);
@@ -185,7 +185,7 @@ class TornjakApi extends Component {
   populateLocalClustersUpdate = (clustersListUpdateFunc, tornjakMessageFunc) => {
     axios.get(GetApiServerUri('/api/tornjak/clusters/list'), { crossdomain: true })
       .then(response => {
-        clustersListUpdateFunc(response.data["agents"]);
+        clustersListUpdateFunc(response.data["clusters"]);
         tornjakMessageFunc(response.statusText);
       })
       .catch((error) => {

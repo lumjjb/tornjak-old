@@ -13,7 +13,7 @@ export default function clustersReducer(state = initialState, action) {
         case GLOBAL_CLUSTERS_LIST:
             return {
                 ...state,
-                globalAgentsList: action.payload
+                globalClustersList: action.payload
             };
         case GLOBAL_CLUSTER_TYPE_INFO:
             return {
