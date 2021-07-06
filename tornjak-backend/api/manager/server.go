@@ -27,9 +27,11 @@ type Server struct {
 func corsHandler(f func(w http.ResponseWriter, r *http.Request)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "OPTIONS" {
+      fmt.Printf("OPTIONS SET\n")
 			cors(w, r)
 			return
 		} else {
+      fmt.Printf("OPTIONS NOT SET \n")
 			f(w, r)
 		}
 	}
@@ -80,7 +82,6 @@ func (s *Server) apiServerProxyFunc(apiPath string) func(w http.ResponseWriter, 
 			retError(w, emsg, http.StatusBadRequest)
 			return
 		}
-
 		resp, err := client.Post(strings.TrimSuffix(sinfo.Address, "/")+apiPath, jsonContentType, r.Body)
 		if err != nil {
 			emsg := fmt.Sprintf("Error making api call to server: %v", err.Error())
@@ -159,8 +160,8 @@ func (s *Server) HandleRequests() {
 	rtr.HandleFunc("/manager-api/tornjak/selectors/register/{server:.*}", corsHandler(s.apiServerProxyFunc("/api/tornjak/selectors/register")))
 	rtr.HandleFunc("/manager-api/tornjak/selectors/list/{server:.*}", corsHandler(s.apiServerProxyFunc("/api/tornjak/selectors/list")))
 	//Agents Clusters
-	rtr.HandleFunc("/manager-api/tornjak/clusters/create/{server:.*}", corsHandler(s.apiServerProxyFunc("/api/tornjak/cluster/create")))
-	rtr.HandleFunc("/manager-api/tornjak/clusters/edit/{server:.*}", corsHandler(s.apiServerProxyFunc("/api/tornjak/cluster/edit")))
+	rtr.HandleFunc("/manager-api/tornjak/clusters/create/{server:.*}", corsHandler(s.apiServerProxyFunc("/api/tornjak/clusters/create")))
+	rtr.HandleFunc("/manager-api/tornjak/clusters/edit/{server:.*}", corsHandler(s.apiServerProxyFunc("/api/tornjak/clusters/edit")))
 	rtr.HandleFunc("/manager-api/tornjak/clusters/list/{server:.*}", corsHandler(s.apiServerProxyFunc("/api/tornjak/clusters/list")))
 	rtr.HandleFunc("/manager-api/tornjak/clusters/delete/{server:.*}", corsHandler(s.apiServerProxyFunc("/api/tornjak/clusters/delete")))
 
