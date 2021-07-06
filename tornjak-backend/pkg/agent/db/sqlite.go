@@ -297,14 +297,14 @@ func (db *LocalSqliteDb) DeleteClusterEntry(clusterName string) error {
 	}
 	txHelper := getTornjakTxHelper(ctx, tx)
 
-	// REMOVE cluster metadata
-	err = txHelper.deleteClusterMetadata(clusterName)
+	// REMOVE all currently assigned cluster agents (requires metadata still entered)
+	err = txHelper.deleteClusterAgents(clusterName)
 	if err != nil {
 		return txHelper.rollbackHandler(err)
 	}
 
-	// REMOVE all currently assigned cluster agents
-	err = txHelper.deleteClusterAgents(clusterName)
+	// REMOVE cluster metadata
+	err = txHelper.deleteClusterMetadata(clusterName)
 	if err != nil {
 		return txHelper.rollbackHandler(err)
 	}
