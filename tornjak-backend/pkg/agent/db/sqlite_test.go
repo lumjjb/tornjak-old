@@ -13,63 +13,6 @@ func cleanup() {
 	os.Remove("./local-agentstest-db")
 }
 
-func inList(elem string, list []string) bool {
-	for i := 0; i < len(list); i++ {
-		if elem == list[i] {
-			return true
-		}
-	}
-	return false
-}
-
-func agentListComp(correctList []string, resultList []string) error {
-	if len(resultList) > len(correctList) {
-		return errors.New("more in list than there should be")
-	} else if len(correctList) > len(resultList) {
-		return errors.New("less in list than there should be")
-	} else {
-		for i := 0; i < len(correctList); i++ {
-			if !inList(correctList[i], resultList) {
-				return errors.Errorf("Agent %v not in resulting agents list", correctList[i])
-			}
-		}
-		return nil
-	}
-}
-
-func clusterEquality(c1 types.ClusterInfo, c2 types.ClusterInfo) bool {
-	if c1.Name != c2.Name || c1.DomainName != c2.DomainName || c1.ManagedBy != c2.ManagedBy || c1.PlatformType != c2.PlatformType {
-		return false
-	}
-	return agentListComp(c1.AgentsList, c2.AgentsList) == nil
-}
-
-func inClusterList(cluster types.ClusterInfo, list []types.ClusterInfo) bool {
-	for i := 0; i < len(list); i++ {
-		if clusterEquality(cluster, list[i]) {
-			return true
-		}
-	}
-	return false
-}
-
-func clustersComp(c1 types.ClusterInfoList, c2 types.ClusterInfoList) error {
-	c1info := c1.Clusters
-	c2info := c2.Clusters
-	if len(c1info) != len(c2info) {
-		return errors.New("Number of clusters incorrect")
-	}
-	for i := 0; i < len(c1info); i++ {
-		if !inClusterList(c1info[i], c2info) {
-			cname := c1info[i].Name
-			return errors.Errorf("Error: first list contains cluster %v not in second list", cname)
-		}
-	}
-	return nil
-}
-
-/***************************************************************/
-
 // TestSelectorDB checks correctness of functions dealing with Agent Selector table
 // Uses functions NewLocalSqliteDB, db.CreateAgentsEntry, db.GetAgents, db.GetAgentPluginInfo
 func TestSelectorDB(t *testing.T) {
@@ -127,8 +70,6 @@ func TestSelectorDB(t *testing.T) {
 		t.Fatal("Failed to report non-existing agent in GetAgentPluginInfo")
 	}
 }
-
-/***************************************************************/
 
 // TestClusterCreate checks edge cases involving CreateClusterEntry
 // Uses functions NewLocalSqliteDB, db.GetClusters, db.CreateClusterEntry,
@@ -301,8 +242,6 @@ func TestClusterCreate(t *testing.T) {
 	}
 
 }
-
-/***************************************************************/
 
 // TestClusterEdit checks edge cases involving EditClusterEntry
 // uses NewLocalSqliteDB, db.CreateClusterEntry, db.EditClusterEntry,
@@ -528,8 +467,6 @@ func TestClusterEdit(t *testing.T) {
 
 }
 
-/***************************************************************/
-
 // TestClusterDelete checks edge cases on DeleteClusterEntry
 // uses NewLocalSqliteDB, db.GetClusters, db.CreateClusterEntry, db.EditClusterEntry
 //      db.DeleteClusterEntry, db.GetAgentClusterName, db.GetClusterAgents
@@ -670,3 +607,61 @@ func TestClusterDelete(t *testing.T) {
 	}
 
 }
+
+/**** HELPER SECTION ****/
+
+func inList(elem string, list []string) bool {
+	for i := 0; i < len(list); i++ {
+		if elem == list[i] {
+			return true
+		}
+	}
+	return false
+}
+
+func agentListComp(correctList []string, resultList []string) error {
+	if len(resultList) != len(correctList) {
+		return errors.Errorf("Lists not the same: expected %v, got %v", correctList, resultList)
+	} else {
+		for i := 0; i < len(correctList); i++ {
+			if !inList(correctList[i], resultList) {
+				return errors.Errorf("Agent %v not in resulting agents list %v", correctList[i], resultList)
+			}
+		}
+		return nil
+	}
+}
+
+func clusterEquality(c1 types.ClusterInfo, c2 types.ClusterInfo) bool {
+	if c1.Name != c2.Name || c1.DomainName != c2.DomainName ||
+		c1.ManagedBy != c2.ManagedBy || c1.PlatformType != c2.PlatformType {
+		return false
+	}
+	return agentListComp(c1.AgentsList, c2.AgentsList) == nil
+}
+
+func inClusterList(cluster types.ClusterInfo, list []types.ClusterInfo) bool {
+	for i := 0; i < len(list); i++ {
+		if clusterEquality(cluster, list[i]) {
+			return true
+		}
+	}
+	return false
+}
+
+func clustersComp(c1 types.ClusterInfoList, c2 types.ClusterInfoList) error {
+	c1info := c1.Clusters
+	c2info := c2.Clusters
+	if len(c1info) != len(c2info) {
+		return errors.New("Number of clusters incorrect")
+	}
+	for i := 0; i < len(c1info); i++ {
+		if !inClusterList(c1info[i], c2info) {
+			cname := c1info[i].Name
+			return errors.Errorf("Error: first list contains cluster %v not in second list", cname)
+		}
+	}
+	return nil
+}
+
+/**** END HELPER SECTION ****/

@@ -5,9 +5,10 @@ import (
 	"database/sql"
 	"fmt"
 	"strings"
+	"time"
 
+	"github.com/cenkalti/backoff/v4"
 	_ "github.com/mattn/go-sqlite3"
-	//"github.com/mattn/go-sqlite3"
 	"github.com/pkg/errors"
 
 	"github.com/lumjjb/tornjak/tornjak-backend/pkg/agent/types"
@@ -19,17 +20,18 @@ const (
                             (id INTEGER PRIMARY KEY AUTOINCREMENT, spiffeid TEXT, plugin TEXT)`
 	// cluster table with fields name, domainName, platformtype, managedby
 	initClustersTable = `CREATE TABLE IF NOT EXISTS clusters 
-                            (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, domainName TEXT, 
-                            PlatformType TEXT, managedBy TEXT, UNIQUE (name))`
+                            (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, domain_name TEXT, 
+                            platform_type TEXT, managed_by TEXT, UNIQUE (name))`
 	// cluster - agent relation table specifying by clusterid and spiffeid
 	//                                enforces uniqueness of spiffeid
-	initClusterMemberTable = `CREATE TABLE IF NOT EXISTS clusterMemberships 
-                            (id INTEGER PRIMARY KEY AUTOINCREMENT, spiffeid TEXT, clusterID int,
-                            FOREIGN KEY (clusterID) REFERENCES clusters(id), UNIQUE (spiffeid))`
+	initClusterMemberTable = `CREATE TABLE IF NOT EXISTS cluster_memberships 
+                            (id INTEGER PRIMARY KEY AUTOINCREMENT, spiffeid TEXT, cluster_id int,
+                            FOREIGN KEY (cluster_id) REFERENCES clusters(id), UNIQUE (spiffeid))`
 )
 
 type LocalSqliteDb struct {
-	database *sql.DB
+	database   *sql.DB
+	expBackoff *backoff.ExponentialBackOff
 }
 
 func createDBTable(database *sql.DB, cmd string) error {
@@ -59,8 +61,12 @@ func NewLocalSqliteDB(dbpath string) (AgentDB, error) {
 		}
 	}
 
+	expBackoff := backoff.NewExponentialBackOff()
+	expBackoff.MaxElapsedTime = time.Second
+
 	return &LocalSqliteDb{
-		database: database,
+		database:   database,
+		expBackoff: expBackoff,
 	}, nil
 }
 
@@ -127,9 +133,9 @@ func (db *LocalSqliteDb) GetAgentPluginInfo(spiffeid string) (types.AgentInfo, e
 // GetClusterAgents takes in string cluster name and outputs array of spiffeids of agents assigned to the cluster
 func (db *LocalSqliteDb) GetClusterAgents(name string) ([]string, error) {
 	// search in clusterMemberships table
-	cmdGetMemberships := `SELECT GROUP_CONCAT(clusterMemberships.spiffeid) 
-                        FROM clusters LEFT JOIN clusterMemberships 
-                                      ON clusters.id=clusterMemberships.clusterID 
+	cmdGetMemberships := `SELECT GROUP_CONCAT(cluster_memberships.spiffeid) 
+                        FROM clusters LEFT JOIN cluster_memberships 
+                        ON clusters.id=cluster_memberships.cluster_id
                         WHERE clusters.name=? 
                         GROUP BY clusters.name`
 	row := db.database.QueryRow(cmdGetMemberships, name)
@@ -157,9 +163,9 @@ func (db *LocalSqliteDb) GetClusterAgents(name string) ([]string, error) {
 func (db *LocalSqliteDb) GetAgentClusterName(spiffeid string) (string, error) {
 	var clusterName sql.NullString
 	cmdGetName := `SELECT clusters.name 
-                 FROM clusterMemberships LEFT JOIN clusters 
-                 ON clusters.id=clusterMemberships.clusterID 
-                 WHERE clusterMemberships.spiffeid=?`
+                 FROM cluster_memberships LEFT JOIN clusters 
+                 ON clusters.id=cluster_memberships.cluster_id
+                 WHERE cluster_memberships.spiffeid=?`
 	row := db.database.QueryRow(cmdGetName, spiffeid)
 	err := row.Scan(&clusterName)
 	if err == sql.ErrNoRows {
@@ -177,22 +183,15 @@ func (db *LocalSqliteDb) GetAgentClusterName(spiffeid string) (string, error) {
 // GetClusters outputs a list of ClusterInfo structs with information on currently registered clusters
 func (db *LocalSqliteDb) GetClusters() (types.ClusterInfoList, error) {
 	// BEGIN transaction
-	ctx := context.Background()
-	tx, err := db.database.BeginTx(ctx, nil)
-	if err != nil {
-		return types.ClusterInfoList{}, errors.Errorf("Error initializing context: %v", err)
-	}
-	txHelper := getTornjakTxHelper(ctx, tx)
-
-	cmd := `SELECT clusters.name, clusters.domainName, clusters.managedBy, 
-                 clusters.platformType, GROUP_CONCAT(clusterMemberships.spiffeid) 
-          FROM clusters LEFT JOIN clusterMemberships 
-                        ON clusters.id=clusterMemberships.clusterID 
+	cmd := `SELECT clusters.name, clusters.domain_name, clusters.managed_by, 
+          clusters.platform_type, GROUP_CONCAT(cluster_memberships.spiffeid) 
+          FROM clusters LEFT JOIN cluster_memberships 
+          ON clusters.id=cluster_memberships.cluster_id
           GROUP BY clusters.name`
 
-	rows, err := tx.QueryContext(ctx, cmd)
+	rows, err := db.database.Query(cmd)
 	if err != nil {
-		return types.ClusterInfoList{}, txHelper.rollbackHandler(SQLError{cmd, err})
+		return types.ClusterInfoList{}, SQLError{cmd, err}
 	}
 
 	sinfos := []types.ClusterInfo{}
@@ -206,7 +205,7 @@ func (db *LocalSqliteDb) GetClusters() (types.ClusterInfoList, error) {
 	)
 	for rows.Next() {
 		if err = rows.Scan(&name, &domainName, &managedBy, &platformType, &agentsListConcatted); err != nil {
-			return types.ClusterInfoList{}, txHelper.rollbackHandler(SQLError{cmd, err})
+			return types.ClusterInfoList{}, SQLError{cmd, err}
 		}
 
 		if agentsListConcatted.Valid { // handle clusters with no assigned agents
@@ -223,17 +222,13 @@ func (db *LocalSqliteDb) GetClusters() (types.ClusterInfoList, error) {
 		})
 	}
 
-	err = tx.Commit()
-	if err != nil {
-		return types.ClusterInfoList{}, txHelper.rollbackHandler(err)
-	}
 	return types.ClusterInfoList{
 		Clusters: sinfos,
 	}, nil
 }
 
 // CreateClusterEntry takes in struct cinfo of type ClusterInfo.  If a cluster with cinfo.Name already registered, returns error.
-func (db *LocalSqliteDb) CreateClusterEntry(cinfo types.ClusterInfo) error {
+func (db *LocalSqliteDb) createClusterEntryOp(cinfo types.ClusterInfo) error {
 	// BEGIN transaction
 	ctx := context.Background()
 	tx, err := db.database.BeginTx(ctx, nil)
@@ -245,19 +240,19 @@ func (db *LocalSqliteDb) CreateClusterEntry(cinfo types.ClusterInfo) error {
 	// INSERT cluster metadata
 	err = txHelper.insertClusterMetadata(cinfo)
 	if err != nil {
-		return txHelper.rollbackHandler(err)
+		return backoff.Permanent(txHelper.rollbackHandler(err))
 	}
 
 	// ADD agents to cluster
 	err = txHelper.addAgentBatchToCluster(cinfo.Name, cinfo.AgentsList)
 	if err != nil {
-		return txHelper.rollbackHandler(err)
+		return backoff.Permanent(txHelper.rollbackHandler(err))
 	}
 	return tx.Commit()
 }
 
 // EditClusterEntry takes in struct cinfo of type ClusterInfo.  If cluster with cinfo.Name does not exist, throws error.
-func (db *LocalSqliteDb) EditClusterEntry(cinfo types.ClusterInfo) error {
+func (db *LocalSqliteDb) editClusterEntryOp(cinfo types.ClusterInfo) error {
 	// BEGIN transaction
 	ctx := context.Background()
 	tx, err := db.database.BeginTx(ctx, nil)
@@ -269,26 +264,26 @@ func (db *LocalSqliteDb) EditClusterEntry(cinfo types.ClusterInfo) error {
 	// UPDATE cluster metadata
 	err = txHelper.updateClusterMetadata(cinfo)
 	if err != nil {
-		return txHelper.rollbackHandler(err)
+		return backoff.Permanent(txHelper.rollbackHandler(err))
 	}
 
 	// REMOVE all currently assigned cluster agents
 	err = txHelper.deleteClusterAgents(cinfo.EditedName)
 	if err != nil {
-		return txHelper.rollbackHandler(err)
+		return backoff.Permanent(txHelper.rollbackHandler(err))
 	}
 
 	// ADD agents to cluster
 	err = txHelper.addAgentBatchToCluster(cinfo.EditedName, cinfo.AgentsList)
 	if err != nil {
-		return txHelper.rollbackHandler(err)
+		return backoff.Permanent(txHelper.rollbackHandler(err))
 	}
 
 	return tx.Commit()
 }
 
 // DeleteClusterEntry takes in string name of cluster and removes cluster information and agent membership of cluster from the database.  If not all agents can be removed from the cluster, cluster information remains in the database.
-func (db *LocalSqliteDb) DeleteClusterEntry(clusterName string) error {
+func (db *LocalSqliteDb) deleteClusterEntryOp(clusterName string) error {
 	// BEGIN transaction
 	ctx := context.Background()
 	tx, err := db.database.BeginTx(ctx, nil)
@@ -300,14 +295,45 @@ func (db *LocalSqliteDb) DeleteClusterEntry(clusterName string) error {
 	// REMOVE all currently assigned cluster agents (requires metadata still entered)
 	err = txHelper.deleteClusterAgents(clusterName)
 	if err != nil {
-		return txHelper.rollbackHandler(err)
+		return backoff.Permanent(txHelper.rollbackHandler(err))
 	}
 
 	// REMOVE cluster metadata
 	err = txHelper.deleteClusterMetadata(clusterName)
 	if err != nil {
-		return txHelper.rollbackHandler(err)
+		return backoff.Permanent(txHelper.rollbackHandler(err))
 	}
 
 	return tx.Commit()
+}
+
+func (db *LocalSqliteDb) retryOp(operation func() error) error {
+	err := backoff.Retry(operation, db.expBackoff)
+	if err != nil {
+		if serr, ok := err.(*backoff.PermanentError); ok {
+			return serr.Unwrap()
+		}
+	}
+	return err
+}
+
+func (db *LocalSqliteDb) CreateClusterEntry(cinfo types.ClusterInfo) error {
+	operation := func() error {
+		return db.createClusterEntryOp(cinfo)
+	}
+	return db.retryOp(operation)
+}
+
+func (db *LocalSqliteDb) EditClusterEntry(cinfo types.ClusterInfo) error {
+	operation := func() error {
+		return db.editClusterEntryOp(cinfo)
+	}
+	return db.retryOp(operation)
+}
+
+func (db *LocalSqliteDb) DeleteClusterEntry(clustername string) error {
+	operation := func() error {
+		return db.deleteClusterEntryOp(clustername)
+	}
+	return db.retryOp(operation)
 }

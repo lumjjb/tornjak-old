@@ -27,11 +27,9 @@ type Server struct {
 func corsHandler(f func(w http.ResponseWriter, r *http.Request)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "OPTIONS" {
-			fmt.Printf("OPTIONS SET\n")
 			cors(w, r)
 			return
 		} else {
-			fmt.Printf("OPTIONS NOT SET \n")
 			f(w, r)
 		}
 	}
