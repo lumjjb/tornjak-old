@@ -39,10 +39,6 @@
     margin-bottom: 20px;
   }
 
-  .cluster-management-tabs {
-
-  }
-
   .create-entry-title {
     margin-left: auto;
     margin-right: auto;
@@ -111,8 +107,6 @@
   }
   .selectors-textArea {
     margin-bottom: 20px;
-  }
-  .admin-flag-checkbox {
   }
 
   .ttl-input {

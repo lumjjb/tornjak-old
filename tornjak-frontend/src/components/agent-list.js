@@ -100,7 +100,6 @@ class AgentList extends Component {
             </pre>
           </div>
         }
-        {IsManager}
         <br /><br />
         <div className="indvidual-list-table">
           <Table data={this.agentList()} id="table-1" />

@@ -45,7 +45,6 @@ class ClusterEdit extends Component {
       message: "",
       statusOK: "",
       selectedServer: "",
-      agentsList: this.props.agentsList,
       agentsListDisplay: "Select Agents",
       agentsListSelected: [],
       assignedAgentsListDisplay: "",
@@ -267,7 +266,6 @@ class ClusterEdit extends Component {
             <h3>Edit Cluster</h3>
           </div>
           <form onSubmit={this.onSubmit}>
-            {IsManager}
             <br /><br />
             <div className="entry-form">
               <div className="clustertype-drop-down">

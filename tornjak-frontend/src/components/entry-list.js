@@ -104,7 +104,6 @@ class EntryList extends Component {
             </pre>
           </div>
         }
-        {IsManager}
         <br/><br/>
         <div className="indvidual-list-table">
           <Table data={this.entryList()} id="table-1" />

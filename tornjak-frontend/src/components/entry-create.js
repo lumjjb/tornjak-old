@@ -479,7 +479,6 @@ class CreateEntry extends Component {
           <h3>Create New Entry</h3>
         </div>
         <form onSubmit={this.onSubmit}>
-          {IsManager}
           <br /><br />
           <div className="entry-form">
             <div className="parentId-drop-down">

@@ -41,7 +41,6 @@ class ClusterCreate extends Component {
       message: "",
       statusOK: "",
       selectedServer: "",
-      agentsList: this.props.agentsList,
       agentsListDisplay: "Select Agents",
       assignedAgentsListDisplay: "",
     }
@@ -203,7 +202,6 @@ class ClusterCreate extends Component {
             <h3>Create Cluster</h3>
           </div>
           <form onSubmit={this.onSubmit}>
-            {IsManager}
             <br /><br />
             <div className="entry-form">
               <div className="clustername-input-field">
