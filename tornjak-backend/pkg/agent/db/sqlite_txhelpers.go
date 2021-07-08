@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/mattn/go-sqlite3"
@@ -128,7 +129,7 @@ func (t *tornjakTxHelper) addAgentBatchToCluster(clustername string, agentsList 
 		cmdBatch += "(?, (SELECT id FROM clusters WHERE name=?)),"
 		vals = append(vals, agentsList[i], clustername)
 	}
-	cmdBatch = cmdBatch[0 : len(cmdBatch)-1]
+	cmdBatch = strings.TrimSuffix(cmdBatch, ",")
 
 	// prepare statement
 	statementInsert, err := t.tx.PrepareContext(t.ctx, cmdBatch)
