@@ -12,7 +12,9 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
+	"github.com/cenkalti/backoff/v4"
 	"github.com/gorilla/mux"
 
 	agentdb "github.com/lumjjb/tornjak/tornjak-backend/pkg/agent/db"
@@ -517,7 +519,10 @@ func (s *Server) HandleRequests() {
 
 // NewAgentsDB returns a new agents DB, given a DB connection string
 func NewAgentsDB(dbString string) (agentdb.AgentDB, error) {
-	db, err := agentdb.NewLocalSqliteDB(dbString)
+	expBackoff := backoff.NewExponentialBackOff()
+	expBackoff.MaxElapsedTime = time.Second
+
+	db, err := agentdb.NewLocalSqliteDB(dbString, expBackoff)
 	if err != nil {
 		return nil, err
 	}

@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/cenkalti/backoff/v4"
 	_ "github.com/mattn/go-sqlite3"
@@ -31,7 +30,7 @@ const (
 
 type LocalSqliteDb struct {
 	database   *sql.DB
-	expBackoff *backoff.ExponentialBackOff
+	expBackoff *backoff.BackOff
 }
 
 func createDBTable(database *sql.DB, cmd string) error {
@@ -46,7 +45,7 @@ func createDBTable(database *sql.DB, cmd string) error {
 	return nil
 }
 
-func NewLocalSqliteDB(dbpath string) (AgentDB, error) {
+func NewLocalSqliteDB(dbpath string, backOffParams backoff.BackOff) (AgentDB, error) {
 	database, err := sql.Open("sqlite3", dbpath)
 	if err != nil {
 		return nil, errors.New("Unable to open connection to DB")
@@ -61,12 +60,9 @@ func NewLocalSqliteDB(dbpath string) (AgentDB, error) {
 		}
 	}
 
-	expBackoff := backoff.NewExponentialBackOff()
-	expBackoff.MaxElapsedTime = time.Second
-
 	return &LocalSqliteDb{
 		database:   database,
-		expBackoff: expBackoff,
+		expBackoff: &backOffParams,
 	}, nil
 }
 
@@ -308,7 +304,7 @@ func (db *LocalSqliteDb) deleteClusterEntryOp(clusterName string) error {
 }
 
 func (db *LocalSqliteDb) retryOp(operation func() error) error {
-	err := backoff.Retry(operation, db.expBackoff)
+	err := backoff.Retry(operation, *db.expBackoff)
 	if err != nil {
 		if serr, ok := err.(*backoff.PermanentError); ok {
 			return serr.Unwrap()

@@ -5,6 +5,9 @@ import (
 	"github.com/pkg/errors"
 	"os"
 	"testing"
+	"time"
+
+	"github.com/cenkalti/backoff/v4"
 
 	"github.com/lumjjb/tornjak/tornjak-backend/pkg/agent/types"
 )
@@ -17,7 +20,9 @@ func cleanup() {
 // Uses functions NewLocalSqliteDB, db.CreateAgentsEntry, db.GetAgents, db.GetAgentPluginInfo
 func TestSelectorDB(t *testing.T) {
 	defer cleanup()
-	db, err := NewLocalSqliteDB("./local-agentstest-db")
+	expBackoff := backoff.NewExponentialBackOff()
+	expBackoff.MaxElapsedTime = time.Second
+	db, err := NewLocalSqliteDB("./local-agentstest-db", expBackoff)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -77,7 +82,9 @@ func TestSelectorDB(t *testing.T) {
 func TestClusterCreate(t *testing.T) {
 	cleanup()
 	defer cleanup()
-	db, err := NewLocalSqliteDB("./local-agentstest-db")
+	expBackoff := backoff.NewExponentialBackOff()
+	expBackoff.MaxElapsedTime = time.Second
+	db, err := NewLocalSqliteDB("./local-agentstest-db", expBackoff)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -248,7 +255,9 @@ func TestClusterCreate(t *testing.T) {
 //      db.GetAgentClusterName, db.GetClusterAgents
 func TestClusterEdit(t *testing.T) {
 	defer cleanup()
-	db, err := NewLocalSqliteDB("./local-agentstest-db")
+	expBackoff := backoff.NewExponentialBackOff()
+	expBackoff.MaxElapsedTime = time.Second
+	db, err := NewLocalSqliteDB("./local-agentstest-db", expBackoff)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -472,7 +481,9 @@ func TestClusterEdit(t *testing.T) {
 //      db.DeleteClusterEntry, db.GetAgentClusterName, db.GetClusterAgents
 func TestClusterDelete(t *testing.T) {
 	defer cleanup()
-	db, err := NewLocalSqliteDB("./local-agentstest-db")
+	expBackoff := backoff.NewExponentialBackOff()
+	expBackoff.MaxElapsedTime = time.Second
+	db, err := NewLocalSqliteDB("./local-agentstest-db", expBackoff)
 	if err != nil {
 		t.Fatal(err)
 	}
