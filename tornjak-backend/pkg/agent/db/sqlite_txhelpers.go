@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"time"
 
 	"github.com/mattn/go-sqlite3"
 	"github.com/pkg/errors"
@@ -46,13 +47,13 @@ func (t *tornjakTxHelper) rollbackHandler(err error) error {
 // insertClusterMetadata attempts insert into table clusters
 // returns SQLError upon failure and PostFailure on cluster existence
 func (t *tornjakTxHelper) insertClusterMetadata(cinfo types.ClusterInfo) error {
-	cmdInsert := `INSERT INTO clusters (name, domain_name, managed_by, platform_type) VALUES (?,?,?,?)`
+	cmdInsert := `INSERT INTO clusters (name, created_at, domain_name, managed_by, platform_type) VALUES (?,?,?,?,?)`
 	statement, err := t.tx.PrepareContext(t.ctx, cmdInsert)
 	if err != nil {
 		return SQLError{cmdInsert, err}
 	}
 	defer statement.Close()
-	_, err = statement.ExecContext(t.ctx, cinfo.Name, cinfo.DomainName, cinfo.ManagedBy, cinfo.PlatformType)
+	_, err = statement.ExecContext(t.ctx, cinfo.Name, time.Now().Format("2006-01-02 15:04:05.000000"), cinfo.DomainName, cinfo.ManagedBy, cinfo.PlatformType)
 	if err != nil {
 		if serr, ok := err.(sqlite3.Error); ok && serr.Code == sqlite3.ErrConstraint {
 			return PostFailure{"Cluster already exists; use Edit Cluster"}

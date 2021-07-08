@@ -5,6 +5,7 @@ package types
 type ClusterInfo struct {
 	Name         string   `json:"name"`
 	EditedName   string   `json:"editedName"`
+	CreationTime string   `json:"creationTime"`
 	DomainName   string   `json:"domainName"`
 	ManagedBy    string   `json:"managedBy"`
 	PlatformType string   `json:"platformType"`

@@ -19,8 +19,8 @@ const (
                             (id INTEGER PRIMARY KEY AUTOINCREMENT, spiffeid TEXT, plugin TEXT)`
 	// cluster table with fields name, domainName, platformtype, managedby
 	initClustersTable = `CREATE TABLE IF NOT EXISTS clusters 
-                            (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, domain_name TEXT, 
-                            platform_type TEXT, managed_by TEXT, UNIQUE (name))`
+                            (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, created_at TEXT, 
+                            domain_name TEXT, platform_type TEXT, managed_by TEXT, UNIQUE (name))`
 	// cluster - agent relation table specifying by clusterid and spiffeid
 	//                                enforces uniqueness of spiffeid
 	initClusterMemberTable = `CREATE TABLE IF NOT EXISTS cluster_memberships 
@@ -179,7 +179,7 @@ func (db *LocalSqliteDb) GetAgentClusterName(spiffeid string) (string, error) {
 // GetClusters outputs a list of ClusterInfo structs with information on currently registered clusters
 func (db *LocalSqliteDb) GetClusters() (types.ClusterInfoList, error) {
 	// BEGIN transaction
-	cmd := `SELECT clusters.name, clusters.domain_name, clusters.managed_by, 
+	cmd := `SELECT clusters.name, clusters.created_at, clusters.domain_name, clusters.managed_by, 
           clusters.platform_type, GROUP_CONCAT(cluster_memberships.spiffeid) 
           FROM clusters LEFT JOIN cluster_memberships 
           ON clusters.id=cluster_memberships.cluster_id
@@ -193,6 +193,7 @@ func (db *LocalSqliteDb) GetClusters() (types.ClusterInfoList, error) {
 	sinfos := []types.ClusterInfo{}
 	var (
 		name                string
+		createdAt           string
 		domainName          string
 		managedBy           string
 		platformType        string
@@ -200,7 +201,7 @@ func (db *LocalSqliteDb) GetClusters() (types.ClusterInfoList, error) {
 		agentsList          []string
 	)
 	for rows.Next() {
-		if err = rows.Scan(&name, &domainName, &managedBy, &platformType, &agentsListConcatted); err != nil {
+		if err = rows.Scan(&name, &createdAt, &domainName, &managedBy, &platformType, &agentsListConcatted); err != nil {
 			return types.ClusterInfoList{}, SQLError{cmd, err}
 		}
 
@@ -211,6 +212,7 @@ func (db *LocalSqliteDb) GetClusters() (types.ClusterInfoList, error) {
 		}
 		sinfos = append(sinfos, types.ClusterInfo{
 			Name:         name,
+			CreationTime: createdAt,
 			DomainName:   domainName,
 			ManagedBy:    managedBy,
 			PlatformType: platformType,
