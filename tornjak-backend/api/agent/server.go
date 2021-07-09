@@ -366,7 +366,7 @@ func corsHandler(f func(w http.ResponseWriter, r *http.Request)) http.HandlerFun
 	}
 }
 
-func (s *Server) getTornjakServerInfo(w http.ResponseWriter, r *http.Request) {
+func (s *Server) tornjakGetServerInfo(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Endpoint Hit: Server Info")
 
 	var input GetTornjakServerInfoRequest
@@ -465,11 +465,11 @@ func (s *Server) HandleRequests() {
 	rtr.HandleFunc("/api/entry/delete", corsHandler(s.entryDelete))
 
 	// Tornjak specific
-	rtr.HandleFunc("/api/tornjak/serverinfo", corsHandler(s.getTornjakServerInfo))
-	//Agents Selectors
-	rtr.HandleFunc("/api/tornjak/selectors/register", corsHandler(s.pluginDefine))
-	rtr.HandleFunc("/api/tornjak/selectors/list", corsHandler(s.agentsList))
-
+	rtr.HandleFunc("/api/tornjak/serverinfo", corsHandler(s.tornjakGetServerInfo))
+	// Agents Selectors
+	rtr.HandleFunc("/api/tornjak/selectors/register", corsHandler(s.tornjakPluginDefine))
+	rtr.HandleFunc("/api/tornjak/selectors/list", corsHandler(s.tornjakSelectorsList))
+	rtr.HandleFunc("/api/tornjak/agents/list", corsHandler(s.tornjakAgentsList))
 	// Clusters
 	rtr.HandleFunc("/api/tornjak/clusters/list", corsHandler(s.clusterList))
 	rtr.HandleFunc("/api/tornjak/clusters/create", corsHandler(s.clusterCreate))
@@ -529,7 +529,7 @@ func NewAgentsDB(dbString string) (agentdb.AgentDB, error) {
 	return db, nil
 }
 
-func (s *Server) agentsList(w http.ResponseWriter, r *http.Request) {
+func (s *Server) tornjakSelectorsList(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Endpoint Hit: Selector List")
 	buf := new(strings.Builder)
 	n, err := io.Copy(buf, r.Body)
@@ -566,7 +566,7 @@ func (s *Server) agentsList(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (s *Server) pluginDefine(w http.ResponseWriter, r *http.Request) {
+func (s *Server) tornjakPluginDefine(w http.ResponseWriter, r *http.Request) {
 	buf := new(strings.Builder)
 	n, err := io.Copy(buf, r.Body)
 	if err != nil {
@@ -594,6 +594,43 @@ func (s *Server) pluginDefine(w http.ResponseWriter, r *http.Request) {
 	}
 	cors(w, r)
 	_, err = w.Write([]byte("SUCCESS"))
+	if err != nil {
+		emsg := fmt.Sprintf("Error: %v", err.Error())
+		retError(w, emsg, http.StatusBadRequest)
+		return
+	}
+}
+
+func (s *Server) tornjakAgentsList(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Endpoint Hit: Tornjak Agent List")
+	buf := new(strings.Builder)
+	n, err := io.Copy(buf, r.Body)
+	if err != nil {
+		emsg := fmt.Sprintf("Error parsing data: %v", err.Error())
+		retError(w, emsg, http.StatusBadRequest)
+		return
+	}
+	data := buf.String()
+	var input ListAgentMetadataRequest
+	if n == 0 {
+		input = ListAgentMetadataRequest{}
+	} else {
+		err := json.Unmarshal([]byte(data), &input)
+		if err != nil {
+			emsg := fmt.Sprintf("Error parsing data: %v", err.Error())
+			retError(w, emsg, http.StatusBadRequest)
+			return
+		}
+	}
+	ret, err := s.ListAgentMetadata(input)
+	if err != nil {
+		emsg := fmt.Sprintf("Error: %v", err.Error())
+		retError(w, emsg, http.StatusBadRequest)
+		return
+	}
+	cors(w, r)
+	je := json.NewEncoder(w)
+	err = je.Encode(ret)
 	if err != nil {
 		emsg := fmt.Sprintf("Error: %v", err.Error())
 		retError(w, emsg, http.StatusBadRequest)

@@ -82,7 +82,7 @@ func (db *LocalSqliteDb) CreateAgentEntry(sinfo types.AgentInfo) error {
 	return nil
 }
 
-func (db *LocalSqliteDb) GetAgents() (types.AgentInfoList, error) {
+func (db *LocalSqliteDb) GetAgentSelectors() (types.AgentInfoList, error) {
 	cmd := `SELECT spiffeid, plugin FROM agents`
 	rows, err := db.database.Query(cmd)
 	if err != nil {
@@ -174,6 +174,53 @@ func (db *LocalSqliteDb) GetAgentClusterName(spiffeid string) (string, error) {
 	} else {
 		return "", GetError{fmt.Sprintf("Agent %v assinged to unregistered cluster", spiffeid)}
 	}
+}
+
+func (db *LocalSqliteDb) GetAgentsMetadata() (types.AgentInfoList, error) {
+	// OUTER JOIN not supported; implemented with LEFT JOIN
+	cmd := `SELECT agents.spiffeid, agents.plugin, clusters.name 
+          FROM agents LEFT JOIN cluster_memberships ON agents.spiffeid = cluster_memberships.spiffeid 
+          LEFT JOIN clusters ON cluster_memberships.cluster_id = clusters.id
+          UNION
+          SELECT cluster_memberships.spiffeid, agents.plugin, clusters.name 
+          FROM cluster_memberships LEFT JOIN agents ON agents.spiffeid = cluster_memberships.spiffeid
+          LEFT JOIN clusters ON cluster_memberships.cluster_id = clusters.id
+          WHERE agents.plugin IS NULL`
+
+	rows, err := db.database.Query(cmd)
+	if err != nil {
+		return types.AgentInfoList{}, SQLError{cmd, err}
+	}
+
+	ainfos := []types.AgentInfo{}
+	var (
+		spiffeid string
+		plugin   sql.NullString
+		cluster  sql.NullString
+	)
+	for rows.Next() {
+		if err = rows.Scan(&spiffeid, &plugin, &cluster); err != nil {
+			return types.AgentInfoList{}, SQLError{cmd, err}
+		}
+
+		newAgent := types.AgentInfo{
+			Spiffeid: spiffeid,
+			Plugin:   "",
+			Cluster:  "",
+		}
+		if plugin.Valid {
+			newAgent.Plugin = plugin.String
+		}
+		if cluster.Valid {
+			newAgent.Cluster = cluster.String
+		}
+
+		ainfos = append(ainfos, newAgent)
+	}
+
+	return types.AgentInfoList{
+		Agents: ainfos,
+	}, nil
 }
 
 // GetClusters outputs a list of ClusterInfo structs with information on currently registered clusters

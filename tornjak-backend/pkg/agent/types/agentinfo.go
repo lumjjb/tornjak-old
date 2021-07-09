@@ -4,6 +4,7 @@ package types
 type AgentInfo struct {
 	Spiffeid string `json:"spiffeid"`
 	Plugin   string `json:"plugin"`
+	Cluster  string `json:"cluster"`
 }
 
 // AgentInfoList contains the information about agents workload attestor plugin

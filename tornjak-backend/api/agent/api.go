@@ -191,7 +191,7 @@ type ListSelectorsResponse tornjakTypes.AgentInfoList
 // spiffeid string
 // plugin   string
 func (s *Server) ListSelectors(inp ListSelectorsRequest) (*ListSelectorsResponse, error) {
-	resp, err := s.Db.GetAgents()
+	resp, err := s.Db.GetAgentSelectors()
 	if err != nil {
 		return nil, err
 	}
@@ -200,7 +200,7 @@ func (s *Server) ListSelectors(inp ListSelectorsRequest) (*ListSelectorsResponse
 
 type RegisterSelectorRequest tornjakTypes.AgentInfo
 
-// DefineSelectors registers an agent to the loacal DB with the following info
+// DefineSelectors registers an agent to the local DB with the following info
 // spiffeid string
 // plugin   string
 func (s *Server) DefineSelectors(inp RegisterSelectorRequest) error {
@@ -209,6 +209,21 @@ func (s *Server) DefineSelectors(inp RegisterSelectorRequest) error {
 		return errors.New("agent's info missing mandatory field - Spiffeid")
 	}
 	return s.Db.CreateAgentEntry(sinfo)
+}
+
+type ListAgentMetadataRequest struct{}
+type ListAgentMetadataResponse tornjakTypes.AgentInfoList
+
+// ListAgentMetadata returns list of agents from the local DB with following info
+// spiffeid string
+// plugin string //TODO this needs to be consistent with plugin
+// cluster string
+func (s *Server) ListAgentMetadata(inp ListAgentMetadataRequest) (*ListAgentMetadataResponse, error) {
+	resp, err := s.Db.GetAgentsMetadata()
+	if err != nil {
+		return nil, err
+	}
+	return (*ListAgentMetadataResponse)(&resp), nil
 }
 
 type ListClustersRequest struct{}

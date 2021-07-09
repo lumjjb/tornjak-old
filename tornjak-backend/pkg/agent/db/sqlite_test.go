@@ -17,7 +17,7 @@ func cleanup() {
 }
 
 // TestSelectorDB checks correctness of functions dealing with Agent Selector table
-// Uses functions NewLocalSqliteDB, db.CreateAgentsEntry, db.GetAgents, db.GetAgentPluginInfo
+// Uses functions NewLocalSqliteDB, db.CreateAgentsEntry, db.GetAgentSelectors, db.GetAgentPluginInfo
 func TestSelectorDB(t *testing.T) {
 	defer cleanup()
 	expBackoff := backoff.NewExponentialBackOff()
@@ -27,8 +27,8 @@ func TestSelectorDB(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// CHECK initial emptiness [GetAgents]
-	sList, err := db.GetAgents()
+	// CHECK initial emptiness [GetAgentSelectors]
+	sList, err := db.GetAgentSelectors()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -51,8 +51,8 @@ func TestSelectorDB(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// CHECK new agent plugin [GetAgents]
-	sList, err = db.GetAgents()
+	// CHECK new agent plugin [GetAgentSelectors]
+	sList, err = db.GetAgentSelectors()
 	if err != nil {
 		t.Fatal(err)
 	}
