@@ -118,6 +118,45 @@ func (s *Server) ListEntries(inp ListEntriesRequest) (*ListEntriesResponse, erro
 	return (*ListEntriesResponse)(resp), nil
 }
 
+type ListEntriesByAgentRequest entry.ListEntriesRequest
+type ListEntriesByAgentResponse tornjakTypes.AllAgentEntries
+
+func (s *Server) ListEntriesByAgent(inp ListEntriesByAgentRequest) (*ListEntriesByAgentResponse, error) { //nolint:govet //Ignoring mutex (not being used) - sync.Mutex by value is unused for linter govet
+	inpReq := entry.ListEntriesRequest(inp) //nolint:govet //Ignoring mutex (not being used) - sync.Mutex by value is unused for linter govet
+	var conn *grpc.ClientConn
+	conn, err := grpc.Dial(s.SpireServerAddr, grpc.WithInsecure())
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+	client := entry.NewEntryClient(conn)
+
+	resp, err := client.ListEntries(context.Background(), &inpReq)
+	if err != nil {
+		return nil, err
+	}
+
+	// Iterate through entries
+	agentMap := map[string][]string{}
+
+	for i := 0; i < len(resp.Entries); i++ {
+		entry := resp.Entries[i]
+		spiffeid := entry.SpiffeId.TrustDomain + entry.SpiffeId.Path
+		parentid := entry.ParentId.TrustDomain + entry.ParentId.Path
+		if _, ok := agentMap[parentid]; !ok {
+			agentMap[parentid] = []string{}
+		}
+		agentMap[parentid] = append(agentMap[parentid], spiffeid)
+	}
+
+	agentsList := tornjakTypes.AllAgentEntries{Agents: []tornjakTypes.AgentEntries{}}
+	for agent, entrylist := range agentMap {
+		agentsList.Agents = append(agentsList.Agents, tornjakTypes.AgentEntries{Spiffeid: agent, EntriesList: entrylist})
+	}
+
+	return (*ListEntriesByAgentResponse)(&agentsList), nil
+}
+
 type BatchCreateEntryRequest entry.BatchCreateEntryRequest
 type BatchCreateEntryResponse entry.BatchCreateEntryResponse
 

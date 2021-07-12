@@ -11,3 +11,13 @@ type AgentInfo struct {
 type AgentInfoList struct {
 	Agents []AgentInfo `json:"agents"`
 }
+
+// AgentEntries contains agent spiffeid and list of spiffeids of Entries
+type AgentEntries struct {
+	Spiffeid    string   `json:"spiffeid"`
+	EntriesList []string `json:"entriesList"`
+}
+
+type AllAgentEntries struct {
+	Agents []AgentEntries `json:"agents"`
+}

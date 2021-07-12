@@ -255,6 +255,49 @@ func (s *Server) entryList(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func (s *Server) entryListByAgent(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Endpoint Hit: Entry List By Agent")
+
+	var input ListEntriesByAgentRequest
+	buf := new(strings.Builder)
+
+	n, err := io.Copy(buf, r.Body)
+	if err != nil {
+		emsg := fmt.Sprintf("Error parsing data: %v", err.Error())
+		retError(w, emsg, http.StatusBadRequest)
+		return
+	}
+	data := buf.String()
+
+	if n == 0 {
+		input = ListEntriesByAgentRequest{}
+	} else {
+		err := json.Unmarshal([]byte(data), &input)
+		if err != nil {
+			emsg := fmt.Sprintf("Error parsing data: %v", err.Error())
+			retError(w, emsg, http.StatusBadRequest)
+			return
+		}
+	}
+
+	ret, err := s.ListEntriesByAgent(input) //nolint:govet //Ignoring mutex (not being used) - sync.Mutex by value is unused for linter govet
+	if err != nil {
+		emsg := fmt.Sprintf("Error: %v", err.Error())
+		retError(w, emsg, http.StatusBadRequest)
+		return
+	}
+
+	cors(w, r)
+	je := json.NewEncoder(w)
+	err = je.Encode(ret)
+	if err != nil {
+		emsg := fmt.Sprintf("Error: %v", err.Error())
+		retError(w, emsg, http.StatusBadRequest)
+		return
+	}
+
+}
+
 func (s *Server) entryCreate(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Endpoint Hit: Entry BatchCreate")
 
@@ -461,6 +504,7 @@ func (s *Server) HandleRequests() {
 
 	// Entries
 	rtr.HandleFunc("/api/entry/list", corsHandler(s.entryList))
+	rtr.HandleFunc("/api/entry/listByAgent", corsHandler(s.entryListByAgent))
 	rtr.HandleFunc("/api/entry/create", corsHandler(s.entryCreate))
 	rtr.HandleFunc("/api/entry/delete", corsHandler(s.entryDelete))
 

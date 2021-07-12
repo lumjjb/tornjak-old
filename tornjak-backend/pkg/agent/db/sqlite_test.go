@@ -41,12 +41,13 @@ func TestSelectorDB(t *testing.T) {
 		Spiffeid: spiffeid,
 		Plugin:   "Docker",
 	}
+	sinfoNew := types.AgentInfo{
+		Spiffeid: spiffeid,
+		Plugin:   "K8s",
+	}
 
 	// ATTEMPT registration of agent plugin [CreateAgentEntry]]
-	err = db.CreateAgentEntry(types.AgentInfo{
-		Spiffeid: "spiffe://example.org/spire/agent/",
-		Plugin:   "Docker",
-	})
+	err = db.CreateAgentEntry(sinfo)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -56,7 +57,7 @@ func TestSelectorDB(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(sList.Agents) != 1 || sList.Agents[0] != sinfo {
+	if len(sList.Agents) != 1 || !agentInfoCmp(sList.Agents[0], sinfo) {
 		t.Fatal("Agents list should initially be empty")
 	}
 
@@ -65,7 +66,7 @@ func TestSelectorDB(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if info != sinfo {
+	if !agentInfoCmp(info, sinfo) {
 		t.Fatal("Wrong info obtained from GetAgentPluginInfo")
 	}
 
@@ -74,6 +75,25 @@ func TestSelectorDB(t *testing.T) {
 	if err == nil {
 		t.Fatal("Failed to report non-existing agent in GetAgentPluginInfo")
 	}
+
+	// ATTEMPT editing registration of agent plugin [CreateAgentEntry]
+	err = db.CreateAgentEntry(sinfoNew)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// CHECK new agent plugin [GetAgentSelectors]
+	sList, err = db.GetAgentSelectors()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(sList.Agents) != 1 {
+		t.Fatal("There should only be one agent")
+	}
+	if !agentInfoCmp(sList.Agents[0], sinfoNew) {
+		t.Fatal("Wrong agent info stored after edit")
+	}
+
 }
 
 // TestClusterCreate checks edge cases involving CreateClusterEntry
@@ -620,6 +640,14 @@ func TestClusterDelete(t *testing.T) {
 }
 
 /**** HELPER SECTION ****/
+
+func agentInfoCmp(agentInfo1 types.AgentInfo, agentInfo2 types.AgentInfo) bool {
+	if agentInfo1.Spiffeid != agentInfo2.Spiffeid || agentInfo1.Plugin != agentInfo2.Plugin {
+		return false
+	} else {
+		return true
+	}
+}
 
 func inList(elem string, list []string) bool {
 	for i := 0; i < len(list); i++ {
