@@ -150,7 +150,6 @@ func (s *Server) HandleRequests() {
 
 	// Entries
 	rtr.HandleFunc("/manager-api/entry/list/{server:.*}", corsHandler(s.apiServerProxyFunc("/api/entry/list")))
-	rtr.HandleFunc("/manager-api/entry/listByAgent/{server:.*}", corsHandler(s.apiServerProxyFunc("/api/entry/listByAgent")))
 	rtr.HandleFunc("/manager-api/entry/delete/{server:.*}", corsHandler(s.apiServerProxyFunc("/api/entry/delete")))
 	rtr.HandleFunc("/manager-api/entry/create/{server:.*}", corsHandler(s.apiServerProxyFunc("/api/entry/create")))
 
