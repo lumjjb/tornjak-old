@@ -18,6 +18,12 @@ type AgentEntries struct {
 	EntriesList []string `json:"entriesList"`
 }
 
+// AllAgentEntries contains a list of agent entry spiffeids
 type AllAgentEntries struct {
 	Agents []AgentEntries `json:"agents"`
+}
+
+// AgentMetadataRequest contains a list of spiffeids
+type AgentMetadataRequest struct {
+	Agents []string `json:"agents"`
 }

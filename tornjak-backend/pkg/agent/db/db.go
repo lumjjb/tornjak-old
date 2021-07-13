@@ -19,5 +19,5 @@ type AgentDB interface {
 	// AGENT - CLUSTER Get interface (for testing)e
 	GetAgentClusterName(spiffeid string) (string, error)
 	GetClusterAgents(name string) ([]string, error)
-	GetAgentsMetadata() (types.AgentInfoList, error)
+	GetAgentsMetadata(req types.AgentMetadataRequest) (types.AgentInfoList, error)
 }

@@ -177,18 +177,80 @@ func (db *LocalSqliteDb) GetAgentClusterName(spiffeid string) (string, error) {
 	}
 }
 
-func (db *LocalSqliteDb) GetAgentsMetadata() (types.AgentInfoList, error) {
+/*func (db *LocalSqliteDb) GetAgentsMetadata(spiffeids []string) (types.AgentInfoList, error) {
 	// OUTER JOIN not supported; implemented with LEFT JOIN
-	cmd := `SELECT agents.spiffeid, agents.plugin, clusters.name 
-          FROM agents LEFT JOIN cluster_memberships ON agents.spiffeid = cluster_memberships.spiffeid 
+	cmd := `SELECT agents.spiffeid, agents.plugin, clusters.name
+          FROM agents LEFT JOIN cluster_memberships ON agents.spiffeid = cluster_memberships.spiffeid
           LEFT JOIN clusters ON cluster_memberships.cluster_id = clusters.id
           UNION
-          SELECT cluster_memberships.spiffeid, agents.plugin, clusters.name 
+          SELECT cluster_memberships.spiffeid, agents.plugin, clusters.name
           FROM cluster_memberships LEFT JOIN agents ON agents.spiffeid = cluster_memberships.spiffeid
           LEFT JOIN clusters ON cluster_memberships.cluster_id = clusters.id
           WHERE agents.plugin IS NULL`
 
 	rows, err := db.database.Query(cmd)
+	if err != nil {
+		return types.AgentInfoList{}, SQLError{cmd, err}
+	}
+
+	ainfos := []types.AgentInfo{}
+	var (
+		spiffeid string
+		plugin   sql.NullString
+		cluster  sql.NullString
+	)
+	for rows.Next() {
+		if err = rows.Scan(&spiffeid, &plugin, &cluster); err != nil {
+			return types.AgentInfoList{}, SQLError{cmd, err}
+		}
+
+		newAgent := types.AgentInfo{
+			Spiffeid: spiffeid,
+			Plugin:   "",
+			Cluster:  "",
+		}
+		if plugin.Valid {
+			newAgent.Plugin = plugin.String
+		}
+		if cluster.Valid {
+			newAgent.Cluster = cluster.String
+		}
+
+		ainfos = append(ainfos, newAgent)
+	}
+
+	return types.AgentInfoList{
+		Agents: ainfos,
+	}, nil
+}*/
+
+func (db *LocalSqliteDb) GetAgentsMetadata(req types.AgentMetadataRequest) (types.AgentInfoList, error) {
+	spiffeids := req.Agents
+
+	// OUTER JOIN not supported; implemented with LEFT JOIN
+	cmd1 := `SELECT agents.spiffeid, agents.plugin, clusters.name 
+          FROM agents LEFT JOIN cluster_memberships ON agents.spiffeid = cluster_memberships.spiffeid
+          LEFT JOIN clusters ON cluster_memberships.cluster_id = clusters.id
+          WHERE agents.spiffeid IN (`
+	cmd2 := ` UNION 
+          SELECT cluster_memberships.spiffeid, agents.plugin, clusters.name
+          FROM cluster_memberships LEFT JOIN agents ON agents.spiffeid = cluster_memberships.spiffeid
+          LEFT JOIN clusters on cluster_memberships.cluster_id = clusters.id
+          WHERE agents.plugin IS NULL
+          AND cluster_memberships.spiffeid IN (`
+	vals := []interface{}{}
+	for i := 0; i < len(spiffeids); i++ {
+		cmd1 += "?,"
+		cmd2 += "?,"
+		vals = append(vals, spiffeids[i])
+	}
+	vals = append(vals, vals...)
+	cmd1 = strings.TrimSuffix(cmd1, ",") + ")"
+	cmd2 = strings.TrimSuffix(cmd2, ",") + ")"
+
+	cmd := cmd1 + cmd2
+
+	rows, err := db.database.Query(cmd, vals...)
 	if err != nil {
 		return types.AgentInfoList{}, SQLError{cmd, err}
 	}
