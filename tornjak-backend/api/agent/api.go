@@ -214,10 +214,12 @@ func (s *Server) DefineSelectors(inp RegisterSelectorRequest) error {
 type ListAgentMetadataRequest tornjakTypes.AgentMetadataRequest
 type ListAgentMetadataResponse tornjakTypes.AgentInfoList
 
-// ListAgentMetadata returns list of agents from the local DB with following info
+// ListAgentMetadata takes in list of agent spiffeids
+// and returns list of those agents from the local DB with following info
 // spiffeid string
-// plugin string //TODO this needs to be consistent with plugin
+// plugin string //TODO this needs to be consistent with cluster plugin
 // cluster string
+// if no metadata found, the agent has no metadata
 func (s *Server) ListAgentMetadata(inp ListAgentMetadataRequest) (*ListAgentMetadataResponse, error) {
 	inpReq := tornjakTypes.AgentMetadataRequest(inp)
 	resp, err := s.Db.GetAgentsMetadata(inpReq)

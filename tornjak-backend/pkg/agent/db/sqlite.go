@@ -176,53 +176,9 @@ func (db *LocalSqliteDb) GetAgentClusterName(spiffeid string) (string, error) {
 	}
 }
 
-/*func (db *LocalSqliteDb) GetAgentsMetadata(spiffeids []string) (types.AgentInfoList, error) {
-	// OUTER JOIN not supported; implemented with LEFT JOIN
-	cmd := `SELECT agents.spiffeid, agents.plugin, clusters.name
-          FROM agents LEFT JOIN cluster_memberships ON agents.spiffeid = cluster_memberships.spiffeid
-          LEFT JOIN clusters ON cluster_memberships.cluster_id = clusters.id
-          UNION
-          SELECT cluster_memberships.spiffeid, agents.plugin, clusters.name
-          FROM cluster_memberships LEFT JOIN agents ON agents.spiffeid = cluster_memberships.spiffeid
-          LEFT JOIN clusters ON cluster_memberships.cluster_id = clusters.id
-          WHERE agents.plugin IS NULL`
-
-	rows, err := db.database.Query(cmd)
-	if err != nil {
-		return types.AgentInfoList{}, SQLError{cmd, err}
-	}
-
-	ainfos := []types.AgentInfo{}
-	var (
-		spiffeid string
-		plugin   sql.NullString
-		cluster  sql.NullString
-	)
-	for rows.Next() {
-		if err = rows.Scan(&spiffeid, &plugin, &cluster); err != nil {
-			return types.AgentInfoList{}, SQLError{cmd, err}
-		}
-
-		newAgent := types.AgentInfo{
-			Spiffeid: spiffeid,
-			Plugin:   "",
-			Cluster:  "",
-		}
-		if plugin.Valid {
-			newAgent.Plugin = plugin.String
-		}
-		if cluster.Valid {
-			newAgent.Cluster = cluster.String
-		}
-
-		ainfos = append(ainfos, newAgent)
-	}
-
-	return types.AgentInfoList{
-		Agents: ainfos,
-	}, nil
-}*/
-
+// GetAgentsMetadata takes a AgentMetadataRequest with a list of agent spiffeids
+// outputs list of agentinfo objects, where spiffeids must be in the input list
+// includes info on plugin and clustername
 func (db *LocalSqliteDb) GetAgentsMetadata(req types.AgentMetadataRequest) (types.AgentInfoList, error) {
 	spiffeids := req.Agents
 
