@@ -11,6 +11,7 @@ import EntryList from "./components/entry-list";
 import EntryCreate from "./components/entry-create";
 import ServerManagement from "./components/server-management";
 import TornjakServerInfo from "./components/tornjak-server-info";
+import TornjakDashBoard from "./components/Dashboard/tornjak-dashboard";
 import { Provider } from 'react-redux'; //enables all components to have acces to everything inside our react app
 import store from 'redux/store';
 import './App.css';
@@ -36,6 +37,7 @@ function App() {
                         <Route path="/agent/createjointoken" exact component={CreateJoinToken} />
                         <Route path="/cluster/clustermanagement" exact component={ClusterManagement} />
                         <Route path="/tornjak/serverinfo" exact component={TornjakServerInfo} />
+                        <Route path="/tornjak/dashboard" exact component={TornjakDashBoard} />
                         <Route path="/server/manage" exact component={ServerManagement} />
                         <br /><br /><br />
                         <svg className="endbanneroutput">

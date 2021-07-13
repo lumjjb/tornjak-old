@@ -49,6 +49,9 @@ export default class NavigationBar extends Component {
               <li className="navbar-item">
                 <a href="/tornjak/serverinfo" className="nav-link">Tornjak ServerInfo</a>
               </li>
+              <li className="navbar-item">
+                <a href="/tornjak/dashboard" className="nav-link">Tornjak Dashboard</a>
+              </li>
               {IsManager && managerNavs}
             </ul>
           </div>
