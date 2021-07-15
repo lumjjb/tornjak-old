@@ -26,7 +26,7 @@ import AgentsTable from './agents-dashboard-table';
 import EntriesTable from './entries-dashboard-table';
 
 const drawerWidth = 240;
-const drawerHeight = 840;
+const drawerHeight = '100%';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -45,10 +45,11 @@ const useStyles = makeStyles((theme) => ({
     ...theme.mixins.toolbar,
   },
   appBar: { //appbar
+    // position: 'fixed',
     backgroundColor: 'grey',
     //color: 'black',
     marginTop: 70,
-    zIndex: theme.zIndex.drawer + 1,
+    zIndex: 2,
     transition: theme.transitions.create(['width', 'margin'], {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
@@ -73,7 +74,9 @@ const useStyles = makeStyles((theme) => ({
   },
   drawerPaper: { //dashboard side drawer on open
     position: 'relative',
+    //marginTop: 70,
     whiteSpace: 'nowrap',
+    zIndex: 1,
     width: drawerWidth,
     height: drawerHeight,
     transition: theme.transitions.create('width', {
@@ -95,8 +98,6 @@ const useStyles = makeStyles((theme) => ({
   appBarSpacer: theme.mixins.toolbar,
   content: {
     flexGrow: 1,
-    height: '100vh',
-    // overflow: 'auto',
   },
   container: { //container for root
     paddingTop: theme.spacing(4),
