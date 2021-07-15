@@ -30,7 +30,7 @@ const drawerHeight = '100%';
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    marginTop: -41,
+    marginTop: -25,
     marginLeft: -20,
     display: 'flex',
   },
@@ -45,10 +45,8 @@ const useStyles = makeStyles((theme) => ({
     ...theme.mixins.toolbar,
   },
   appBar: { //appbar
-    // position: 'fixed',
     backgroundColor: 'grey',
-    //color: 'black',
-    marginTop: 70,
+    marginTop: 52,
     zIndex: 2,
     transition: theme.transitions.create(['width', 'margin'], {
       easing: theme.transitions.easing.sharp,
@@ -74,7 +72,6 @@ const useStyles = makeStyles((theme) => ({
   },
   drawerPaper: { //dashboard side drawer on open
     position: 'relative',
-    //marginTop: 70,
     whiteSpace: 'nowrap',
     zIndex: 1,
     width: drawerWidth,

@@ -1,18 +1,28 @@
 .navigation-bar {
   min-width: 20px;
   z-index: 3;
+  background-color: black;
+  width: 2000px;
+}
+
+.logo {
+  margin-top: -50px;
+}
+
+.dropdown-container {
+  margin-left: 200px;
 }
 .dropbtn {
-    background-color: #373a37;
-    color: rgb(177, 176, 176);
-    padding: 14px;
-    font-size: 14px;
+    color: white;
+    padding: 30px;
+    font-size: 16px;
     border: none;
   }
   
   .dropdown {
     position: relative;
     display: inline-block;
+    padding: 15px;
   }
   
   .dropdown-content {

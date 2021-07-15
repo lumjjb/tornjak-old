@@ -1,13 +1,7 @@
 import React from "react";
 import { PieChart } from "@carbon/charts-react";
 import "@carbon/charts/styles.css";
-//import "./charts.css";
 import { connect } from 'react-redux';
-//import { Arrow16 } from '@carbon/icons-react';
-// import {
-//   individualPieChartClicked,
-//   individualPieChartData
-// } from '../actions';
 class PieChart1 extends React.Component {
   constructor(props) {
     super(props);
@@ -23,23 +17,13 @@ class PieChart1 extends React.Component {
         }
       }
     };
-    //this.handleClick = this.handleClick.bind(this);
   }
 
-  // handleClick() {
-  //   const { chartTitle, data } = this.props;
-  //   this.props.individualPieChartClicked(true);
-  //   this.props.individualPieChartData(data, chartTitle)
-  // }
-
   render() {
-    const { chartTitle, data } = this.props;
+    const { data } = this.props;
     return (
       <div>
-        <div className="charttitle">
-          {/* <a href="/#" onClick={this.handleClick}>
-            <strong>{chartTitle}</strong>
-          </a> */}
+        <div>
         </div>
           <PieChart
             data={data}
