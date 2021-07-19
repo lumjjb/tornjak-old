@@ -9,11 +9,11 @@ class PieChart1 extends React.Component {
       options: {
         resizable: true,
         height: "300px",
-        "legend": {
-          "alignment": "center"
+        legend: {
+          alignment: "center"
         },
-        "pie": {
-          "alignment": "center"
+        pie: {
+          alignment: "center"
         }
       }
     };
@@ -35,7 +35,6 @@ class PieChart1 extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  //chartInfo: state.filterDeals.chartInfo
 })
 
 export default connect(

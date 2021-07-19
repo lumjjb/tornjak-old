@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from '@material-ui/core/Link';
 import { makeStyles } from '@material-ui/core/styles';
-import Title from './Title';
+import Title from './title';
 import { DataGrid, GridToolbar } from "@material-ui/data-grid";
 
 const columns = [
@@ -36,7 +36,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Orders() {
+export default function EntriesDashBoardTable() {
   const classes = useStyles();
   return (
     <React.Fragment>
