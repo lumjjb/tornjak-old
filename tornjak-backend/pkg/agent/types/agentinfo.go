@@ -15,7 +15,7 @@ type AgentInfoList struct {
 // AgentEntries contains agent spiffeid and list of spiffeids of Entries
 type AgentEntries struct {
 	Spiffeid    string   `json:"spiffeid"`
-	EntriesList []string `json:"entriesList"`
+	EntriesList []string `json:"entries_list"`
 }
 
 // AllAgentEntries contains a list of agent entry spiffeids

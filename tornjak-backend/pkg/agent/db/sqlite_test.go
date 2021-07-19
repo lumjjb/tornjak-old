@@ -642,11 +642,7 @@ func TestClusterDelete(t *testing.T) {
 /**** HELPER SECTION ****/
 
 func agentInfoCmp(agentInfo1 types.AgentInfo, agentInfo2 types.AgentInfo) bool {
-	if agentInfo1.Spiffeid != agentInfo2.Spiffeid || agentInfo1.Plugin != agentInfo2.Plugin {
-		return false
-	} else {
-		return true
-	}
+  return agentInfo1.Spiffeid == agentInfo2.Spiffeid && agentInfo1.Plugin == agentInfo2.Plugin
 }
 
 func inList(elem string, list []string) bool {
