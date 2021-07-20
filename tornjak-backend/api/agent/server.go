@@ -126,6 +126,7 @@ func (s *Server) agentBan(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) agentDelete(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Endpoint Hit: Agent Delete")
+	// TODO update backend to also delete agent metadata
 
 	var input DeleteAgentRequest
 	buf := new(strings.Builder)
@@ -450,6 +451,8 @@ func (h spaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	http.FileServer(http.Dir(h.staticPath)).ServeHTTP(w, r)
 }
 
+// This connects api links with respective functions
+// Functions currently handle the api calls all as post-requests
 func (s *Server) HandleRequests() {
 	rtr := mux.NewRouter()
 

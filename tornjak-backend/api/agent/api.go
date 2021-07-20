@@ -217,7 +217,7 @@ type ListAgentMetadataResponse tornjakTypes.AgentInfoList
 // ListAgentMetadata takes in list of agent spiffeids
 // and returns list of those agents from the local DB with following info
 // spiffeid string
-// plugin string //TODO this needs to be consistent with cluster plugin
+// plugin string
 // cluster string
 // if no metadata found, the agent has no metadata
 func (s *Server) ListAgentMetadata(inp ListAgentMetadataRequest) (*ListAgentMetadataResponse, error) {
