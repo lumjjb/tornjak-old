@@ -83,7 +83,7 @@ func (db *LocalSqliteDb) CreateAgentEntry(sinfo types.AgentInfo) error {
 }
 
 func (db *LocalSqliteDb) GetAgentSelectors() (types.AgentInfoList, error) {
-	cmd := `SELECT spiffeid, plugin FROM agents WHERE plugin IS NOT NULL`
+	cmd := `SELECT spiffeid, plugin FROM agents WHERE plugin > 0`
 	rows, err := db.database.Query(cmd)
 	if err != nil {
 		return types.AgentInfoList{}, SQLError{cmd, err}

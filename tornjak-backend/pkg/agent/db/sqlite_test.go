@@ -37,12 +37,20 @@ func TestSelectorDB(t *testing.T) {
 	}
 
 	spiffeid := "spiffe://example.org/spire/agent/"
+	spiffeidA := "spiffeA"
 	sinfo := types.AgentInfo{
 		Spiffeid: spiffeid,
 		Plugin:   "Docker",
 	}
 	sinfoNew := types.AgentInfo{
 		Spiffeid: spiffeid,
+		Plugin:   "K8s",
+	}
+	sinfoANull := types.AgentInfo{
+		Spiffeid: spiffeidA,
+	}
+	sinfoANotNull := types.AgentInfo{
+		Spiffeid: spiffeidA,
 		Plugin:   "K8s",
 	}
 
@@ -83,6 +91,57 @@ func TestSelectorDB(t *testing.T) {
 	}
 
 	// CHECK new agent plugin [GetAgentSelectors]
+	sList, err = db.GetAgentSelectors()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(sList.Agents) != 1 {
+		t.Fatal("There should only be one agent")
+	}
+	if !agentInfoCmp(sList.Agents[0], sinfoNew) {
+		t.Fatal("Wrong agent info stored after edit")
+	}
+
+	// ATTEMPT adding new agent with no plugin [CreateAgentEntry]
+	err = db.CreateAgentEntry(sinfoANull)
+	if err != nil {
+		t.Fatal("Cannot add agent with no plugin")
+	}
+
+	// CHECK all agents with plugins; should only have 1 [GetAgentSelectors]
+	sList, err = db.GetAgentSelectors()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(sList.Agents) != 1 {
+		t.Fatal(fmt.Sprintf("There should only be one agent %v", sList.Agents))
+	}
+	if !agentInfoCmp(sList.Agents[0], sinfoNew) {
+		t.Fatal("Wrong agent info stored after edit")
+	}
+
+	// ATTEMPT updating agent from NULL to new plugin [CreateAgentEntry]
+	err = db.CreateAgentEntry(sinfoANotNull)
+	if err != nil {
+		t.Fatal("Cannot add agent with no plugin")
+	}
+
+	// CHECK all agents with plugins; should have 2 [GetAgentSelectors]
+	sList, err = db.GetAgentSelectors()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(sList.Agents) != 2 {
+		t.Fatal("There should only be one agent")
+	}
+
+	// ATTEMPT updating agent from NOT NULL to NULL plugin [CreateAgentEntry]
+	err = db.CreateAgentEntry(sinfoANull)
+	if err != nil {
+		t.Fatal("Cannot add agent with no plugin")
+	}
+
+	// CHECK all agents with plugins; should only have 1 [GetAgentSelectors]
 	sList, err = db.GetAgentSelectors()
 	if err != nil {
 		t.Fatal(err)
