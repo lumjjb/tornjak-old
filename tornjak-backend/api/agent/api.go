@@ -219,7 +219,8 @@ type ListAgentMetadataResponse tornjakTypes.AgentInfoList
 // spiffeid string
 // plugin string
 // cluster string
-// if no metadata found, the agent has no metadata
+// if no metadata found, no row is included
+// if no spiffeids are specified, all agent metadata is returned
 func (s *Server) ListAgentMetadata(inp ListAgentMetadataRequest) (*ListAgentMetadataResponse, error) {
 	inpReq := tornjakTypes.AgentMetadataRequest(inp)
 	resp, err := s.Db.GetAgentsMetadata(inpReq)

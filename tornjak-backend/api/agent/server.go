@@ -451,7 +451,7 @@ func (h spaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	http.FileServer(http.Dir(h.staticPath)).ServeHTTP(w, r)
 }
 
-// This connects api links with respective functions
+// HandleRequests connects api links with respective functions
 // Functions currently handle the api calls all as post-requests
 func (s *Server) HandleRequests() {
 	rtr := mux.NewRouter()

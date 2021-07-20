@@ -153,6 +153,37 @@ func TestSelectorDB(t *testing.T) {
 		t.Fatal("Wrong agent info stored after edit")
 	}
 
+	// CHECK agent metadata [GetAgentsMetadata]
+	req1 := types.AgentMetadataRequest{
+		Agents: []string{"spiffeA"},
+	}
+	req2 := types.AgentMetadataRequest{
+		Agents: []string{},
+	}
+	req3 := types.AgentMetadataRequest{
+		Agents: []string{"nonexistent spiffe"},
+	}
+	sList, err = db.GetAgentsMetadata(req1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(sList.Agents) != 1 {
+		t.Fatal(fmt.Sprintf("We requested one agent, got: %v", sList))
+	}
+	sList, err = db.GetAgentsMetadata(req2)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(sList.Agents) != 2 {
+		t.Fatal(fmt.Sprintf("We requested all agents, got: %v", sList))
+	}
+	sList, err = db.GetAgentsMetadata(req3)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(sList.Agents) != 0 {
+		t.Fatal(fmt.Sprintf("We requested nonexistent agent, got: %v", sList))
+	}
 }
 
 // TestClusterCreate checks edge cases involving CreateClusterEntry
