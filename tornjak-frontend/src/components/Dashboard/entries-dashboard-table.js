@@ -1,62 +1,109 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import Link from '@material-ui/core/Link';
-import { makeStyles } from '@material-ui/core/styles';
+import { withStyles } from '@material-ui/core/styles';
 import Title from './title';
 import { DataGrid, GridToolbar } from "@material-ui/data-grid";
+import renderCellExpand from './render-cell-expand';
 
 const columns = [
-  { field: "id", headerName: "ID", width: 100 },
-  { field: "spiffeid", headerName: "Name", width: 340 },
-  { field: "parentId", headerName: "Parent ID", width: 250},
+  { field: "id", headerName: "ID", width: 200, renderCell: renderCellExpand},
+  { field: "spiffeid", headerName: "Name", width: 300, renderCell: renderCellExpand},
+  { field: "parentId", headerName: "Parent ID", width: 250, renderCell: renderCellExpand},
   { field: "adminFlag", headerName: "Admin Flag", width: 150},
   { field: "entryExpireTime", headerName: "Entry Expire Time", width: 190},
   { field: "platformType", headerName: "Platform Type", width: 170},
   { field: "clusterName", headerName: "Cluster Name", width: 190}
 ];
 
-const rows = [
-  { id: 1, spiffeid: "spiffe://example.org/spire/agent/k8s_sat/minikube/ed0ba9c9-bf77-4132-b8e7-dd6f89230ess", parentId: "spiffe://example.org/ns/spire/sa/spire-agent", adminFlag: "TRUE", entryExpireTime: 45, platformType: "DOCKER", clusterName: "cluster1"},
-  { id: 2, spiffeid: "spiffe://example.org/spire/agent/k8s_sat/minikube/ed0ba9c9-bf77-4132-b8e7-dd6f89230ess", parentId: "spiffe://example.org/ns/spire/sa/spire-agent", adminFlag: "TRUE", entryExpireTime: 90, platformType: "DOCKER", clusterName: "cluster1"},
-  { id: 3, spiffeid: "spiffe://example.org/spire/agent/k8s_sat/minikube/ed0ba9c9-bf77-4132-b8e7-dd6f89230ess", parentId: "spiffe://example.org/ns/spire/sa/spire-agent", adminFlag: "False", entryExpireTime: 56, platformType: "UNIX", clusterName: "cluster1"},
-  { id: 4, spiffeid: "spiffe://example.org/spire/agent/k8s_sat/minikube/ed0ba9c9-bf77-4132-b8e7-dd6f89230ess", parentId: "spiffe://example.org/ns/spire/sa/spire-agent", adminFlag: "TRUE", entryExpireTime: 34, platformType: "UNIX", clusterName: "cluster1"},
-  { id: 5, spiffeid: "spiffe://example.org/spire/agent/k8s_sat/minikube/ed0ba9c9-bf77-4132-b8e7-dd6f89230ess", parentId: "spiffe://example.org/ns/spire/sa/spire-agent", adminFlag: "FALSE", entryExpireTime: 35, platformType: "KUBERNETES", clusterName: "cluster2"},
-  { id: 6, spiffeid: "spiffe://example.org/spire/agent/k8s_sat/minikube/ed0ba9c9-bf77-4132-b8e7-dd6f89230ess", parentId: "spiffe://example.org/ns/spire/sa/spire-agent", adminFlag: "TRUE", entryExpireTime: 90, platformType: "KUBERNETES", clusterName: "cluster1"},
-  { id: 7, spiffeid: "spiffe://example.org/spire/agent/k8s_sat/minikube/ed0ba9c9-bf77-4132-b8e7-dd6f89230ess", parentId: "spiffe://example.org/ns/spire/sa/spire-agent", adminFlag: "TRUE", entryExpireTime: 356, platformType: "KUBERNETES", clusterName: "cluster1"},
-  { id: 8, spiffeid: "spiffe://example.org/spire/agent/k8s_sat/minikube/ed0ba9c9-bf77-4132-b8e7-dd6f89230ess", parentId: "spiffe://example.org/ns/spire/sa/spire-agent", adminFlag: "TRUE", entryExpireTime: 908, platformType: "UNIX", clusterName: "cluster1"},
-  { id: 9, spiffeid: "spiffe://example.org/spire/agent/k8s_sat/minikube/ed0ba9c9-bf77-4132-b8e7-dd6f89230ess", parentId: "spiffe://example.org/ns/spire/sa/spire-agent", adminFlag: "TRUE", entryExpireTime: 32, platformType: "KUBERNETES", clusterName: "cluster1"}
-];
-
 function preventDefault(event) {
   event.preventDefault();
 }
 
-const useStyles = makeStyles((theme) => ({
+const styles = ( theme => ({
   seeMore: {
     marginTop: theme.spacing(3),
   },
 }));
 
-export default function EntriesDashBoardTable() {
-  const classes = useStyles();
-  return (
-    <React.Fragment>
-    <Title>Entries</Title>
-    <div style={{ height: 400, width: "100%" }}>
-      <DataGrid 
-        rows={rows} 
-        columns={columns} 
-        pageSize={5} 
-        checkboxSelection
-        components={{
-          Toolbar: GridToolbar,
-        }}
-         />
-    </div>
-    <div className={classes.seeMore}>
-      <Link color="primary" href="#" onClick={preventDefault}>
-        See more Entries
-      </Link>
-    </div>
-  </React.Fragment>
-  );
+class EntriesDashBoardTable extends React.Component {
+  agentMetadata(parentid) {
+    if (this.props.globalAgents.globalAgentsWorkLoadAttestorInfo !== undefined) {
+      var check_id = this.props.globalAgents.globalAgentsWorkLoadAttestorInfo.filter(agent => (agent.spiffeid) === parentid);
+      if (check_id.length !== 0) {
+        return check_id[0]
+      } else {
+        return {"plugin":"", "cluster":""}
+      }
+    }
+  }
+
+  workloadEntry(entry) {
+    var thisSpiffeId = "spiffe://" + entry.spiffe_id.trust_domain + entry.spiffe_id.path
+    var thisParentId = "spiffe://" + entry.parent_id.trust_domain + entry.parent_id.path
+    // get tornjak metadata
+    var metadata_entry = this.agentMetadata(thisParentId);
+    var plugin = "None"
+    var cluster = "None"
+    if (metadata_entry["plugin"].length !== 0) {
+      plugin = metadata_entry["plugin"]
+    }
+    if (metadata_entry["cluster"].length !== 0) {
+      cluster = metadata_entry["cluster"]
+    }
+    return {
+      id: entry.id,
+      spiffeid: thisSpiffeId,
+      parentId: thisParentId,
+      adminFlag: entry.admin,
+      entryExpireTime: entry.expires_at,
+      platformType: plugin,
+      clusterName: cluster,
+    }
+  }
+
+  entryList() {
+    if (typeof this.props.globalEntries.globalEntriesList !== 'undefined') {
+      return this.props.globalEntries.globalEntriesList.map(currentEntry => {
+        return this.workloadEntry(currentEntry);
+      })
+    } else {
+      return ""
+    }
+  }
+
+  render() {
+    const classes = this.props;
+    var data = this.entryList()
+    return (
+      <React.Fragment>
+      <Title>Entries</Title>
+      <div style={{ height: 400, width: "100%" }}>
+        <DataGrid 
+          rows={data} 
+          columns={columns} 
+          pageSize={5} 
+          checkboxSelection
+          components={{
+            Toolbar: GridToolbar,
+          }}
+           />
+      </div>
+      <div className={classes.seeMore}>
+        <Link color="primary" href="#" onClick={preventDefault}>
+          See more Entries
+        </Link>
+      </div>
+      </React.Fragment>
+    );
+  }
 }
+
+const mapStateToProps = state => ({
+  globalAgents: state.agents,
+  globalEntries: state.entries,
+})
+
+export default withStyles(styles)(
+  connect(mapStateToProps, {})(EntriesDashBoardTable)
+)

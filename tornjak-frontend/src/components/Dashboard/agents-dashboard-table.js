@@ -1,61 +1,126 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import Link from '@material-ui/core/Link';
-import { makeStyles } from '@material-ui/core/styles';
 import Title from './title';
+import { withStyles } from '@material-ui/core/styles';
 import { DataGrid, GridToolbar } from "@material-ui/data-grid";
+import renderCellExpand from './render-cell-expand';
 
 const columns = [
-  { field: "id", headerName: "ID", width: 100 },
-  { field: "spiffeid", headerName: "Name", width: 390 },
+  //{ field: "id", headerName: "ID", width: 100 },TODO do we want an ID column?
+  { field: "spiffeid", headerName: "Name", flex: 1, renderCell: renderCellExpand},
   { field: "noEntries", headerName: "Number of Entries", width: 200},
   { field: "status", headerName: "Status", width: 120},
   { field: "platformType", headerName: "Platform Type", width: 170},
   { field: "clusterName", headerName: "Cluster Name", width: 190}
 ];
 
-const rows = [
-  { id: 1, spiffeid: "spiffe://example.org/spire/agent/k8s_sat/minikube/ed0ba9c9-bf77-4132-b8e7-dd6f89230ess", noEntries: 10, status: "Banned", platformType: "DOCKER", clusterName: "cluster1"},
-  { id: 2, spiffeid: "spiffe://example.org/spire/agent/k8s_sat/minikube/ed0ba9c9-bf77-4132-b8e7-dd6f89230ess", noEntries: 99, status: "Attested", platformType: "DOCKER", clusterName: "cluster1"},
-  { id: 3, spiffeid: "spiffe://example.org/spire/agent/k8s_sat/minikube/ed0ba9c9-bf77-4132-b8e7-dd6f89230ess", noEntries: 2, status: "OK", platformType: "UNIX", clusterName: "cluster1"},
-  { id: 4, spiffeid: "spiffe://example.org/spire/agent/k8s_sat/minikube/ed0ba9c9-bf77-4132-b8e7-dd6f89230ess", noEntries: 30, status: "OK", platformType: "UNIX", clusterName: "cluster1"},
-  { id: 5, spiffeid: "spiffe://example.org/spire/agent/k8s_sat/minikube/ed0ba9c9-bf77-4132-b8e7-dd6f89230ess", noEntries: 20, status: "OK", platformType: "KUBERNETES", clusterName: "cluster2"},
-  { id: 6, spiffeid: "spiffe://example.org/spire/agent/k8s_sat/minikube/ed0ba9c9-bf77-4132-b8e7-dd6f89230ess", noEntries: 1, status: "OK", platformType: "KUBERNETES", clusterName: "cluster1"},
-  { id: 7, spiffeid: "spiffe://example.org/spire/agent/k8s_sat/minikube/ed0ba9c9-bf77-4132-b8e7-dd6f89230ess", noEntries: 4, status: "OK", platformType: "KUBERNETES", clusterName: "cluster1"},
-  { id: 8, spiffeid: "spiffe://example.org/spire/agent/k8s_sat/minikube/ed0ba9c9-bf77-4132-b8e7-dd6f89230ess", noEntries: 20, status: "OK", platformType: "UNIX", clusterName: "cluster1"},
-  { id: 9, spiffeid: "spiffe://example.org/spire/agent/k8s_sat/minikube/ed0ba9c9-bf77-4132-b8e7-dd6f89230ess", noEntries: 20, status: "OK", platformType: "KUBERNETES", clusterName: "cluster1"}
-];
-
 function preventDefault(event) {
   event.preventDefault();
 }
 
-const useStyles = makeStyles((theme) => ({
+const styles = theme => ({
   seeMore: {
     marginTop: theme.spacing(3),
   },
-}));
+});
 
-export default function AgentsDashBoardTable() {
-  const classes = useStyles();
-  return (
-    <React.Fragment>
-      <Title>Agents</Title>
-      <div style={{ height: 390, width: "100%" }}>
-        <DataGrid 
-          rows={rows} 
-          columns={columns} 
-          pageSize={5} 
-          checkboxSelection
-          components={{
-            Toolbar: GridToolbar,
-          }}
-           />
-      </div>
-      <div className={classes.seeMore}>
-        <Link color="primary" href="#" onClick={preventDefault}>
-          See more Agents
-        </Link>
-      </div>
-    </React.Fragment>
-  );
+class AgentDashboardTable extends React.Component {
+  agentMetadata(spiffeid) {
+    if (this.props.globalAgents.globalAgentsWorkLoadAttestorInfo !== undefined) {
+      var check_id = this.props.globalAgents.globalAgentsWorkLoadAttestorInfo.filter(agent => (agent.spiffeid) === spiffeid);
+      if (check_id.length !== 0) {
+        return check_id[0]
+      } else {
+        return {"plugin":"", "cluster":""}
+      }
+    }
+  }
+
+  numberEntries(spiffeid){
+    if (typeof this.props.globalEntries.globalEntriesList !== 'undefined') {
+      var entriesList = this.props.globalEntries.globalEntriesList.filter(entry => ("spiffe://" + entry.parent_id.trust_domain + entry.parent_id.path) === spiffeid);
+      return entriesList.length
+    } else {
+      return 0
+    }
+  }
+
+  agent(entry) {
+    var thisSpiffeid = "spiffe://" + entry.id.trust_domain + entry.id.path;
+    // get status
+    var banned = entry.banned
+    var status = "OK"
+    var expiry = entry.x509svid_expires_at
+    var currentTime = Math.round(new Date().getTime() / 1000)
+    if (banned) {
+      status = "Banned"
+    } else if (expiry > currentTime) {
+      status = "Attested"
+    }
+    // get tornjak metadata
+    var metadata_entry = this.agentMetadata(thisSpiffeid);
+    var plugin = "None"
+    var cluster = "None"
+    if (metadata_entry["plugin"] !== undefined && metadata_entry["plugin"].length !== 0) {
+      plugin = metadata_entry["plugin"]
+    } 
+    if (metadata_entry["cluster"] !== undefined && metadata_entry["cluster"].length !== 0) {
+      cluster = metadata_entry["cluster"]
+    }
+    return {
+      id: thisSpiffeid,
+      spiffeid: thisSpiffeid,
+      noEntries: this.numberEntries(thisSpiffeid),
+      status: status,
+      platformType: plugin,
+      clusterName: cluster,
+    }
+  }
+
+  agentList() {
+    if (typeof this.props.globalAgents.globalAgentsList !== 'undefined') {
+      return this.props.globalAgents.globalAgentsList.map(currentAgent => {
+        return this.agent(currentAgent);
+      })
+    } else {
+      return ""
+    }
+  }
+
+  render() {
+    const classes = this.props;
+    var rows = this.agentList();
+    return (
+      <React.Fragment>
+        <Title>Agents</Title>
+        <div style={{ height: 390, width: "100%" }}>
+          <DataGrid 
+            rows={rows} 
+            columns={columns} 
+            pageSize={5} 
+            checkboxSelection
+            components={{
+              Toolbar: GridToolbar,
+            }}
+             />
+        </div>
+        <div className={classes.seeMore}>
+          <Link color="primary" href="#" onClick={preventDefault}>
+            See more Agents
+          </Link>
+        </div>
+      </React.Fragment>
+    );
+  }
+  
 }
+
+const mapStateToProps = (state) => ({
+  globalAgents: state.agents,
+  globalEntries: state.entries,
+})
+
+export default withStyles(styles)(
+  connect(mapStateToProps, {})(AgentDashboardTable)
+)

@@ -1,65 +1,47 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import Title from './title';
 import PieChart1 from "charts/PieChart";
 
-const data = [
-  {
-    "group": "Agent1",
-    "value": 20000
-  },
-  {
-    "group": "Agent2",
-    "value": 65000
-  },
-  {
-    "group": "Agent3",
-    "value": 75000
-  },
-  {
-    "group": "Agent4",
-    "value": 1200
-  },
-  {
-    "group": "Agent5",
-    "value": 10000
-  },
-  {
-    "group": "Agent6",
-    "value": 25000
-  },
-  {
-    "group": "Agent7",
-    "value": 20000
-  },
-  {
-    "group": "Agent8",
-    "value": 65000
-  },
-  {
-    "group": "Agent9",
-    "value": 75000
-  },
-  {
-    "group": "Agent10",
-    "value": 1200
-  },
-  {
-    "group": "Agent11",
-    "value": 10000
-  },
-  {
-    "group": "Agent12",
-    "value": 25000
+class AgentsPieChart extends React.Component {
+  agent(entry) {
+    var spiffeid = "spiffe://" + entry.id.trust_domain + entry.id.path
+    if (this.props.globalEntries.globalEntriesList !== 'undefined') {
+      var check_id = this.props.globalEntries.globalEntriesList.filter(thisentry => (spiffeid) === "spiffe://" + thisentry.parent_id.trust_domain + thisentry.parent_id.path);
+    }
+    return {
+      "group": spiffeid,
+      "value": check_id.length,
+    }
   }
-]
 
-export default function AgentsPieChart() {
-  return (
-    <React.Fragment>
-      <Title># of Entries per Agent</Title>
-      <PieChart1
-          data={data}
-      />
-    </React.Fragment>
-  );
+  agentList() {
+    if (typeof this.props.globalAgents.globalAgentsList !== 'undefined') {
+      var valueMapping = this.props.globalAgents.globalAgentsList.map(currentAgent => {
+        return this.agent(currentAgent);
+      })
+      return valueMapping.filter(thisentry => (thisentry.value > 0));
+    } else {
+      return ""
+    }
+  }
+
+  render() {
+    var groups = this.agentList()
+    return (
+      <React.Fragment>
+        <Title># of Entries per Agent</Title>
+        <PieChart1
+            data={groups}
+        />
+      </React.Fragment>
+    );
+  }
 }
+
+const mapStateToProps = (state) => ({
+  globalAgents: state.agents,
+  globalEntries: state.entries,
+})
+
+export default connect(mapStateToProps, {})(AgentsPieChart)
