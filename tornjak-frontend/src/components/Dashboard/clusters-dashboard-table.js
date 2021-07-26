@@ -61,7 +61,7 @@ class ClusterDashboardTable extends React.Component {
         return this.cluster(currentCluster);
       })
     } else {
-      return ""
+      return []
     }
   }
 

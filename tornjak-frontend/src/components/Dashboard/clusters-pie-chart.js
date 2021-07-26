@@ -18,7 +18,7 @@ class ClustersPieChart extends React.Component {
         return this.cluster(currentCluster);
       })
     } else {
-      return ""
+      return []
     }
   }
 

@@ -8,11 +8,11 @@ import renderCellExpand from './render-cell-expand';
 
 const columns = [
   //{ field: "id", headerName: "ID", width: 100 },TODO do we want an ID column?
-  { field: "spiffeid", headerName: "Name", flex: 1, renderCell: renderCellExpand},
-  { field: "noEntries", headerName: "Number of Entries", width: 200},
-  { field: "status", headerName: "Status", width: 120},
-  { field: "platformType", headerName: "Platform Type", width: 170},
-  { field: "clusterName", headerName: "Cluster Name", width: 190}
+  { field: "spiffeid", headerName: "Name", flex: 1, renderCell: renderCellExpand },
+  { field: "noEntries", headerName: "Number of Entries", width: 200 },
+  { field: "status", headerName: "Status", width: 120 },
+  { field: "platformType", headerName: "Platform Type", width: 170 },
+  { field: "clusterName", headerName: "Cluster Name", width: 190 }
 ];
 
 function preventDefault(event) {
@@ -27,7 +27,7 @@ const styles = theme => ({
 
 class AgentDashboardTable extends React.Component {
   agentMetadata(spiffeid) {
-    if (this.props.globalAgents.globalAgentsWorkLoadAttestorInfo !== undefined) {
+    if (typeof this.props.globalAgents.globalAgentsWorkLoadAttestorInfo !== 'undefined') {
       var check_id = this.props.globalAgents.globalAgentsWorkLoadAttestorInfo.filter(agent => (agent.spiffeid) === spiffeid);
       if (check_id.length !== 0) {
         return check_id[0]
@@ -37,10 +37,21 @@ class AgentDashboardTable extends React.Component {
     }
   }
 
-  numberEntries(spiffeid){
+  numberEntries(spiffeid) {
     if (typeof this.props.globalEntries.globalEntriesList !== 'undefined') {
-      var entriesList = this.props.globalEntries.globalEntriesList.filter(entry => ("spiffe://" + entry.parent_id.trust_domain + entry.parent_id.path) === spiffeid);
-      return entriesList.length
+      function isEntry(entry) {
+        if (typeof entry !== 'undefined') {
+          return (("spiffe://" + entry.parent_id.trust_domain + entry.parent_id.path) === spiffeid)
+        } else {
+          return false
+        }
+      }
+      var entriesList = this.props.globalEntries.globalEntriesList.filter(isEntry);
+      if (typeof entriesList === 'undefined') {
+        return 0
+      } else {
+        return entriesList.length
+      }
     } else {
       return 0
     }
@@ -62,10 +73,10 @@ class AgentDashboardTable extends React.Component {
     var metadata_entry = this.agentMetadata(thisSpiffeid);
     var plugin = "None"
     var cluster = "None"
-    if (metadata_entry["plugin"] !== undefined && metadata_entry["plugin"].length !== 0) {
+    if (typeof metadata_entry["plugin"] !== 'undefined' && metadata_entry["plugin"].length !== 0) {
       plugin = metadata_entry["plugin"]
-    } 
-    if (metadata_entry["cluster"] !== undefined && metadata_entry["cluster"].length !== 0) {
+    }
+    if (typeof metadata_entry["cluster"] !== 'undefined' && metadata_entry["cluster"].length !== 0) {
       cluster = metadata_entry["cluster"]
     }
     return {
@@ -84,7 +95,7 @@ class AgentDashboardTable extends React.Component {
         return this.agent(currentAgent);
       })
     } else {
-      return ""
+      return []
     }
   }
 
@@ -95,15 +106,15 @@ class AgentDashboardTable extends React.Component {
       <React.Fragment>
         <Title>Agents</Title>
         <div style={{ height: 390, width: "100%" }}>
-          <DataGrid 
-            rows={rows} 
-            columns={columns} 
-            pageSize={5} 
+          <DataGrid
+            rows={rows}
+            columns={columns}
+            pageSize={5}
             checkboxSelection
             components={{
               Toolbar: GridToolbar,
             }}
-             />
+          />
         </div>
         <div className={classes.seeMore}>
           <Link color="primary" href="#" onClick={preventDefault}>
@@ -113,7 +124,7 @@ class AgentDashboardTable extends React.Component {
       </React.Fragment>
     );
   }
-  
+
 }
 
 const mapStateToProps = (state) => ({

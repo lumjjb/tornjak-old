@@ -6,12 +6,19 @@ import PieChart1 from "charts/PieChart";
 class AgentsPieChart extends React.Component {
   agent(entry) {
     var spiffeid = "spiffe://" + entry.id.trust_domain + entry.id.path
-    if (this.props.globalEntries.globalEntriesList !== 'undefined') {
+    if (typeof this.props.globalEntries.globalEntriesList !== 'undefined') {
       var check_id = this.props.globalEntries.globalEntriesList.filter(thisentry => (spiffeid) === "spiffe://" + thisentry.parent_id.trust_domain + thisentry.parent_id.path);
     }
-    return {
-      "group": spiffeid,
-      "value": check_id.length,
+    if (typeof check_id === 'undefined') {
+      return {
+        "group": spiffeid, 
+        "value": 0,
+      }
+    } else {
+      return {
+        "group": spiffeid,
+        "value": check_id.length,
+      }
     }
   }
 
@@ -22,7 +29,7 @@ class AgentsPieChart extends React.Component {
       })
       return valueMapping.filter(thisentry => (thisentry.value > 0));
     } else {
-      return ""
+      return []
     }
   }
 

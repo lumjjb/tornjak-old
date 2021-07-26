@@ -28,7 +28,7 @@ const styles = ( theme => ({
 
 class EntriesDashBoardTable extends React.Component {
   agentMetadata(parentid) {
-    if (this.props.globalAgents.globalAgentsWorkLoadAttestorInfo !== undefined) {
+    if (typeof this.props.globalAgents.globalAgentsWorkLoadAttestorInfo !== 'undefined') {
       var check_id = this.props.globalAgents.globalAgentsWorkLoadAttestorInfo.filter(agent => (agent.spiffeid) === parentid);
       if (check_id.length !== 0) {
         return check_id[0]
@@ -54,10 +54,10 @@ class EntriesDashBoardTable extends React.Component {
     // get spire data
     var admin = false
     var expTime = "No Expiry Time"
-    if (entry.admin !== undefined) {
+    if (typeof entry.admin !== 'undefined') {
       admin = entry.admin
     }
-    if (entry.expires_at !== undefined) {
+    if (typeof entry.expires_at !== 'undefined') {
       var d = new Date(entry.expires_at * 1000)
       expTime = d.toLocaleDateString("en-US", {month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false})
     }
@@ -73,17 +73,18 @@ class EntriesDashBoardTable extends React.Component {
   }
 
   entryList() {
-    if (typeof this.props.globalEntries.globalEntriesList !== 'undefined') {
-      return this.props.globalEntries.globalEntriesList.map(currentEntry => {
+    if (typeof this.props.globalEntriesList !== 'undefined' && typeof this.props.globalEntriesList.globalEntriesList !== 'undefined') {
+      return this.props.globalEntriesList.globalEntriesList.map(currentEntry => {
         return this.workloadEntry(currentEntry);
       })
     } else {
-      return ""
+      return []
     }
   }
 
   render() {
     const classes = this.props;
+    console.log(this.props)
     var data = this.entryList()
     return (
       <React.Fragment>
@@ -111,7 +112,7 @@ class EntriesDashBoardTable extends React.Component {
 
 const mapStateToProps = state => ({
   globalAgents: state.agents,
-  globalEntries: state.entries,
+  globalEntriesList: state.entries,
 })
 
 export default withStyles(styles)(
