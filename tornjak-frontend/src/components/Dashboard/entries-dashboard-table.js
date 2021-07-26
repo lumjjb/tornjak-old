@@ -51,12 +51,22 @@ class EntriesDashBoardTable extends React.Component {
     if (metadata_entry["cluster"].length !== 0) {
       cluster = metadata_entry["cluster"]
     }
+    // get spire data
+    var admin = false
+    var expTime = "No Expiry Time"
+    if (entry.admin !== undefined) {
+      admin = entry.admin
+    }
+    if (entry.expires_at !== undefined) {
+      var d = new Date(entry.expires_at * 1000)
+      expTime = d.toLocaleDateString("en-US", {month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false})
+    }
     return {
       id: entry.id,
       spiffeid: thisSpiffeId,
       parentId: thisParentId,
-      adminFlag: entry.admin,
-      entryExpireTime: entry.expires_at,
+      adminFlag: admin,
+      entryExpireTime: expTime,
       platformType: plugin,
       clusterName: cluster,
     }

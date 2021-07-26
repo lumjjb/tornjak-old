@@ -2,7 +2,8 @@
   min-width: 20px;
   z-index: 3;
   background-color: black;
-  width: 2000px;
+  min-width: 1200px;
+  width: 100%;
 }
 
 .logo {

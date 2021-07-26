@@ -32,7 +32,7 @@ class AgentDashboardTable extends React.Component {
       if (check_id.length !== 0) {
         return check_id[0]
       } else {
-        return {"plugin":"", "cluster":""}
+        return {}
       }
     }
   }
