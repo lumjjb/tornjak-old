@@ -27,8 +27,11 @@ class ClustersPieChart extends React.Component {
     return (
       <React.Fragment>
         <Title># of Agents per Cluster</Title>
-          <PieChart1
-            data={sections}
+        {sections.length == 0 &&
+                <p className="no-data">No Data To Display</p>
+        }
+        <PieChart1
+          data={sections}
         />
       </React.Fragment>
     );
