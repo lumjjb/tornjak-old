@@ -10,8 +10,8 @@ const columns = [
   //{ field: "id", headerName: "ID", width: 100 },
   { field: "name", headerName: "Name", width: 200 },
   { field: "created", headerName: "Created", width: 300 },
-  { field: "noNodes", headerName: "Number Of Nodes", width: 300},
-  { field: "noEntries", headerName: "Number of Entries", width: 200}
+  { field: "numNodes", headerName: "Number Of Nodes", width: 300},
+  { field: "numEntries", headerName: "Number of Entries", width: 200}
 ];
 
 function preventDefault(event) {
@@ -50,8 +50,8 @@ class ClusterDashboardTable extends React.Component {
       id: entry.name,
       name: entry.name,
       created: entry.creationTime,
-      noNodes: entry.agentsList.length,
-      noEntries: this.numberClusterEntries(entry),
+      numNodes: entry.agentsList.length,
+      numEntries: this.numberClusterEntries(entry),
     }
   }
 

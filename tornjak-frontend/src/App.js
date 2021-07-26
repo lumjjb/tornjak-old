@@ -11,7 +11,7 @@ import EntryList from "./components/entry-list";
 import EntryCreate from "./components/entry-create";
 import ServerManagement from "./components/server-management";
 import TornjakServerInfo from "./components/tornjak-server-info";
-import TornjakDashBoard from "./components/Dashboard/tornjak-dashboard";
+import TornjakDashBoard from "./components/dashboard/tornjak-dashboard";
 import { Provider } from 'react-redux'; //enables all components to have access to everything inside our react app
 import store from 'redux/store';
 import IsManager from './components/is_manager';
