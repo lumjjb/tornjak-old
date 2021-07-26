@@ -79,7 +79,7 @@ class AgentDashboardTable extends React.Component {
   }
 
   agentList() {
-    if (typeof this.props.globalAgents.globalAgentsList !== 'undefined') {
+    if (typeof this.props.globalAgents.globalAgentsList !== undefined) {
       return this.props.globalAgents.globalAgentsList.map(currentAgent => {
         return this.agent(currentAgent);
       })

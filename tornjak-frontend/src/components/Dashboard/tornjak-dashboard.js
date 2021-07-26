@@ -4,18 +4,19 @@ import clsx from 'clsx';
 //import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 // Components
-import { 
-  CssBaseline, 
-  Drawer, 
-  AppBar, 
-  Toolbar, 
-  List, 
-  Typography, 
-  Divider, 
-  IconButton, 
-  Container, 
-  Grid, Paper } from '@material-ui/core';
-  // Icons
+import {
+  CssBaseline,
+  Drawer,
+  AppBar,
+  Toolbar,
+  List,
+  Typography,
+  Divider,
+  IconButton,
+  Container,
+  Grid, Paper
+} from '@material-ui/core';
+// Icons
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import { mainListItems } from './list-items';
@@ -130,20 +131,20 @@ const styles = theme => ({
 
 
 class TornjakDashboard extends React.Component {
-  constructor (props) {
+  constructor(props) {
     super(props);
     const { classes } = this.props;
     this.state = {
       open: true
     };
-    this.handleDrawerOpen = () => this.setState({open: true})
-    this.handleDrawerClose = () => this.setState({open: false})
+    this.handleDrawerOpen = () => this.setState({ open: true })
+    this.handleDrawerClose = () => this.setState({ open: false })
     this.fixedHeightPaper = clsx(classes.paper, classes.fixedHeight)
     this.TornjakApi = new TornjakApi();
   }
 
-  agentSpiffeids(){
-    if (typeof this.props.globalAgents.globalAgentsList !== 'undefined') {
+  agentSpiffeids() {
+    if (typeof this.props.globalAgents.globalAgentsList !== undefined) {
       return this.props.globalAgents.globalAgentsList.map(currentAgent => {
         return "spiffe://" + currentAgent.id.trust_domain + currentAgent.id.path;
       })
@@ -158,7 +159,7 @@ class TornjakDashboard extends React.Component {
         this.TornjakApi.populateAgentsUpdate(this.props.globalServerSelected, this.props.agentsListUpdateFunc, this.props.tornjakMessageFunc);
         this.TornjakApi.populateEntriesUpdate(this.props.globalServerSelected, this.props.entriesListUpdateFunc, this.props.tornjakMessageFunc)
         this.TornjakApi.populateClustersUpdate(this.props.globalServerSelected, this.props.clustersListUpdateFunc, this.props.tornjakMessageFunc);
-        this.TornjakApi.populateTornjakAgentInfo(this.props.globalServerSelected, this.props.agentworkloadSelectorInfoFunc, {"agents": this.agentSpiffeids()});
+        this.TornjakApi.populateTornjakAgentInfo(this.props.globalServerSelected, this.props.agentworkloadSelectorInfoFunc, { "agents": this.agentSpiffeids() });
       }
     } else {
       this.TornjakApi.populateLocalAgentsUpdate(this.props.agentsListUpdateFunc, this.props.tornjakMessageFunc);
@@ -175,16 +176,16 @@ class TornjakDashboard extends React.Component {
     if (IsManager) {
       if (prevProps.globalServerSelected !== this.props.globalServerSelected) {
         this.TornjakApi.populateAgentsUpdate(this.props.globalServerSelected, this.props.agentsListUpdateFunc, this.props.tornjakMessageFunc);
-         this.TornjakApi.populateEntriesUpdate(this.props.globalServerSelected, this.props.entriesListUpdateFunc, this.props.tornjakMessageFunc)
+        this.TornjakApi.populateEntriesUpdate(this.props.globalServerSelected, this.props.entriesListUpdateFunc, this.props.tornjakMessageFunc)
         this.TornjakApi.populateClustersUpdate(this.props.globalServerSelected, this.props.clustersListUpdateFunc, this.props.tornjakMessageFunc);
-        this.TornjakApi.populateTornjakAgentInfo(this.props.globalServerSelected, this.props.agentworkloadSelectorInfoFunc, {"agents": this.agentSpiffeids()});
+        this.TornjakApi.populateTornjakAgentInfo(this.props.globalServerSelected, this.props.agentworkloadSelectorInfoFunc, { "agents": this.agentSpiffeids() });
       }
     } else {
       if (prevProps.globalTornjakServerInfo !== this.props.globalTornjakServerInfo) {
         this.TornjakApi.populateLocalAgentsUpdate(this.props.agentsListUpdateFunc, this.props.tornjakMessageFunc);
         this.TornjakApi.populateLocalEntriesUpdate(this.props.entriesListUpdateFunc, this.props.tornjakMessageFunc)
         this.TornjakApi.populateServerInfo(this.props.globalTornjakServerInfo, this.props.serverInfoUpdateFunc)
-      this.TornjakApi.populateLocalTornjakAgentInfo(this.props.agentworkloadSelectorInfoFunc, "");
+        this.TornjakApi.populateLocalTornjakAgentInfo(this.props.agentworkloadSelectorInfoFunc, "");
       }
     }
   }
@@ -278,7 +279,7 @@ const mapStateToProps = (state) => ({
   globalEntries: state.entries.globalEntriesList,
 })
 
-export default withStyles(styles)(connect (
+export default withStyles(styles)(connect(
   mapStateToProps,
-  {entriesListUpdateFunc, agentsListUpdateFunc, agentworkloadSelectorInfoFunc, clustersListUpdateFunc, tornjakMessageFunc, serverInfoUpdateFunc, serverSelectedFunc, tornjakServerInfoUpdateFunc, selectorInfoFunc}
+  { entriesListUpdateFunc, agentsListUpdateFunc, agentworkloadSelectorInfoFunc, clustersListUpdateFunc, tornjakMessageFunc, serverInfoUpdateFunc, serverSelectedFunc, tornjakServerInfoUpdateFunc, selectorInfoFunc }
 )(TornjakDashboard))
