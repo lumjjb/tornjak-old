@@ -12,10 +12,6 @@ const columns = [
   { field: "numEntries", headerName: "Number of Entries", width: 200}
 ];
 
-function preventDefault(event) {
-  event.preventDefault();
-}
-
 const styles = theme => ({
   seeMore: {
     marginTop: theme.spacing(3),

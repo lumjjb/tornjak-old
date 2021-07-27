@@ -48,7 +48,6 @@ import {
   clustersListUpdateFunc,
 } from 'redux/actions';
 
-var clickedDashboardList = "";
 const drawerWidth = 240;
 const drawerHeight = '100%';
 

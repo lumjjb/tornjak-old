@@ -14,10 +14,6 @@ const columns = [
   { field: "clusterName", headerName: "Cluster Name", width: 190}
 ];
 
-function preventDefault(event) {
-  event.preventDefault();
-}
-
 const styles = ( theme => ({
   seeMore: {
     marginTop: theme.spacing(3),
