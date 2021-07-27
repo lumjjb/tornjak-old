@@ -13,17 +13,20 @@ import {
   Divider,
   IconButton,
   Container,
-  Grid, Paper
+  Grid, 
+  Paper,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  ListSubheader,
 } from '@material-ui/core';
-import { ListItem, ListItemIcon, ListItemText, ListSubheader } from '@material-ui/core';
+// Icons
+import MenuIcon from '@material-ui/icons/Menu';
+import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import DashboardIcon from '@material-ui/icons/Dashboard';
 import PeopleIcon from '@material-ui/icons/People';
 import BarChartIcon from '@material-ui/icons/BarChart';
 import LayersIcon from '@material-ui/icons/Layers';
-// Icons
-import MenuIcon from '@material-ui/icons/Menu';
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import { mainListItems } from './list-items';
 // Pie Charts
 import AgentsPieChart from './agents-pie-chart';
 import ClustersPieChart from './clusters-pie-chart';
@@ -230,7 +233,6 @@ class TornjakDashboard extends React.Component {
             </IconButton>
           </div>
           <Divider />
-          {/* <List>{mainListItems}</List> */}
           <List>
             <div>
               <ListItem

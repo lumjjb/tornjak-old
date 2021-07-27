@@ -1,10 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import Link from '@material-ui/core/Link';
 import { withStyles } from '@material-ui/core/styles';
-import Title from './title';
-import { DataGrid, GridToolbar } from "@material-ui/data-grid";
 import renderCellExpand from './render-cell-expand';
+import Table1 from './table/dashboard-table';
 
 const columns = [
   { field: "id", headerName: "ID", width: 200, renderCell: renderCellExpand},
@@ -83,28 +81,17 @@ class EntriesDashBoardTable extends React.Component {
   }
 
   render() {
-    const { numRows, tableType } = this.props, viewConst = 70, limitedViewRows = 5;
-    var data = this.entryList(), tableHeight = 0;
-    if(tableType === "expandedView") {
-      if(data.length <= 1) {
-        tableHeight = 200;
-      } else {tableHeight = data.length * viewConst;} //multiply by a constant to keep table height consistent}
-    } else if (tableType === "limitedView"){tableHeight = limitedViewRows * viewConst;}
+    const { numRows, tableType } = this.props;
+    var data = this.entryList();
     return (
-      <React.Fragment>
-      <Title>Entries</Title>
-      <div style={{ height: tableHeight, width: "100%" }}>
-        <DataGrid 
-          rows={data} 
-          columns={columns} 
-          pageSize={numRows} 
-          checkboxSelection
-          components={{
-            Toolbar: GridToolbar,
-          }}
-           />
+      <div>
+        <Table1 
+          title={"Entries"}
+          numRows={numRows}
+          tableType={tableType}
+          columns={columns}
+          data={data}/>
       </div>
-      </React.Fragment>
     );
   }
 }

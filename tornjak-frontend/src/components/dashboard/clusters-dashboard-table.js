@@ -1,9 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import Link from '@material-ui/core/Link';
-import Title from './title';
 import { withStyles } from '@material-ui/core/styles';
-import { DataGrid, GridToolbar } from "@material-ui/data-grid";
+import Table1 from './table/dashboard-table';
 
 
 const columns = [
@@ -66,28 +64,17 @@ class ClusterDashboardTable extends React.Component {
   }
 
   render() {
-    const { numRows, tableType } = this.props, viewConst = 70, limitedViewRows = 5;
-    var data = this.clusterList(), tableHeight = 0;
-    if(tableType === "expandedView") {
-      if(data.length <= 1) {
-        tableHeight = 200;
-      } else {tableHeight = data.length * viewConst;} //multiply by a constant to keep table height consistent}
-    } else if (tableType === "limitedView"){tableHeight = limitedViewRows * viewConst;}
+    const { numRows, tableType } = this.props;
+    var data = this.clusterList();
     return (
-      <React.Fragment>
-        <Title>Clusters</Title>
-        <div style={{ height: tableHeight, width: "100%" }}>
-          <DataGrid 
-            rows={data} 
-            columns={columns} 
-            pageSize={numRows} 
-            checkboxSelection
-            components={{
-              Toolbar: GridToolbar,
-            }}
-             />
-        </div>
-      </React.Fragment>
+      <div>
+        <Table1 
+          title={"Clusters"}
+          numRows={numRows}
+          tableType={tableType}
+          columns={columns}
+          data={data}/>
+      </div>
     );
   }
 }

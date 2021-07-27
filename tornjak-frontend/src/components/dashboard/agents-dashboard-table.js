@@ -1,10 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import Link from '@material-ui/core/Link';
-import Title from './title';
 import { withStyles } from '@material-ui/core/styles';
-import { DataGrid, GridToolbar } from "@material-ui/data-grid";
 import renderCellExpand from './render-cell-expand';
+import Table1 from './table/dashboard-table';
 
 const columns = [
   //{ field: "id", headerName: "ID", width: 100 },TODO do we want an ID column?
@@ -100,28 +98,17 @@ class AgentDashboardTable extends React.Component {
   }
 
   render() {
-    const { numRows, tableType } = this.props, viewConst = 70, limitedViewRows = 5;
-    var data = this.agentList(), tableHeight = 0;
-    if(tableType === "expandedView") {
-      if(data.length <= 1) {
-        tableHeight = 200;
-      } else {tableHeight = data.length * viewConst;} //multiply by a constant to keep table height consistent}
-    } else if (tableType === "limitedView"){tableHeight = limitedViewRows * viewConst;}
+    const { numRows, tableType } = this.props;
+    var data = this.agentList();
     return (
-      <React.Fragment>
-        <Title>Agents</Title>
-        <div style={{ height: tableHeight, width: "100%" }}>
-          <DataGrid
-            rows={data}
-            columns={columns}
-            pageSize={numRows}
-            checkboxSelection
-            components={{
-              Toolbar: GridToolbar,
-            }}
-          />
-        </div>
-      </React.Fragment>
+      <div>
+        <Table1 
+          title={"Agents"}
+          numRows={numRows}
+          tableType={tableType}
+          columns={columns}
+          data={data}/>
+      </div>
     );
   }
 
