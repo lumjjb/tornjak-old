@@ -65,9 +65,6 @@ class ClusterManagement extends Component {
 
   prepareClusterTypeList() {
     let localClusterTypeList = [];
-    if (this.props.globalServerInfo.length === 0) {
-      return
-    }
     // user prefered option
     localClusterTypeList[0] = this.state.clusterTypeManualEntryOption;
     // cluster type list
