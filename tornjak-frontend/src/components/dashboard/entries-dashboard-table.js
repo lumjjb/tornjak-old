@@ -83,27 +83,26 @@ class EntriesDashBoardTable extends React.Component {
   }
 
   render() {
-    const classes = this.props;
-    console.log(this.props)
-    var data = this.entryList()
+    const { numRows, tableType } = this.props, viewConst = 70, limitedViewRows = 5;
+    var data = this.entryList(), tableHeight = 0;
+    if(tableType === "expandedView") {
+      if(data.length <= 1) {
+        tableHeight = 200;
+      } else {tableHeight = data.length * viewConst;} //multiply by a constant to keep table height consistent}
+    } else if (tableType === "limitedView"){tableHeight = limitedViewRows * viewConst;}
     return (
       <React.Fragment>
       <Title>Entries</Title>
-      <div style={{ height: 400, width: "100%" }}>
+      <div style={{ height: tableHeight, width: "100%" }}>
         <DataGrid 
           rows={data} 
           columns={columns} 
-          pageSize={5} 
+          pageSize={numRows} 
           checkboxSelection
           components={{
             Toolbar: GridToolbar,
           }}
            />
-      </div>
-      <div className={classes.seeMore}>
-        <Link color="primary" href="#" onClick={preventDefault}>
-          See more Entries
-        </Link>
       </div>
       </React.Fragment>
     );

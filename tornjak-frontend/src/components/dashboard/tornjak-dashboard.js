@@ -15,6 +15,11 @@ import {
   Container,
   Grid, Paper
 } from '@material-ui/core';
+import { ListItem, ListItemIcon, ListItemText, ListSubheader } from '@material-ui/core';
+import DashboardIcon from '@material-ui/icons/Dashboard';
+import PeopleIcon from '@material-ui/icons/People';
+import BarChartIcon from '@material-ui/icons/BarChart';
+import LayersIcon from '@material-ui/icons/Layers';
 // Icons
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
@@ -40,7 +45,7 @@ import {
   clustersListUpdateFunc,
 } from 'redux/actions';
 
-
+var clickedDashboardList = "";
 const drawerWidth = 240;
 const drawerHeight = '100%';
 
@@ -134,7 +139,8 @@ class TornjakDashboard extends React.Component {
     super(props);
     const { classes } = this.props;
     this.state = {
-      open: true
+      open: true,
+      clickedDashboardList: ""
     };
     this.handleDrawerOpen = () => this.setState({ open: true })
     this.handleDrawerClose = () => this.setState({ open: false })
@@ -185,6 +191,7 @@ class TornjakDashboard extends React.Component {
         this.TornjakApi.populateLocalEntriesUpdate(this.props.entriesListUpdateFunc, this.props.tornjakMessageFunc)
         this.TornjakApi.populateServerInfo(this.props.globalTornjakServerInfo, this.props.serverInfoUpdateFunc)
         this.TornjakApi.populateLocalTornjakAgentInfo(this.props.agentworkloadSelectorInfoFunc, "");
+        this.TornjakApi.populateLocalClustersUpdate(this.props.clustersListUpdateFunc, this.props.tornjakMessageFunc);
       }
     }
   }
@@ -223,50 +230,130 @@ class TornjakDashboard extends React.Component {
             </IconButton>
           </div>
           <Divider />
-          <List>{mainListItems}</List>
+          {/* <List>{mainListItems}</List> */}
+          <List>
+            <div>
+              <ListItem
+                button
+                onClick={() => { this.setState({clickedDashboardList: "dashboard"}); }}>
+                <ListItemIcon>
+                  <DashboardIcon />
+                </ListItemIcon>
+                <ListItemText primary="Dashboard" />
+              </ListItem>
+              <ListSubheader inset>Details</ListSubheader>
+              <ListItem
+                button
+                onClick={() => { this.setState({clickedDashboardList: "clusters"}); }}>
+                <ListItemIcon>
+                  <LayersIcon />
+                </ListItemIcon>
+                <ListItemText primary="Clusters" />
+              </ListItem>
+              <ListItem
+                button
+                onClick={() => { this.setState({clickedDashboardList: "agents"}); }}>
+                <ListItemIcon>
+                  <PeopleIcon />
+                </ListItemIcon>
+                <ListItemText primary="Agents" />
+              </ListItem>
+              <ListItem
+                button
+                onClick={() => { this.setState({clickedDashboardList: "entries"}); }}>
+                <ListItemIcon>
+                  <BarChartIcon />
+                </ListItemIcon>
+                <ListItemText primary="Entries" />
+              </ListItem>
+            </div>
+          </List>
           <Divider />
         </Drawer>
         <main className={classes.content}>
           <div className={classes.appBarSpacer} />
-          <Container maxWidth="lg" className={classes.container}>
-            <Grid container spacing={3}>
-              {/* Pie Chart Clusters */}
-              <Grid item xs={6}>
-                <Paper className={this.fixedHeightPaper}>
-                  <ClustersPieChart />
-                </Paper>
+          {(this.state.clickedDashboardList === "" || this.state.clickedDashboardList === "dashboard") &&
+            <Container maxWidth="lg" className={classes.container}>
+              <Grid container spacing={3}>
+                {/* Pie Chart Clusters */}
+                <Grid item xs={6}>
+                  <Paper className={this.fixedHeightPaper}>
+                    <ClustersPieChart />
+                  </Paper>
+                </Grid>
+                {/* Pie Chart Agents*/}
+                <Grid item xs={6}>
+                  <Paper className={this.fixedHeightPaper}>
+                    <AgentsPieChart />
+                  </Paper>
+                </Grid>
+                {/* Clusters Table */}
+                <Grid item xs={12}>
+                  <Paper className={classes.paper}>
+                    <ClustersTable 
+                      numRows={5}
+                      tableType={"limitedView"}/>
+                  </Paper>
+                </Grid>
+                {/* Agents Table */}
+                <Grid item xs={12}>
+                  <Paper className={classes.paper}>
+                    <AgentsTable 
+                      numRows={5}
+                      tableType={"limitedView"}/>
+                  </Paper>
+                </Grid>
+                {/* Entries Table */}
+                <Grid item xs={12}>
+                  <Paper className={classes.paper}>
+                    <EntriesTable 
+                      numRows={5}
+                      tableType={"limitedView"}/>
+                  </Paper>
+                </Grid>
               </Grid>
-              {/* Pie Chart Agents*/}
-              <Grid item xs={6}>
-                <Paper className={this.fixedHeightPaper}>
-                  <AgentsPieChart />
-                </Paper>
-              </Grid>
+            </Container>
+          }
+          {(this.state.clickedDashboardList === "clusters") &&
+            <Container maxWidth="lg" className={classes.container}>
               {/* Clusters Table */}
               <Grid item xs={12}>
-                <Paper className={classes.paper}>
-                  <ClustersTable />
-                </Paper>
-              </Grid>
+                  <Paper className={classes.paper}>
+                    <ClustersTable 
+                      numRows={100}
+                      tableType={"expandedView"}/>
+                  </Paper>
+                </Grid>
+            </Container>
+          }
+          {(this.state.clickedDashboardList === "agents") &&
+            <Container maxWidth="lg" className={classes.container}>
               {/* Agents Table */}
               <Grid item xs={12}>
-                <Paper className={classes.paper}>
-                  <AgentsTable />
-                </Paper>
-              </Grid>
+                  <Paper className={classes.paper}>
+                    <AgentsTable 
+                      numRows={100}
+                      tableType={"expandedView"}/>
+                  </Paper>
+                </Grid>
+            </Container>
+          }
+          {(this.state.clickedDashboardList === "entries") &&
+            <Container maxWidth="lg" className={classes.container}>
               {/* Entries Table */}
               <Grid item xs={12}>
-                <Paper className={classes.paper}>
-                  <EntriesTable />
-                </Paper>
-              </Grid>
-            </Grid>
-          </Container>
+                  <Paper className={classes.paper}>
+                    <EntriesTable 
+                      numRows={100}
+                      tableType={"expandedView"}/>
+                  </Paper>
+                </Grid>
+            </Container>
+          }
         </main>
       </div>
     )
   }
-
 }
 
 const mapStateToProps = (state) => ({
