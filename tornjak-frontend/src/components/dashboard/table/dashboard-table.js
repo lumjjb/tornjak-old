@@ -3,8 +3,6 @@ import { connect } from 'react-redux';
 import { DataGrid, GridToolbar } from "@material-ui/data-grid";
 import Title from '../title';
 import {
-  ListItem,
-  ListItemText,
   Button,
 } from '@material-ui/core';
 import {
