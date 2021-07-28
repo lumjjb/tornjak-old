@@ -49,9 +49,11 @@ class AgentsPieChart extends React.Component {
         {groups.length === 0 &&
           <p className="no-data">No Data To Display</p>
         }
+        {groups.length !== 0 &&
         <PieChart1
             data={groups}
         />
+        }
       </React.Fragment>
     );
   }

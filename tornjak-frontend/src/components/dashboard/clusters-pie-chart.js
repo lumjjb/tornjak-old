@@ -30,9 +30,11 @@ class ClustersPieChart extends React.Component {
         {sections.length === 0 &&
           <p className="no-data">No Data To Display</p>
         }
+        {sections.length !== 0 &&
         <PieChart1
           data={sections}
         />
+        }
       </React.Fragment>
     );
   }
