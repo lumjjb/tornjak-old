@@ -3,11 +3,11 @@ import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 import renderCellExpand from './render-cell-expand';
 import Table1 from './table/dashboard-table';
+import SpiffeEntryInterface from '../spiffe-entry-interface';
 
 const columns = [
-  //{ field: "id", headerName: "ID", width: 100 },TODO do we want an ID column?
   { field: "spiffeid", headerName: "Name", flex: 1, renderCell: renderCellExpand },
-  { field: "noEntries", headerName: "Number of Entries", width: 200 },
+  { field: "numEntries", headerName: "Number of Entries", width: 200 },
   { field: "status", headerName: "Status", width: 120 },
   { field: "platformType", headerName: "Platform Type", width: 170 },
   { field: "clusterName", headerName: "Cluster Name", width: 190 }
@@ -20,27 +20,16 @@ const styles = theme => ({
 });
 
 class AgentDashboardTable extends React.Component {
-  agentMetadata(spiffeid) {
-    if (typeof this.props.globalAgents.globalAgentsWorkLoadAttestorInfo !== 'undefined') {
-      var check_id = this.props.globalAgents.globalAgentsWorkLoadAttestorInfo.filter(agent => (agent.spiffeid) === spiffeid);
-      if (check_id.length !== 0) {
-        return check_id[0]
-      } else {
-        return {}
-      }
-    }
+  constructor(props) {
+    super(props);
+    this.SpiffeEntryInterface = new SpiffeEntryInterface()
   }
 
   numberEntries(spiffeid) {
     if (typeof this.props.globalEntries.globalEntriesList !== 'undefined') {
-      function isEntry(entry) {
-        if (typeof entry !== 'undefined') {
-          return (("spiffe://" + entry.parent_id.trust_domain + entry.parent_id.path) === spiffeid)
-        } else {
-          return false
-        }
-      }
-      var entriesList = this.props.globalEntries.globalEntriesList.filter(isEntry);
+      var entriesList = this.props.globalEntries.globalEntriesList.filter(entry => {
+        return (typeof entry !== 'undefined') && (this.SpiffeEntryInterface.getEntryParentid(entry) === spiffeid)
+      });
       if (typeof entriesList === 'undefined') {
         return 0
       } else {
@@ -52,19 +41,11 @@ class AgentDashboardTable extends React.Component {
   }
 
   agent(entry) {
-    var thisSpiffeid = "spiffe://" + entry.id.trust_domain + entry.id.path;
+    var thisSpiffeid = this.SpiffeEntryInterface.getAgentSpiffeid(entry);
     // get status
-    var banned = entry.banned
-    var status = "OK"
-    var expiry = entry.x509svid_expires_at
-    var currentTime = Math.round(new Date().getTime() / 1000)
-    if (banned) {
-      status = "Banned"
-    } else if (expiry > currentTime) {
-      status = "Attested"
-    }
+    var status = this.SpiffeEntryInterface.getAgentStatusString(entry);
     // get tornjak metadata
-    var metadata_entry = this.agentMetadata(thisSpiffeid);
+    var metadata_entry = this.SpiffeEntryInterface.getAgentMetadata(thisSpiffeid, this.props.globalAgents.globalAgentsWorkLoadAttestorInfo);
     var plugin = "None"
     var cluster = "None"
     if (typeof metadata_entry["plugin"] !== 'undefined' && metadata_entry["plugin"].length !== 0) {
@@ -76,7 +57,7 @@ class AgentDashboardTable extends React.Component {
     return {
       id: thisSpiffeid,
       spiffeid: thisSpiffeid,
-      noEntries: this.numberEntries(thisSpiffeid),
+      numEntries: this.numberEntries(thisSpiffeid),
       status: status,
       platformType: plugin,
       clusterName: cluster,

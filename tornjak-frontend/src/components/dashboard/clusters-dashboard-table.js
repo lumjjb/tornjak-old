@@ -2,10 +2,9 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 import Table1 from './table/dashboard-table';
-
+import SpiffeEntryInterface from '../spiffe-entry-interface';
 
 const columns = [
-  //{ field: "id", headerName: "ID", width: 100 },
   { field: "name", headerName: "Name", width: 200 },
   { field: "created", headerName: "Created", width: 300 },
   { field: "numNodes", headerName: "Number Of Nodes", width: 300},
@@ -19,9 +18,16 @@ const styles = theme => ({
 });
 
 class ClusterDashboardTable extends React.Component {
+  constructor(props) {
+    super(props);
+    this.SpiffeEntryInterface = new SpiffeEntryInterface()
+  }
+
   numberAgentEntries(spiffeid) {
     if (typeof this.props.globalEntries.globalEntriesList !== 'undefined') {
-      var entriesList = this.props.globalEntries.globalEntriesList.filter(entry => spiffeid === ("spiffe://" + entry.parent_id.trust_domain + entry.parent_id.path))
+      var entriesList = this.props.globalEntries.globalEntriesList.filter(entry => {
+        return spiffeid === (this.SpiffeEntryInterface.getEntryParentid(entry))
+      })
       return entriesList.length
     } else {
       return 0
@@ -32,10 +38,9 @@ class ClusterDashboardTable extends React.Component {
     var entriesPerAgent = entry.agentsList.map(currentAgent => {
       return this.numberAgentEntries(currentAgent);
     })
-    var sum = 0;
-    for (let i = 0; i < entriesPerAgent.length; i++) {
-      sum += entriesPerAgent[i]
-    }
+    var sum = entriesPerAgent.reduce((acc, curVal) => {
+      return acc + curVal;
+    })
     return sum
   }
 
@@ -51,9 +56,7 @@ class ClusterDashboardTable extends React.Component {
 
   clusterList() {
     if (typeof this.props.globalClustersList !== 'undefined') {
-      return this.props.globalClustersList.map(currentCluster => {
-        return this.cluster(currentCluster);
-      })
+      return this.props.globalClustersList.map(a => this.cluster(a))
     } else {
       return []
     }

@@ -2,12 +2,20 @@ import React from 'react';
 import { connect } from 'react-redux';
 import Title from './title';
 import PieChart1 from "charts/PieChart";
+import SpiffeEntryInterface from '../spiffe-entry-interface'
 
 class AgentsPieChart extends React.Component {
+  constructor(props) {
+    super(props);
+    this.SpiffeEntryInterface = new SpiffeEntryInterface();
+  }
+
   agent(entry) {
     var spiffeid = "spiffe://" + entry.id.trust_domain + entry.id.path
     if (typeof this.props.globalEntries.globalEntriesList !== 'undefined') {
-      var check_id = this.props.globalEntries.globalEntriesList.filter(thisentry => (spiffeid) === "spiffe://" + thisentry.parent_id.trust_domain + thisentry.parent_id.path);
+      var check_id = this.props.globalEntries.globalEntriesList.filter(thisentry => {
+        return (spiffeid) === this.SpiffeEntryInterface.getEntryParentid(thisentry)
+      });
     }
     if (typeof check_id === 'undefined') {
       return {

@@ -47,6 +47,7 @@ import {
   agentworkloadSelectorInfoFunc,
   clustersListUpdateFunc,
 } from 'redux/actions';
+import SpiffeEntryInterface from '../spiffe-entry-interface';
 
 const drawerWidth = 240;
 const drawerHeight = '100%';
@@ -148,12 +149,13 @@ class TornjakDashboard extends React.Component {
     this.handleDrawerClose = () => this.setState({ open: false })
     this.fixedHeightPaper = clsx(classes.paper, classes.fixedHeight)
     this.TornjakApi = new TornjakApi();
+    this.SpiffeEntryInterface = new SpiffeEntryInterface();
   }
 
   agentSpiffeids() {
     if (typeof this.props.globalAgents.globalAgentsList !== undefined) {
       return this.props.globalAgents.globalAgentsList.map(currentAgent => {
-        return "spiffe://" + currentAgent.id.trust_domain + currentAgent.id.path;
+        return this.SpiffeEntryInterface.getAgentSpiffeid(currentAgent)
       })
     } else {
       return ""
