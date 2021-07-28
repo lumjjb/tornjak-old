@@ -2,6 +2,14 @@ import React from "react";
 import { connect } from 'react-redux';
 import { DataGrid, GridToolbar } from "@material-ui/data-grid";
 import Title from '../title';
+import {
+  ListItem,
+  ListItemText,
+  Button,
+} from '@material-ui/core';
+import {
+  clickedDashboardTabelFunc,
+} from 'redux/actions';
 class Table1 extends React.Component {
   constructor(props) {
     super(props);
@@ -19,7 +27,15 @@ class Table1 extends React.Component {
     } else if (tableType === "limitedView"){tableHeight = limitedViewRows * viewConst;}
     return (
       <React.Fragment>
-        <Title>{title}</Title>
+        <Title>
+        <Button 
+          color="inherit"
+          size="large"
+          onClick={() => { this.props.clickedDashboardTabelFunc(title.toLowerCase()); }}
+        >
+          {title}
+        </Button>
+        </Title>
         <div style={{ height: tableHeight, width: "100%" }}>
           <DataGrid 
             rows={data} 
@@ -37,9 +53,10 @@ class Table1 extends React.Component {
 }
 
 const mapStateToProps = state => ({
+  globalClickedDashboardTabel: state.tornjak.globalClickedDashboardTabel
 })
 
 export default connect(
   mapStateToProps,
-  {}
+  {clickedDashboardTabelFunc}
   )(Table1);
