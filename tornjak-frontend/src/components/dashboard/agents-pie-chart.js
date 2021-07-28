@@ -11,7 +11,7 @@ class AgentsPieChart extends React.Component {
   }
 
   agent(entry) {
-    var spiffeid = "spiffe://" + entry.id.trust_domain + entry.id.path
+    var spiffeid = this.SpiffeEntryInterface.getAgentSpiffeid(entry);
     if (typeof this.props.globalEntries.globalEntriesList !== 'undefined') {
       var check_id = this.props.globalEntries.globalEntriesList.filter(thisentry => {
         return (spiffeid) === this.SpiffeEntryInterface.getEntryParentid(thisentry)
