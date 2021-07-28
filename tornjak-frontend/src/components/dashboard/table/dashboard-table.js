@@ -51,7 +51,7 @@ class Table1 extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  globalClickedDashboardTabel: state.tornjak.globalClickedDashboardTabel
+  globalClickedDashboardTable: state.tornjak.globalClickedDashboardTable
 })
 
 export default connect(

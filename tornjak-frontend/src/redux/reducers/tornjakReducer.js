@@ -5,7 +5,7 @@ import {
 
 const initialState = {
     globalErrorMessage: "",
-    globalClickedDashboardTabel: "",
+    globalClickedDashboardTable: "",
 };
 
 export default function tornjakReducer(state = initialState, action) {
@@ -18,7 +18,7 @@ export default function tornjakReducer(state = initialState, action) {
         case GLOBAL_CLICKED_DASHBOARD_TABLE:
             return {
                 ...state,
-                globalClickedDashboardTabel: action.payload
+                globalClickedDashboardTable: action.payload
             };
         default:
             return state;

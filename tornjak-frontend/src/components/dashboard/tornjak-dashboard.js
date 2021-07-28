@@ -276,7 +276,7 @@ class TornjakDashboard extends React.Component {
         </Drawer>
         <main className={classes.content}>
           <div className={classes.appBarSpacer} />
-          {(this.props.globalClickedDashboardTabel === "" || this.props.globalClickedDashboardTabel === "dashboard") &&
+          {(this.props.globalClickedDashboardTable === "" || this.props.globalClickedDashboardTable === "dashboard") &&
             <Container maxWidth="lg" className={classes.container}>
               <Grid container spacing={3}>
                 {/* Pie Chart Clusters */}
@@ -318,7 +318,7 @@ class TornjakDashboard extends React.Component {
               </Grid>
             </Container>
           }
-          {(this.props.globalClickedDashboardTabel === "clusters") &&
+          {(this.props.globalClickedDashboardTable === "clusters") &&
             <Container maxWidth="lg" className={classes.container}>
               {/* Clusters Table */}
               <Grid item xs={12}>
@@ -330,7 +330,7 @@ class TornjakDashboard extends React.Component {
               </Grid>
             </Container>
           }
-          {(this.props.globalClickedDashboardTabel === "agents") &&
+          {(this.props.globalClickedDashboardTable === "agents") &&
             <Container maxWidth="lg" className={classes.container}>
               {/* Agents Table */}
               <Grid item xs={12}>
@@ -342,7 +342,7 @@ class TornjakDashboard extends React.Component {
               </Grid>
             </Container>
           }
-          {(this.props.globalClickedDashboardTabel === "entries") &&
+          {(this.props.globalClickedDashboardTable === "entries") &&
             <Container maxWidth="lg" className={classes.container}>
               {/* Entries Table */}
               <Grid item xs={12}>
@@ -367,7 +367,7 @@ const mapStateToProps = (state) => ({
   globalErrorMessage: state.tornjak.globalErrorMessage,
   globalAgents: state.agents,
   globalEntries: state.entries.globalEntriesList,
-  globalClickedDashboardTabel: state.tornjak.globalClickedDashboardTabel
+  globalClickedDashboardTable: state.tornjak.globalClickedDashboardTable
 })
 
 export default withStyles(styles)(connect(
