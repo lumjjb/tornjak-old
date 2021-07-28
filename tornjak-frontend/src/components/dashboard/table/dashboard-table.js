@@ -8,7 +8,7 @@ import {
 import {
   clickedDashboardTabelFunc,
 } from 'redux/actions';
-class Table1 extends React.Component {
+class TableDashboard extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -57,4 +57,4 @@ const mapStateToProps = state => ({
 export default connect(
   mapStateToProps,
   { clickedDashboardTabelFunc }
-)(Table1);
+)(TableDashboard);
