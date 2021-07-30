@@ -14,9 +14,10 @@ class ClustersPieChart extends React.Component {
 
   clusterList() {
     if (typeof this.props.globalClustersList !== 'undefined') {
-      return this.props.globalClustersList.map(currentCluster => {
+      var valueMapping = this.props.globalClustersList.map(currentCluster => {
         return this.cluster(currentCluster);
       })
+      return valueMapping.filter(thisentry => (thisentry.value > 0));
     } else {
       return []
     }
