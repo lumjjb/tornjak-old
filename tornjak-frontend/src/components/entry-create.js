@@ -6,10 +6,13 @@ import GetApiServerUri from './helpers';
 import IsManager from './is_manager';
 import TornjakApi from './tornjak-api-helpers';
 import './style.css';
+import SpiffeAgentInterface from './spiffe-agent-interface';
+import SpiffeEntryInterface from './spiffe-entry-interface';
 import {
   serverSelectedFunc,
   selectorInfoFunc,
   agentsListUpdateFunc,
+  entriesListUpdateFunc,
   tornjakMessageFunc,
   tornjakServerInfoUpdateFunc,
   serverInfoUpdateFunc,
@@ -20,6 +23,8 @@ class CreateEntry extends Component {
   constructor(props) {
     super(props);
     this.TornjakApi = new TornjakApi();
+    this.SpiffeAgentInterface = new SpiffeAgentInterface();
+    this.SpiffeEntryInterface = new SpiffeEntryInterface();
     this.onChangeSelectors = this.onChangeSelectors.bind(this);
     this.onChangeSpiffeId = this.onChangeSpiffeId.bind(this);
     this.onChangeParentId = this.onChangeParentId.bind(this);
@@ -77,6 +82,7 @@ class CreateEntry extends Component {
     if (IsManager) {
       if (this.props.globalServerSelected !== "" && (this.props.globalErrorMessage === "OK" || this.props.globalErrorMessage === "")) {
         this.TornjakApi.populateAgentsUpdate(this.props.globalServerSelected, this.props.agentsListUpdateFunc, this.props.tornjakMessageFunc)
+        this.TornjakApi.populateEntriesUpdate(this.props.globalServerSelected, this.props.entriesListUpdateFunc, this.props.tornjakMessageFunc)
         this.TornjakApi.refreshSelectorsState(this.props.globalServerSelected, this.props.agentworkloadSelectorInfoFunc);
         this.setState({ selectedServer: this.props.globalServerSelected });
         this.prepareParentIdAgentsList();
@@ -85,6 +91,7 @@ class CreateEntry extends Component {
     } else {
       // agent doesnt need to do anything
       this.TornjakApi.populateLocalAgentsUpdate(this.props.agentsListUpdateFunc, this.props.tornjakMessageFunc);
+      this.TornjakApi.populateLocalEntriesUpdate(this.props.entriesListUpdateFunc, this.props.tornjakMessageFunc)
       this.TornjakApi.populateLocalTornjakServerInfo(this.props.tornjakServerInfoUpdateFunc, this.props.tornjakMessageFunc);
       this.TornjakApi.populateServerInfo(this.props.globalTornjakServerInfo, this.props.serverInfoUpdateFunc);
       this.setState({})
@@ -119,7 +126,7 @@ class CreateEntry extends Component {
   }
 
   prepareParentIdAgentsList() {
-    var i = 0, prefix = "spiffe://";;
+    var idx = 0, prefix = "spiffe://";
     let localAgentsIdList = [];
     if (this.props.globalServerInfo.length === 0) {
       return
@@ -128,10 +135,27 @@ class CreateEntry extends Component {
     localAgentsIdList[0] = this.state.parentIdManualEntryOption;
     //default option
     localAgentsIdList[1] = prefix + this.props.globalServerInfo.data.trustDomain + "/spire/server";
+
     //agents
-    for (i = 0; i < this.props.globalAgentsList.length; i++) {
-      localAgentsIdList[i + 2] = prefix + this.props.globalAgentsList[i].id.trust_domain + this.props.globalAgentsList[i].id.path;
+    let agentEntriesDict = this.SpiffeAgentInterface.getAgentsEntries(this.props.globalAgentsList, this.props.globalEntriesList)
+    idx = 2
+    for (let i = 0; i < this.props.globalAgentsList.length; i++) {
+      let agentSpiffeid = this.SpiffeAgentInterface.getAgentSpiffeid(this.props.globalAgentsList[i]);
+      localAgentsIdList[idx] = agentSpiffeid;
+      idx++;
+      
+      // Add entries associated with this agent
+      let agentEntries = agentEntriesDict[agentSpiffeid];
+      if (agentEntries !== undefined) {
+        for (let j=0; j < agentEntries.length; j++) {
+            console.log(agentEntries[j]);
+            console.log(this.SpiffeEntryInterface.getEntrySpiffeid(agentEntries[j]));
+            localAgentsIdList[idx] = this.SpiffeEntryInterface.getEntrySpiffeid(agentEntries[j]);
+            idx++;
+        }
+      }
     }
+
     this.setState({
       agentsIdList: localAgentsIdList
     });
@@ -649,6 +673,7 @@ const mapStateToProps = (state) => ({
   globalServerSelected: state.servers.globalServerSelected,
   globalSelectorInfo: state.servers.globalSelectorInfo,
   globalAgentsList: state.agents.globalAgentsList,
+  globalEntriesList: state.entries.globalEntriesList,
   globalServerInfo: state.servers.globalServerInfo,
   globalTornjakServerInfo: state.servers.globalTornjakServerInfo,
   globalErrorMessage: state.tornjak.globalErrorMessage,
@@ -658,5 +683,5 @@ const mapStateToProps = (state) => ({
 
 export default connect(
   mapStateToProps,
-  { serverSelectedFunc, agentworkloadSelectorInfoFunc, selectorInfoFunc, agentsListUpdateFunc, tornjakMessageFunc, tornjakServerInfoUpdateFunc, serverInfoUpdateFunc }
+  { serverSelectedFunc, agentworkloadSelectorInfoFunc, selectorInfoFunc, agentsListUpdateFunc, entriesListUpdateFunc, tornjakMessageFunc, tornjakServerInfoUpdateFunc, serverInfoUpdateFunc }
 )(CreateEntry)
