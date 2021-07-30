@@ -146,8 +146,6 @@ class CreateEntry extends Component {
       let agentEntries = agentEntriesDict[agentSpiffeid];
       if (agentEntries !== undefined) {
         for (let j=0; j < agentEntries.length; j++) {
-            console.log(agentEntries[j]);
-            console.log(this.SpiffeHelper.getEntrySpiffeid(agentEntries[j]));
             localAgentsIdList[idx] = this.SpiffeHelper.getEntrySpiffeid(agentEntries[j]);
             idx++;
         }

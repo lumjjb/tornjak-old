@@ -96,7 +96,6 @@ class SpiffeHelper extends Component {
           return isSuperset(agentSelectors, entrySelectors)
       }
 
-      console.log(nodeEntries.filter(isAssocWithAgent))
       return nodeEntries.filter(isAssocWithAgent)
   }
 
