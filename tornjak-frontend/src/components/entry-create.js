@@ -6,8 +6,7 @@ import GetApiServerUri from './helpers';
 import IsManager from './is_manager';
 import TornjakApi from './tornjak-api-helpers';
 import './style.css';
-import SpiffeAgentInterface from './spiffe-agent-interface';
-import SpiffeEntryInterface from './spiffe-entry-interface';
+import SpiffeHelper from './spiffe-helper';
 import {
   serverSelectedFunc,
   selectorInfoFunc,
@@ -23,8 +22,7 @@ class CreateEntry extends Component {
   constructor(props) {
     super(props);
     this.TornjakApi = new TornjakApi();
-    this.SpiffeAgentInterface = new SpiffeAgentInterface();
-    this.SpiffeEntryInterface = new SpiffeEntryInterface();
+    this.SpiffeHelper = new SpiffeHelper();
     this.onChangeSelectors = this.onChangeSelectors.bind(this);
     this.onChangeSpiffeId = this.onChangeSpiffeId.bind(this);
     this.onChangeParentId = this.onChangeParentId.bind(this);
@@ -137,10 +135,10 @@ class CreateEntry extends Component {
     localAgentsIdList[1] = prefix + this.props.globalServerInfo.data.trustDomain + "/spire/server";
 
     //agents
-    let agentEntriesDict = this.SpiffeAgentInterface.getAgentsEntries(this.props.globalAgentsList, this.props.globalEntriesList)
+    let agentEntriesDict = this.SpiffeHelper.getAgentsEntries(this.props.globalAgentsList, this.props.globalEntriesList)
     idx = 2
     for (let i = 0; i < this.props.globalAgentsList.length; i++) {
-      let agentSpiffeid = this.SpiffeAgentInterface.getAgentSpiffeid(this.props.globalAgentsList[i]);
+      let agentSpiffeid = this.SpiffeHelper.getAgentSpiffeid(this.props.globalAgentsList[i]);
       localAgentsIdList[idx] = agentSpiffeid;
       idx++;
       
@@ -149,8 +147,8 @@ class CreateEntry extends Component {
       if (agentEntries !== undefined) {
         for (let j=0; j < agentEntries.length; j++) {
             console.log(agentEntries[j]);
-            console.log(this.SpiffeEntryInterface.getEntrySpiffeid(agentEntries[j]));
-            localAgentsIdList[idx] = this.SpiffeEntryInterface.getEntrySpiffeid(agentEntries[j]);
+            console.log(this.SpiffeHelper.getEntrySpiffeid(agentEntries[j]));
+            localAgentsIdList[idx] = this.SpiffeHelper.getEntrySpiffeid(agentEntries[j]);
             idx++;
         }
       }

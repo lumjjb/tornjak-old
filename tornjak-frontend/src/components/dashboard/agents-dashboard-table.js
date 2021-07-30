@@ -3,8 +3,7 @@ import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 import renderCellExpand from './render-cell-expand';
 import TableDashboard from './table/dashboard-table';
-import SpiffeEntryInterface from '../spiffe-entry-interface';
-import SpiffeAgentInterface from '../spiffe-agent-interface';
+import SpiffeHelper from '../spiffe-helper';
 
 const columns = [
   { field: "spiffeid", headerName: "Name", flex: 1, renderCell: renderCellExpand },
@@ -23,8 +22,7 @@ const styles = theme => ({
 class AgentDashboardTable extends React.Component {
   constructor(props) {
     super(props);
-    this.SpiffeEntryInterface = new SpiffeEntryInterface()
-    this.SpiffeAgentInterface = new SpiffeAgentInterface();
+    this.SpiffeHelper = new SpiffeHelper()
   }
 
   numberEntries(spiffeid, agentEntriesDict) {
@@ -34,13 +32,13 @@ class AgentDashboardTable extends React.Component {
     let agentEntries = agentEntriesDict[spiffeid];
     if (agentEntries !== undefined) {
       for (let j=0; j < agentEntries.length; j++) {
-          validIds.add(this.SpiffeEntryInterface.getEntrySpiffeid(agentEntries[j]));
+          validIds.add(this.SpiffeHelper.getEntrySpiffeid(agentEntries[j]));
       }
     }
 
     if (typeof this.props.globalEntries.globalEntriesList !== 'undefined') {
       var entriesList = this.props.globalEntries.globalEntriesList.filter(entry=> {
-        return (typeof entry !== 'undefined') && validIds.has(this.SpiffeEntryInterface.getEntryParentid(entry));
+        return (typeof entry !== 'undefined') && validIds.has(this.SpiffeHelper.getEntryParentid(entry));
       });
 
       if (typeof entriesList === 'undefined') {
@@ -54,11 +52,11 @@ class AgentDashboardTable extends React.Component {
   }
 
   getChildEntries(agent, agentEntriesDict) {
-    var thisSpiffeid = this.SpiffeAgentInterface.getAgentSpiffeid(agent);
+    var thisSpiffeid = this.SpiffeHelper.getAgentSpiffeid(agent);
     // get status
-    var status = this.SpiffeEntryInterface.getAgentStatusString(agent);
+    var status = this.SpiffeHelper.getAgentStatusString(agent);
     // get tornjak metadata
-    var metadata_entry = this.SpiffeEntryInterface.getAgentMetadata(thisSpiffeid, this.props.globalAgents.globalAgentsWorkLoadAttestorInfo);
+    var metadata_entry = this.SpiffeHelper.getAgentMetadata(thisSpiffeid, this.props.globalAgents.globalAgentsWorkLoadAttestorInfo);
     var plugin = "None"
     var cluster = "None"
     if (typeof metadata_entry["plugin"] !== 'undefined' && metadata_entry["plugin"].length !== 0) {
@@ -83,7 +81,7 @@ class AgentDashboardTable extends React.Component {
         return [];
     }
 
-    let agentEntriesDict = this.SpiffeAgentInterface.getAgentsEntries(this.props.globalAgents.globalAgentsList, this.props.globalEntries.globalEntriesList)
+    let agentEntriesDict = this.SpiffeHelper.getAgentsEntries(this.props.globalAgents.globalAgentsList, this.props.globalEntries.globalEntriesList)
     return this.props.globalAgents.globalAgentsList.map(currentAgent => {
       return this.getChildEntries(currentAgent, agentEntriesDict);
     })
