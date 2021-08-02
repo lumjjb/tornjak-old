@@ -16,7 +16,7 @@ class TableDashboard extends React.Component {
   }
 
   render() {
-    const { numRows, tableType, data, columns, title } = this.props;
+    const { numRows, data, columns, title } = this.props;
     return (
       <React.Fragment>
         <Title>
