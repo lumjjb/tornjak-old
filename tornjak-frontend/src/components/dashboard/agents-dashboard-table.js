@@ -7,10 +7,10 @@ import SpiffeHelper from '../spiffe-helper';
 
 const columns = [
   { field: "spiffeid", headerName: "Name", flex: 1, renderCell: renderCellExpand },
+  { field: "clusterName", headerName: "Cluster Name", width: 190 },
   { field: "numEntries", headerName: "Number of Entries", width: 200 },
   { field: "status", headerName: "Status", width: 120 },
   { field: "platformType", headerName: "Platform Type", width: 170 },
-  { field: "clusterName", headerName: "Cluster Name", width: 190 }
 ];
 
 const styles = theme => ({
@@ -22,6 +22,8 @@ const styles = theme => ({
 class AgentDashboardTable extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {
+    };
     this.SpiffeHelper = new SpiffeHelper()
   }
 
@@ -31,13 +33,13 @@ class AgentDashboardTable extends React.Component {
     // Also check for parent IDs associated with the agent
     let agentEntries = agentEntriesDict[spiffeid];
     if (agentEntries !== undefined) {
-      for (let j=0; j < agentEntries.length; j++) {
-          validIds.add(this.SpiffeHelper.getEntrySpiffeid(agentEntries[j]));
+      for (let j = 0; j < agentEntries.length; j++) {
+        validIds.add(this.SpiffeHelper.getEntrySpiffeid(agentEntries[j]));
       }
     }
 
     if (typeof this.props.globalEntries.globalEntriesList !== 'undefined') {
-      var entriesList = this.props.globalEntries.globalEntriesList.filter(entry=> {
+      var entriesList = this.props.globalEntries.globalEntriesList.filter(entry => {
         return (typeof entry !== 'undefined') && validIds.has(this.SpiffeHelper.getEntryParentid(entry));
       });
 
@@ -77,8 +79,8 @@ class AgentDashboardTable extends React.Component {
 
   agentList() {
     if ((typeof this.props.globalEntries.globalEntriesList === 'undefined') ||
-          (typeof this.props.globalAgents.globalAgentsList === 'undefined')) {
-        return [];
+      (typeof this.props.globalAgents.globalAgentsList === 'undefined')) {
+      return [];
     }
 
     let agentEntriesDict = this.SpiffeHelper.getAgentsEntries(this.props.globalAgents.globalAgentsList, this.props.globalEntries.globalEntriesList)
@@ -87,16 +89,46 @@ class AgentDashboardTable extends React.Component {
     })
   }
 
+  selectedData() {
+    var data = this.agentList(), filteredData = [], selectedDataKey = [], selectedData = this.props.selectedData, clickedDashboardTable = this.props.globalClickedDashboardTable;
+    if (selectedData === undefined)
+      return data;
+    if (clickedDashboardTable === "clustersdetails") {
+      for (let i = 0; i < selectedData.length; i++) {
+        selectedDataKey[i] = selectedData[i].name;
+      }
+      for (let i = 0; i < data.length; i++) {
+        for (let j = 0; j < selectedDataKey.length; j++) {
+          if (data[i].clusterName === selectedDataKey[j]) {
+            filteredData.push(data[i]);
+          }
+        }
+      }
+    } else if (clickedDashboardTable === "entriesdetails") {
+      for (let i = 0; i < selectedData.length; i++) {
+        selectedDataKey[i] = selectedData[i].value.parentId;
+      }
+      for (let i = 0; i < data.length; i++) {
+        for (let j = 0; j < selectedDataKey.length; j++) {
+          if (data[i].id === selectedDataKey[j]) {
+            filteredData.push(data[i]);
+          }
+        }
+      }
+    }
+    return filteredData;
+  }
+
   render() {
     const { numRows } = this.props;
-    var data = this.agentList();
+    var data = this.selectedData();
     return (
       <div>
-        <TableDashboard 
+        <TableDashboard
           title={"Agents"}
           numRows={numRows}
           columns={columns}
-          data={data}/>
+          data={data} />
       </div>
     );
   }
@@ -106,6 +138,7 @@ class AgentDashboardTable extends React.Component {
 const mapStateToProps = (state) => ({
   globalAgents: state.agents,
   globalEntries: state.entries,
+  globalClickedDashboardTable: state.tornjak.globalClickedDashboardTable,
 })
 
 export default withStyles(styles)(

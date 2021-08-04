@@ -7,8 +7,8 @@ import SpiffeHelper from '../spiffe-helper';
 const columns = [
   { field: "name", headerName: "Name", width: 200 },
   { field: "created", headerName: "Created", width: 300 },
-  { field: "numNodes", headerName: "Number Of Nodes", width: 300},
-  { field: "numEntries", headerName: "Number of Entries", width: 200}
+  { field: "numNodes", headerName: "Number Of Nodes", width: 300 },
+  { field: "numEntries", headerName: "Number of Entries", width: 200 }
 ];
 
 const styles = theme => ({
@@ -62,16 +62,33 @@ class ClusterDashboardTable extends React.Component {
     }
   }
 
+  selectedData() {
+    var data = this.clusterList(), filteredData = [], selectedDataKey = [], selectedData = this.props.selectedData;
+    if (selectedData === undefined)
+      return data;
+    for (let i = 0; i < selectedData.length; i++) {
+      selectedDataKey[i] = selectedData[i].value.clusterName;
+    }
+    for (let i = 0; i < data.length; i++) {
+      for (let j = 0; j < selectedDataKey.length; j++) {
+        if ((data[i].clusterName === selectedDataKey[j]) || (data[i].name === selectedDataKey[j])) {
+          filteredData.push(data[i]);
+        }
+      }
+    }
+    return filteredData;
+  }
+
   render() {
     const { numRows } = this.props;
-    var data = this.clusterList();
+    var data = this.selectedData();
     return (
       <div>
-        <TableDashboard 
+        <TableDashboard
           title={"Clusters"}
           numRows={numRows}
           columns={columns}
-          data={data}/>
+          data={data} />
       </div>
     );
   }

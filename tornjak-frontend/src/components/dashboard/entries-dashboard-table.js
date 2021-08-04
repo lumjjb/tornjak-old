@@ -6,16 +6,16 @@ import TableDashboard from './table/dashboard-table';
 import SpiffeHelper from '../spiffe-helper'
 
 const columns = [
-  { field: "id", headerName: "ID", width: 200, renderCell: renderCellExpand},
-  { field: "spiffeid", headerName: "Name", width: 300, renderCell: renderCellExpand},
-  { field: "parentId", headerName: "Parent ID", width: 250, renderCell: renderCellExpand},
-  { field: "adminFlag", headerName: "Admin Flag", width: 150},
-  { field: "entryExpireTime", headerName: "Entry Expire Time", width: 190},
-  { field: "platformType", headerName: "Platform Type", width: 170},
-  { field: "clusterName", headerName: "Cluster Name", width: 190}
+  { field: "id", headerName: "ID", width: 170, renderCell: renderCellExpand },
+  { field: "spiffeid", headerName: "Name", width: 170, renderCell: renderCellExpand },
+  { field: "parentId", headerName: "Parent ID", width: 170, renderCell: renderCellExpand },
+  { field: "clusterName", headerName: "Cluster Name", width: 170 },
+  { field: "entryExpireTime", headerName: "Entry Expire Time", width: 190 },
+  { field: "platformType", headerName: "Platform Type", width: 170 },
+  { field: "adminFlag", headerName: "Admin Flag", width: 150 },
 ];
 
-const styles = ( theme => ({
+const styles = (theme => ({
   seeMore: {
     marginTop: theme.spacing(3),
   },
@@ -45,7 +45,7 @@ class EntriesDashBoardTable extends React.Component {
     var expTime = "No Expiry Time"
     if (typeof entry.expires_at !== 'undefined') {
       var d = new Date(this.SpiffeHelper.getEntryExpiryMillisecondsFromEpoch(entry))
-      expTime = d.toLocaleDateString("en-US", {month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false})
+      expTime = d.toLocaleDateString("en-US", { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false })
     }
     return {
       id: entry.id,
@@ -68,16 +68,33 @@ class EntriesDashBoardTable extends React.Component {
     }
   }
 
+  selectedData() {
+    var data = this.entryList(), filteredData = [], selectedDataKey = [], selectedData = this.props.selectedData, clickedDashboardTable = this.props.globalClickedDashboardTable;
+    if (selectedData === undefined)
+      return data;
+    for (let i = 0; i < selectedData.length; i++) {
+      selectedDataKey[i] = selectedData[i].name;
+    }
+    for (let i = 0; i < data.length; i++) {
+      for (let j = 0; j < selectedDataKey.length; j++) {
+        if ((data[i].clusterName === selectedDataKey[j]) || (data[i].parentId === selectedDataKey[j])) {
+          filteredData.push(data[i]);
+        }
+      }
+    }
+    return filteredData;
+  }
+
   render() {
     const { numRows } = this.props;
-    var data = this.entryList();
+    var data = this.selectedData();
     return (
       <div>
-        <TableDashboard 
+        <TableDashboard
           title={"Entries"}
           numRows={numRows}
           columns={columns}
-          data={data}/>
+          data={data} />
       </div>
     );
   }
@@ -86,6 +103,7 @@ class EntriesDashBoardTable extends React.Component {
 const mapStateToProps = state => ({
   globalAgents: state.agents,
   globalEntriesList: state.entries,
+  globalClickedDashboardTable: state.tornjak.globalClickedDashboardTable,
 })
 
 export default withStyles(styles)(
