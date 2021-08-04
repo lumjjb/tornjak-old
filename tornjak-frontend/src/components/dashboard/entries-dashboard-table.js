@@ -69,7 +69,7 @@ class EntriesDashBoardTable extends React.Component {
   }
 
   selectedData() {
-    var data = this.entryList(), filteredData = [], selectedDataKey = [], selectedData = this.props.selectedData, clickedDashboardTable = this.props.globalClickedDashboardTable;
+    var data = this.entryList(), filteredData = [], selectedDataKey = [], selectedData = this.props.selectedData;
     if (selectedData === undefined)
       return data;
     for (let i = 0; i < selectedData.length; i++) {
