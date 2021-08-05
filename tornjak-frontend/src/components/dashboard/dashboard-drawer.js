@@ -168,8 +168,8 @@ class DashboardDrawer extends React.Component {
                                 onClick={() => {
                                     this.props.clickedDashboardTabelFunc("dashboard");
                                     const path = "/tornjak/dashboard";
-                                    if (location.href !== location.origin + path)
-                                        location.href = path;
+                                    if (window.location.href !== window.location.origin + path)
+                                        window.location.href = path;
                                 }}>
                                 <ListItemIcon>
                                     <DashboardIcon />
@@ -182,8 +182,8 @@ class DashboardDrawer extends React.Component {
                                 onClick={() => {
                                     this.props.clickedDashboardTabelFunc("clusters");
                                     const path = "/tornjak/dashboard";
-                                    if (location.href !== location.origin + path)
-                                        location.href = path;
+                                    if (window.location.href !== window.location.origin + path)
+                                        window.location.href = path;
                                 }}>
                                 <ListItemIcon>
                                     <LayersIcon />
@@ -195,8 +195,8 @@ class DashboardDrawer extends React.Component {
                                 onClick={() => {
                                     this.props.clickedDashboardTabelFunc("agents");
                                     const path = "/tornjak/dashboard";
-                                    if (location.href !== location.origin + path)
-                                        location.href = path;
+                                    if (window.location.href !== window.location.origin + path)
+                                        window.location.href = path;
                                 }}>
                                 <ListItemIcon>
                                     <PeopleIcon />
@@ -208,9 +208,8 @@ class DashboardDrawer extends React.Component {
                                 onClick={() => {
                                     this.props.clickedDashboardTabelFunc("entries");
                                     const path = "/tornjak/dashboard";
-                                    console.log("location.href", location)
-                                    if (location.href !== location.origin + path)
-                                        location.href = path;
+                                    if (window.location.href !== window.location.origin + path)
+                                        window.location.href = path;
                                 }}>
                                 <ListItemIcon>
                                     <BarChartIcon />
