@@ -42,6 +42,12 @@ container-agent: bin/tornjak-agent ui-agent
 container-agent-push: container-agent
 	docker push ${CONTAINER_TAG}
 
+container-agent-add-auth: bin/tornjak-agent ui-agent
+	docker build --no-cache -f Dockerfile.add-frontend-to-authmod -t ${CONTAINER_TAG} .
+
+container-agent-add-auth-push: container-agent
+	docker push ${CONTAINER_TAG}
+
 container-manager: bin/tornjak-manager ui-manager
 	docker build --no-cache -f Dockerfile.tornjak-manager -t ${CONTAINER_MANAGER_TAG} .
 
