@@ -49,6 +49,7 @@ import {
   clickedDashboardTabelFunc,
 } from 'redux/actions';
 import SpiffeHelper from '../spiffe-helper';
+import DashboardDetails from './dashboard-details';
 
 const drawerWidth = 240;
 const drawerHeight = '100%';
@@ -349,118 +350,7 @@ class TornjakDashboard extends React.Component {
               </Grid>
             </Container>
           }
-          {(this.props.globalClickedDashboardTable === "clustersdetails") &&
-            <div>
-              <Container maxWidth="lg" className={classes.container}>
-                <Grid item xs={12}>
-                  <Paper className={classes.paper}>
-                    <p className="details-title">Cluster Name : <b>{this.props.globalSelectedDashboardData[0].value.name}</b></p>
-                    <p className="metadata-tag">Metadata</p>
-                    <hr className="dashboard-detals-line"></hr>
-                    <p className="metadata-details">Created : <b>{this.props.globalSelectedDashboardData[0].value.created} </b></p>
-                    <p className="metadata-details">Number of Nodes : <b>{this.props.globalSelectedDashboardData[0].value.numNodes} </b></p>
-                    <p className="metadata-details">Number of Entries: <b>{this.props.globalSelectedDashboardData[0].value.numEntries}</b> </p>
-                  </Paper>
-                </Grid>
-              </Container>
-              <Container maxWidth="lg" className={classes.container}>
-                {/* Agents Table */}
-                <Grid item xs={12}>
-                  <Paper className={classes.paper}>
-                    <AgentsTable
-                      numRows={100}
-                      selectedData={this.props.globalSelectedDashboardData} />
-                  </Paper>
-                </Grid>
-              </Container>
-              <Container maxWidth="lg" className={classes.container}>
-                {/* Entries Table */}
-                <Grid item xs={12}>
-                  <Paper className={classes.paper}>
-                    <EntriesTable
-                      numRows={100}
-                      selectedData={this.props.globalSelectedDashboardData} />
-                  </Paper>
-                </Grid>
-              </Container>
-            </div>
-          }
-          {(this.props.globalClickedDashboardTable === "agentsdetails") &&
-            <div>
-              <Container maxWidth="lg" className={classes.container}>
-                <Grid item xs={12}>
-                  <Paper className={classes.paper}>
-                    <p className="details-title">Agent Name : <b>{this.props.globalSelectedDashboardData[0].value.spiffeid}</b></p>
-                    <p className="metadata-tag">Metadata</p>
-                    <hr className="dashboard-detals-line"></hr>
-                    <p className="metadata-details">Belongs to Cluster : <b>{this.props.globalSelectedDashboardData[0].value.clusterName}</b> </p>
-                    <p className="metadata-details">Status : <b>{this.props.globalSelectedDashboardData[0].value.status}</b> </p>
-                    <p className="metadata-details">Platform Type : <b>{this.props.globalSelectedDashboardData[0].value.platformType}</b> </p>
-                    <p className="metadata-details">Number of Entries: <b>{this.props.globalSelectedDashboardData[0].value.numEntries}</b> </p>
-                  </Paper>
-                </Grid>
-              </Container>
-              <Container maxWidth="lg" className={classes.container}>
-                {/* Clusters Table */}
-                <Grid item xs={12}>
-                  <Paper className={classes.paper}>
-                    <ClustersTable
-                      numRows={100}
-                      selectedData={this.props.globalSelectedDashboardData} />
-                  </Paper>
-                </Grid>
-              </Container>
-              <Container maxWidth="lg" className={classes.container}>
-                {/* Entries Table */}
-                <Grid item xs={12}>
-                  <Paper className={classes.paper}>
-                    <EntriesTable
-                      numRows={100}
-                      selectedData={this.props.globalSelectedDashboardData} />
-                  </Paper>
-                </Grid>
-              </Container>
-            </div>
-          }
-          {(this.props.globalClickedDashboardTable === "entriesdetails") &&
-            <div>
-              <Container maxWidth="lg" className={classes.container}>
-                <Grid item xs={12}>
-                  <Paper className={classes.paper}>
-                    <p className="details-title">Entry ID : <b>{this.props.globalSelectedDashboardData[0].value.id}</b></p>
-                    <p className="metadata-tag">Metadata</p>
-                    <hr className="dashboard-detals-line"></hr>
-                    <p className="metadata-details">Entry Name : <b>{this.props.globalSelectedDashboardData[0].value.spiffeid}</b></p>
-                    <p className="metadata-details">Parent ID : <b>{this.props.globalSelectedDashboardData[0].value.parentId}</b> </p>
-                    <p className="metadata-details">Belongs to Cluster : <b>{this.props.globalSelectedDashboardData[0].value.clusterName}</b> </p>
-                    <p className="metadata-details">Platform Type : <b>{this.props.globalSelectedDashboardData[0].value.platformType}</b> </p>
-                    <p className="metadata-details">Is Admin : <b>{this.props.globalSelectedDashboardData[0].value.adminFlag.toString().toUpperCase()}</b> </p>
-                    <p className="metadata-details">Entry Expire Time: <b>{this.props.globalSelectedDashboardData[0].value.entryExpireTime}</b> </p>
-                  </Paper>
-                </Grid>
-              </Container>
-              <Container maxWidth="lg" className={classes.container}>
-                {/* Clusters Table */}
-                <Grid item xs={12}>
-                  <Paper className={classes.paper}>
-                    <ClustersTable
-                      numRows={100}
-                      selectedData={this.props.globalSelectedDashboardData} />
-                  </Paper>
-                </Grid>
-              </Container>
-              <Container maxWidth="lg" className={classes.container}>
-                {/* Agents Table */}
-                <Grid item xs={12}>
-                  <Paper className={classes.paper}>
-                    <AgentsTable
-                      numRows={100}
-                      selectedData={this.props.globalSelectedDashboardData} />
-                  </Paper>
-                </Grid>
-              </Container>
-            </div>
-          }
+          <DashboardDetails />
         </main>
       </div>
     )
