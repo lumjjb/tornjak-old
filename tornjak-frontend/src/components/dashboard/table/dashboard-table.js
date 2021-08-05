@@ -9,21 +9,26 @@ import {
   clickedDashboardTabelFunc,
   selectedDashboardTableData
 } from 'redux/actions';
+import DashboardDetails from '../dashboard-details';
 
 class TableDashboard extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      selectedRows: []
+      selectedRows: [],
+      detailsLink: ""
     };
-    this.prepareSelectedRowsData = this.prepareSelectedRowsData.bind(this);
+    this.detailsLink = this.detailsLink.bind(this);
   }
 
-  prepareSelectedRowsData() {
-    var selectedRows = Array.from(this.state.selectedRows, ([name, value]) => ({ name, value }));
-    this.props.selectedDashboardTableData(selectedRows)
+  detailsLink() {
+    const { title } = this.props;
+    if (this.state.selectedRows.length !== 0) {
+      var detailsLink = "/tornjak/dashboard/details/" + title.toLowerCase() + "/" + this.state.selectedRows[0].name;
+      console.log(detailsLink)
+    }
+    return detailsLink;
   }
-
   render() {
     const { numRows, data, columns, title } = this.props;
     return (
@@ -38,13 +43,16 @@ class TableDashboard extends React.Component {
           </Button>
         </Title>
         <Button //Selected Details Button
+          href={this.detailsLink()}
           style={{ width: 160, marginLeft: 1040, marginBottom: 20 }}
           color="primary"
           size="small"
           variant="outlined"
           onClick={() => {
             this.props.clickedDashboardTabelFunc(title.toLowerCase() + "details")
-            this.prepareSelectedRowsData()
+            this.props.selectedDashboardTableData(this.state.selectedRows)
+            this.detailsLink();
+            <DashboardDetails />
           }}
         >
           Selected Details
@@ -57,15 +65,12 @@ class TableDashboard extends React.Component {
             autoHeight={true}
             checkboxSelection
             onRowSelected={(selectedRows) => {
-              this.setState({ selectedRows: selectedRows.api.current.getSelectedRows() })
-              //console.log(selectedRows.api.current.getSelectedRows())
+              var selectedRows = Array.from(selectedRows.api.current.getSelectedRows(), ([name, value]) => ({ name, value }));
+              this.setState({ selectedRows: selectedRows })
             }}
             components={{
               Toolbar: GridToolbar,
             }}
-          // filterModel={{
-          //   linkOperator: GridLinkOperator,
-          // }}
           />
         </div>
       </React.Fragment>

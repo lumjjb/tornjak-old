@@ -16,6 +16,7 @@ import { Provider } from 'react-redux'; //enables all components to have access 
 import store from 'redux/store';
 import IsManager from './components/is_manager';
 import './App.css';
+import dashboardDetails from 'components/dashboard/dashboard-details';
 
 function App() {
     return (
@@ -38,6 +39,7 @@ function App() {
                         <Route path="/cluster/clustermanagement" exact component={ClusterManagement} />
                         <Route path="/tornjak/serverinfo" exact component={TornjakServerInfo} />
                         <Route path="/tornjak/dashboard" exact component={TornjakDashBoard} />
+                        <Route path="/tornjak/dashboard/:details" component={dashboardDetails} />
                         <Route path="/server/manage" exact component={ServerManagement} />
                         <br /><br /><br />
                         <svg className="endbanneroutput">
