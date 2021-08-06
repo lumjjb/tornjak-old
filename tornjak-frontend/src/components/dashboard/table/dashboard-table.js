@@ -65,7 +65,7 @@ class TableDashboard extends React.Component {
             autoHeight={true}
             checkboxSelection
             onRowSelected={(selectedRows) => {
-              var selectedRows = Array.from(selectedRows.api.current.getSelectedRows(), ([name, value]) => ({ name, value }));
+              selectedRows = Array.from(selectedRows.api.current.getSelectedRows(), ([name, value]) => ({ name, value }));
               this.setState({ selectedRows: selectedRows })
             }}
             components={{

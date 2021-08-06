@@ -13,8 +13,6 @@ import AgentsTable from './agents-dashboard-table';
 import EntriesTable from './entries-dashboard-table';
 import DashboardDrawer from './dashboard-drawer';
 
-const drawerWidth = 240;
-const drawerHeight = '100%';
 const styles = theme => ({
     root: {
         marginTop: -25,
