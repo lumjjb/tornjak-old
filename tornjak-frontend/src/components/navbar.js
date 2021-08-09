@@ -49,11 +49,15 @@ class NavigationBar extends Component {
               <a href="/tornjak/serverinfo" className="dropbtn">Tornjak ServerInfo</a>
             </div>
             <div className="dropdown">
-              <a 
-                href="/tornjak/dashboard" 
+              <a
+                href="/tornjak/dashboard"
                 className="dropbtn"
-                //onClick={ this.props.clickedDashboardTabelFunc("dashboard")}
-                >Tornjak Dashboard</a>
+                onClick={() => {
+                  if (this.props.globalClickedDashboardTable !== "dashboard") {
+                    this.props.clickedDashboardTabelFunc("dashboard")
+                  }
+                }}
+              >Tornjak Dashboard</a>
             </div>
             {IsManager && managerNavs}
           </div>
@@ -70,6 +74,7 @@ class NavigationBar extends Component {
 }
 
 const mapStateToProps = (state) => ({
+  globalClickedDashboardTable: state.tornjak.globalClickedDashboardTable,
 })
 
 export default connect(

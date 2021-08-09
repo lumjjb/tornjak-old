@@ -25,7 +25,6 @@ class TableDashboard extends React.Component {
     const { title } = this.props;
     if (this.state.selectedRows.length !== 0) {
       var detailsLink = "/tornjak/dashboard/details/" + title.toLowerCase() + "/" + this.state.selectedRows[0].name;
-      console.log(detailsLink)
     }
     return detailsLink;
   }
@@ -49,10 +48,14 @@ class TableDashboard extends React.Component {
           size="small"
           variant="outlined"
           onClick={() => {
-            this.props.clickedDashboardTabelFunc(title.toLowerCase() + "details")
-            this.props.selectedDashboardTableData(this.state.selectedRows)
-            this.detailsLink();
-            <DashboardDetails />
+            if (this.state.selectedRows.length === 0) {
+              window.alert("Please Select a Row to See Details.");
+            } else {
+              this.props.clickedDashboardTabelFunc(title.toLowerCase() + "details")
+              this.props.selectedDashboardTableData(this.state.selectedRows)
+              this.detailsLink();
+              <DashboardDetails />
+            }
           }}
         >
           Selected Details
@@ -63,7 +66,6 @@ class TableDashboard extends React.Component {
             columns={columns}
             pageSize={numRows}
             autoHeight={true}
-            checkboxSelection
             onRowSelected={(selectedRows) => {
               selectedRows = Array.from(selectedRows.api.current.getSelectedRows(), ([name, value]) => ({ name, value }));
               this.setState({ selectedRows: selectedRows })
