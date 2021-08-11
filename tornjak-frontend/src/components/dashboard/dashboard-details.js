@@ -35,6 +35,23 @@ const styles = theme => ({
         flexDirection: 'column',
         marginBottom: 20
     },
+    detailsTitle: {
+        fontSize: 20,
+        color: 'rgb(89, 103, 185)'
+    },
+    metadataTag: {
+        fontWeight: 'bold',
+        fontSize: 17,
+        marginTop: 10,
+    },
+
+    dashboardDetalsLine: {
+        marginLeft: 0,
+        width: 1200,
+    },
+    metadataDetails: {
+        fontSize: 17,
+    }
 });
 
 class DashboardDetails extends React.Component {
@@ -53,16 +70,16 @@ class DashboardDetails extends React.Component {
                     {(this.props.globalSelectedDashboardData.length !== 0) &&
                         <div>
                             {(this.props.globalClickedDashboardTable === "clustersdetails") &&
-                                <div>
+                                <div className="clustersdetails">
                                     <Container maxWidth="lg" className={classes.container}>
                                         <Grid item xs={12}>
                                             <Paper className={classes.paper}>
-                                                <p className="details-title">Cluster Name : <b>{this.props.globalSelectedDashboardData[0].value.name}</b></p>
-                                                <p className="metadata-tag">Metadata</p>
-                                                <hr className="dashboard-detals-line"></hr>
-                                                <p className="metadata-details">Created : <b>{this.props.globalSelectedDashboardData[0].value.created} </b></p>
-                                                <p className="metadata-details">Number of Nodes : <b>{this.props.globalSelectedDashboardData[0].value.numNodes} </b></p>
-                                                <p className="metadata-details">Number of Entries: <b>{this.props.globalSelectedDashboardData[0].value.numEntries}</b> </p>
+                                                <p className={classes.detailsTitle}>Cluster Name : <b>{this.props.globalSelectedDashboardData[0].value.name}</b></p>
+                                                <p className={classes.metadataTag}>Metadata</p>
+                                                <hr className={classes.dashboardDetalsLine}></hr>
+                                                <p className={classes.metadataDetails}>Created : <b>{this.props.globalSelectedDashboardData[0].value.created} </b></p>
+                                                <p className={classes.metadataDetails}>Number of Nodes : <b>{this.props.globalSelectedDashboardData[0].value.numNodes} </b></p>
+                                                <p className={classes.metadataDetails}>Number of Entries: <b>{this.props.globalSelectedDashboardData[0].value.numEntries}</b> </p>
                                             </Paper>
                                         </Grid>
                                     </Container>
@@ -86,20 +103,20 @@ class DashboardDetails extends React.Component {
                                             </Paper>
                                         </Grid>
                                     </Container>
-                                </div>
+                                </div> // End clustersdetails
                             }
                             {(this.props.globalClickedDashboardTable === "agentsdetails") &&
-                                <div>
+                                <div className="agentsdetails">
                                     <Container maxWidth="lg" className={classes.container}>
                                         <Grid item xs={12}>
                                             <Paper className={classes.paper}>
-                                                <p className="details-title">Agent Name : <b>{this.props.globalSelectedDashboardData[0].value.spiffeid}</b></p>
-                                                <p className="metadata-tag">Metadata</p>
-                                                <hr className="dashboard-detals-line"></hr>
-                                                <p className="metadata-details">Belongs to Cluster : <b>{this.props.globalSelectedDashboardData[0].value.clusterName}</b> </p>
-                                                <p className="metadata-details">Status : <b>{this.props.globalSelectedDashboardData[0].value.status}</b> </p>
-                                                <p className="metadata-details">Platform Type : <b>{this.props.globalSelectedDashboardData[0].value.platformType}</b> </p>
-                                                <p className="metadata-details">Number of Entries: <b>{this.props.globalSelectedDashboardData[0].value.numEntries}</b> </p>
+                                                <p className={classes.detailsTitle}>Agent Name : <b>{this.props.globalSelectedDashboardData[0].value.spiffeid}</b></p>
+                                                <p className={classes.metadataTag}>Metadata</p>
+                                                <hr className={classes.dashboardDetalsLine}></hr>
+                                                <p className={classes.metadataDetails}>Belongs to Cluster : <b>{this.props.globalSelectedDashboardData[0].value.clusterName}</b> </p>
+                                                <p className={classes.metadataDetails}>Status : <b>{this.props.globalSelectedDashboardData[0].value.status}</b> </p>
+                                                <p className={classes.metadataDetails}>Platform Type : <b>{this.props.globalSelectedDashboardData[0].value.platformType}</b> </p>
+                                                <p className={classes.metadataDetails}>Number of Entries: <b>{this.props.globalSelectedDashboardData[0].value.numEntries}</b> </p>
                                             </Paper>
                                         </Grid>
                                     </Container>
@@ -123,22 +140,22 @@ class DashboardDetails extends React.Component {
                                             </Paper>
                                         </Grid>
                                     </Container>
-                                </div>
+                                </div> // End agentsdetails
                             }
                             {(this.props.globalClickedDashboardTable === "entriesdetails") &&
-                                <div>
+                                <div className="entriesdetails">
                                     <Container maxWidth="lg" className={classes.container}>
                                         <Grid item xs={12}>
                                             <Paper className={classes.paper}>
-                                                <p className="details-title">Entry ID : <b>{this.props.globalSelectedDashboardData[0].value.id}</b></p>
-                                                <p className="metadata-tag">Metadata</p>
-                                                <hr className="dashboard-detals-line"></hr>
-                                                <p className="metadata-details">Entry Name : <b>{this.props.globalSelectedDashboardData[0].value.spiffeid}</b></p>
-                                                <p className="metadata-details">Parent ID : <b>{this.props.globalSelectedDashboardData[0].value.parentId}</b> </p>
-                                                <p className="metadata-details">Belongs to Cluster : <b>{this.props.globalSelectedDashboardData[0].value.clusterName}</b> </p>
-                                                <p className="metadata-details">Platform Type : <b>{this.props.globalSelectedDashboardData[0].value.platformType}</b> </p>
-                                                <p className="metadata-details">Is Admin : <b>{this.props.globalSelectedDashboardData[0].value.adminFlag.toString().toUpperCase()}</b> </p>
-                                                <p className="metadata-details">Entry Expire Time: <b>{this.props.globalSelectedDashboardData[0].value.entryExpireTime}</b> </p>
+                                                <p className={classes.detailsTitle}>Entry ID : <b>{this.props.globalSelectedDashboardData[0].value.id}</b></p>
+                                                <p className={classes.metadataTag}>Metadata</p>
+                                                <hr className={classes.dashboardDetalsLine}></hr>
+                                                <p className={classes.metadataDetails}>Entry Name : <b>{this.props.globalSelectedDashboardData[0].value.spiffeid}</b></p>
+                                                <p className={classes.metadataDetails}>Parent ID : <b>{this.props.globalSelectedDashboardData[0].value.parentId}</b> </p>
+                                                <p className={classes.metadataDetails}>Belongs to Cluster : <b>{this.props.globalSelectedDashboardData[0].value.clusterName}</b> </p>
+                                                <p className={classes.metadataDetails}>Platform Type : <b>{this.props.globalSelectedDashboardData[0].value.platformType}</b> </p>
+                                                <p className={classes.metadataDetails}>Is Admin : <b>{this.props.globalSelectedDashboardData[0].value.adminFlag.toString().toUpperCase()}</b> </p>
+                                                <p className={classes.metadataDetails}>Entry Expire Time: <b>{this.props.globalSelectedDashboardData[0].value.entryExpireTime}</b> </p>
                                             </Paper>
                                         </Grid>
                                     </Container>
@@ -162,7 +179,7 @@ class DashboardDetails extends React.Component {
                                             </Paper>
                                         </Grid>
                                     </Container>
-                                </div>
+                                </div> // End entriesdetails
                             }
                         </div>
                     }

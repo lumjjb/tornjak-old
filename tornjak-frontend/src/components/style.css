@@ -162,23 +162,3 @@
     margin-top: 120px;
     margin-left: 200px;
   }
-
-  .details-title {
-    font-size:x-large;
-    color: rgb(89, 103, 185)
-  }
-
-  .metadata-tag {
-    font-weight: bold;
-    font-size:large;
-    margin-top: 10px;
-  }
-
-  .dashboard-detals-line {
-    margin-left: 0;
-    width: 1200px;
-  }
-
-  .metadata-details {
-    font-size:large;
-  }
