@@ -10,6 +10,7 @@ import {
   selectedDashboardTableData
 } from 'redux/actions';
 import DashboardDetails from '../dashboard-details';
+import TornjakHelper from 'components/tornjak-helper';
 
 class TableDashboard extends React.Component {
   constructor(props) {
@@ -18,16 +19,9 @@ class TableDashboard extends React.Component {
       selectedRows: [],
       detailsLink: ""
     };
-    this.detailsLink = this.detailsLink.bind(this);
+    this.TornjakHelper = new TornjakHelper();
   }
 
-  detailsLink() {
-    const { title } = this.props;
-    if (this.state.selectedRows.length !== 0) {
-      var detailsLink = "/tornjak/dashboard/details/" + title.toLowerCase() + "/" + this.state.selectedRows[0].name;
-    }
-    return detailsLink;
-  }
   render() {
     const { numRows, data, columns, title } = this.props;
     return (
@@ -42,7 +36,7 @@ class TableDashboard extends React.Component {
           </Button>
         </Title>
         <Button //Selected Details Button
-          href={this.detailsLink()}
+          href={this.TornjakHelper.detailsLink(this.state.selectedRows, title)}
           style={{ width: 160, marginLeft: 1040, marginBottom: 20 }}
           color="primary"
           size="small"
@@ -53,7 +47,7 @@ class TableDashboard extends React.Component {
             } else {
               this.props.clickedDashboardTabelFunc(title.toLowerCase() + "details")
               this.props.selectedDashboardTableData(this.state.selectedRows)
-              this.detailsLink();
+              this.TornjakHelper.detailsLink(this.state.selectedRows, title);
               <DashboardDetails />
             }
           }}

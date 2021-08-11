@@ -90,7 +90,8 @@ class AgentDashboardTable extends React.Component {
   }
 
   selectedData() {
-    var data = this.agentList(), filteredData = [], selectedDataKey = [], selectedData = this.props.selectedData, clickedDashboardTable = this.props.globalClickedDashboardTable;
+    var data = this.agentList() , selectedData = this.props.selectedData, clickedDashboardTable = this.props.globalClickedDashboardTable;
+    var filteredData = [], selectedDataKey = [];
     if (selectedData === undefined)
       return data;
     if (clickedDashboardTable === "clustersdetails") {
