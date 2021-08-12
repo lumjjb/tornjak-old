@@ -61,25 +61,26 @@ class DashboardDetails extends React.Component {
         };
     }
     render() {
-        const { classes } = this.props;
+        const { classes, selectedData } = this.props;
+        console.log("selectedData", selectedData)
         return (
             <div className={classes.root}>
                 <DashboardDrawer />
                 <main className={classes.content}>
                     <div className={classes.appBarSpacer} />
-                    {(this.props.globalSelectedDashboardData.length !== 0) &&
+                    {(selectedData.length !== 0) &&
                         <div>
                             {(this.props.globalClickedDashboardTable === "clustersdetails") &&
                                 <div className="clustersdetails">
                                     <Container maxWidth="lg" className={classes.container}>
                                         <Grid item xs={12}>
                                             <Paper className={classes.paper}>
-                                                <p className={classes.detailsTitle}>Cluster Name : <b>{this.props.globalSelectedDashboardData[0].value.name}</b></p>
+                                                <p className={classes.detailsTitle}>Cluster Name : <b>{selectedData[0].value.name}</b></p>
                                                 <p className={classes.metadataTag}>Metadata</p>
                                                 <hr className={classes.dashboardDetalsLine}></hr>
-                                                <p className={classes.metadataDetails}>Created : <b>{this.props.globalSelectedDashboardData[0].value.created} </b></p>
-                                                <p className={classes.metadataDetails}>Number of Nodes : <b>{this.props.globalSelectedDashboardData[0].value.numNodes} </b></p>
-                                                <p className={classes.metadataDetails}>Number of Entries: <b>{this.props.globalSelectedDashboardData[0].value.numEntries}</b> </p>
+                                                <p className={classes.metadataDetails}>Created : <b>{selectedData[0].value.created} </b></p>
+                                                <p className={classes.metadataDetails}>Number of Nodes : <b>{selectedData[0].value.numNodes} </b></p>
+                                                <p className={classes.metadataDetails}>Number of Entries: <b>{selectedData[0].value.numEntries}</b> </p>
                                             </Paper>
                                         </Grid>
                                     </Container>
@@ -89,7 +90,7 @@ class DashboardDetails extends React.Component {
                                             <Paper className={classes.paper}>
                                                 <AgentsTable
                                                     numRows={100}
-                                                    selectedData={this.props.globalSelectedDashboardData} />
+                                                    selectedData={selectedData} />
                                             </Paper>
                                         </Grid>
                                     </Container>
@@ -99,7 +100,7 @@ class DashboardDetails extends React.Component {
                                             <Paper className={classes.paper}>
                                                 <EntriesTable
                                                     numRows={100}
-                                                    selectedData={this.props.globalSelectedDashboardData} />
+                                                    selectedData={selectedData} />
                                             </Paper>
                                         </Grid>
                                     </Container>
@@ -110,13 +111,13 @@ class DashboardDetails extends React.Component {
                                     <Container maxWidth="lg" className={classes.container}>
                                         <Grid item xs={12}>
                                             <Paper className={classes.paper}>
-                                                <p className={classes.detailsTitle}>Agent Name : <b>{this.props.globalSelectedDashboardData[0].value.spiffeid}</b></p>
+                                                <p className={classes.detailsTitle}>Agent Name : <b>{selectedData[0].value.spiffeid}</b></p>
                                                 <p className={classes.metadataTag}>Metadata</p>
                                                 <hr className={classes.dashboardDetalsLine}></hr>
-                                                <p className={classes.metadataDetails}>Belongs to Cluster : <b>{this.props.globalSelectedDashboardData[0].value.clusterName}</b> </p>
-                                                <p className={classes.metadataDetails}>Status : <b>{this.props.globalSelectedDashboardData[0].value.status}</b> </p>
-                                                <p className={classes.metadataDetails}>Platform Type : <b>{this.props.globalSelectedDashboardData[0].value.platformType}</b> </p>
-                                                <p className={classes.metadataDetails}>Number of Entries: <b>{this.props.globalSelectedDashboardData[0].value.numEntries}</b> </p>
+                                                <p className={classes.metadataDetails}>Belongs to Cluster : <b>{selectedData[0].value.clusterName}</b> </p>
+                                                <p className={classes.metadataDetails}>Status : <b>{selectedData[0].value.status}</b> </p>
+                                                <p className={classes.metadataDetails}>Platform Type : <b>{selectedData[0].value.platformType}</b> </p>
+                                                <p className={classes.metadataDetails}>Number of Entries: <b>{selectedData[0].value.numEntries}</b> </p>
                                             </Paper>
                                         </Grid>
                                     </Container>
@@ -126,7 +127,7 @@ class DashboardDetails extends React.Component {
                                             <Paper className={classes.paper}>
                                                 <ClustersTable
                                                     numRows={100}
-                                                    selectedData={this.props.globalSelectedDashboardData} />
+                                                    selectedData={selectedData} />
                                             </Paper>
                                         </Grid>
                                     </Container>
@@ -136,7 +137,7 @@ class DashboardDetails extends React.Component {
                                             <Paper className={classes.paper}>
                                                 <EntriesTable
                                                     numRows={100}
-                                                    selectedData={this.props.globalSelectedDashboardData} />
+                                                    selectedData={selectedData} />
                                             </Paper>
                                         </Grid>
                                     </Container>
@@ -147,15 +148,15 @@ class DashboardDetails extends React.Component {
                                     <Container maxWidth="lg" className={classes.container}>
                                         <Grid item xs={12}>
                                             <Paper className={classes.paper}>
-                                                <p className={classes.detailsTitle}>Entry ID : <b>{this.props.globalSelectedDashboardData[0].value.id}</b></p>
+                                                <p className={classes.detailsTitle}>Entry ID : <b>{selectedData[0].value.id}</b></p>
                                                 <p className={classes.metadataTag}>Metadata</p>
                                                 <hr className={classes.dashboardDetalsLine}></hr>
-                                                <p className={classes.metadataDetails}>Entry Name : <b>{this.props.globalSelectedDashboardData[0].value.spiffeid}</b></p>
-                                                <p className={classes.metadataDetails}>Parent ID : <b>{this.props.globalSelectedDashboardData[0].value.parentId}</b> </p>
-                                                <p className={classes.metadataDetails}>Belongs to Cluster : <b>{this.props.globalSelectedDashboardData[0].value.clusterName}</b> </p>
-                                                <p className={classes.metadataDetails}>Platform Type : <b>{this.props.globalSelectedDashboardData[0].value.platformType}</b> </p>
-                                                <p className={classes.metadataDetails}>Is Admin : <b>{this.props.globalSelectedDashboardData[0].value.adminFlag.toString().toUpperCase()}</b> </p>
-                                                <p className={classes.metadataDetails}>Entry Expire Time: <b>{this.props.globalSelectedDashboardData[0].value.entryExpireTime}</b> </p>
+                                                <p className={classes.metadataDetails}>Entry Name : <b>{selectedData[0].value.spiffeid}</b></p>
+                                                <p className={classes.metadataDetails}>Parent ID : <b>{selectedData[0].value.parentId}</b> </p>
+                                                <p className={classes.metadataDetails}>Belongs to Cluster : <b>{selectedData[0].value.clusterName}</b> </p>
+                                                <p className={classes.metadataDetails}>Platform Type : <b>{selectedData[0].value.platformType}</b> </p>
+                                                <p className={classes.metadataDetails}>Is Admin : <b>{selectedData[0].value.adminFlag.toString().toUpperCase()}</b> </p>
+                                                <p className={classes.metadataDetails}>Entry Expire Time: <b>{selectedData[0].value.entryExpireTime}</b> </p>
                                             </Paper>
                                         </Grid>
                                     </Container>
@@ -165,7 +166,7 @@ class DashboardDetails extends React.Component {
                                             <Paper className={classes.paper}>
                                                 <ClustersTable
                                                     numRows={100}
-                                                    selectedData={this.props.globalSelectedDashboardData} />
+                                                    selectedData={selectedData} />
                                             </Paper>
                                         </Grid>
                                     </Container>
@@ -175,7 +176,7 @@ class DashboardDetails extends React.Component {
                                             <Paper className={classes.paper}>
                                                 <AgentsTable
                                                     numRows={100}
-                                                    selectedData={this.props.globalSelectedDashboardData} />
+                                                    selectedData={selectedData} />
                                             </Paper>
                                         </Grid>
                                     </Container>

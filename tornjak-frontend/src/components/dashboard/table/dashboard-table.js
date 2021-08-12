@@ -48,7 +48,8 @@ class TableDashboard extends React.Component {
               this.props.clickedDashboardTabelFunc(title.toLowerCase() + "details")
               this.props.selectedDashboardTableData(this.state.selectedRows)
               this.TornjakHelper.detailsLink(this.state.selectedRows, title);
-              <DashboardDetails />
+              <DashboardDetails
+                selectedData={this.state.selectedRows}/>
             }
           }}
         >
