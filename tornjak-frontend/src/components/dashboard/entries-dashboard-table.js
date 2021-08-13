@@ -27,41 +27,10 @@ class EntriesDashBoardTable extends React.Component {
     this.SpiffeHelper = new SpiffeHelper();
   }
 
-  workloadEntry(entry) {
-    var thisSpiffeId = this.SpiffeHelper.getEntrySpiffeid(entry)
-    var thisParentId = this.SpiffeHelper.getEntryParentid(entry)
-    // get tornjak metadata
-    var metadata_entry = this.SpiffeHelper.getAgentMetadata(thisParentId, this.props.globalAgents.globalAgentsWorkLoadAttestorInfo);
-    var plugin = "None"
-    var cluster = "None"
-    if (metadata_entry["plugin"].length !== 0) {
-      plugin = metadata_entry["plugin"]
-    }
-    if (metadata_entry["cluster"].length !== 0) {
-      cluster = metadata_entry["cluster"]
-    }
-    // get spire data
-    var admin = this.SpiffeHelper.getEntryAdminFlag(entry)
-    var expTime = "No Expiry Time"
-    if (typeof entry.expires_at !== 'undefined') {
-      var d = new Date(this.SpiffeHelper.getEntryExpiryMillisecondsFromEpoch(entry))
-      expTime = d.toLocaleDateString("en-US", { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false })
-    }
-    return {
-      id: entry.id,
-      spiffeid: thisSpiffeId,
-      parentId: thisParentId,
-      adminFlag: admin,
-      entryExpireTime: expTime,
-      platformType: plugin,
-      clusterName: cluster,
-    }
-  }
-
   entryList() {
     if (typeof this.props.globalEntriesList !== 'undefined' && typeof this.props.globalEntriesList.globalEntriesList !== 'undefined') {
       return this.props.globalEntriesList.globalEntriesList.map(currentEntry => {
-        return this.workloadEntry(currentEntry);
+        return this.SpiffeHelper.workloadEntry(currentEntry, this.props.globalAgents.globalAgentsWorkLoadAttestorInfo);
       })
     } else {
       return []
@@ -69,25 +38,24 @@ class EntriesDashBoardTable extends React.Component {
   }
 
   selectedData() {
-    var data = this.entryList(), filteredData = [], selectedDataKey = [], selectedData = this.props.selectedData;
-    if (selectedData === undefined)
-      return data;
-    for (let i = 0; i < selectedData.length; i++) {
-      selectedDataKey[i] = selectedData[i].name;
-    }
-    for (let i = 0; i < data.length; i++) {
-      for (let j = 0; j < selectedDataKey.length; j++) {
-        if ((data[i].clusterName === selectedDataKey[j]) || (data[i].parentId === selectedDataKey[j])) {
+    var data = this.entryList(), filteredData = [], selectedData = this.props.selectedData;
+    if (selectedData !== undefined) {
+      for (let i = 0; i < data.length; i++) {
+        if ((data[i].clusterName === selectedData.name) || (data[i].parentId === selectedData.spiffeid)) {
           filteredData.push(data[i]);
         }
       }
+      return filteredData;
     }
-    return filteredData;
   }
 
   render() {
-    const { numRows } = this.props;
-    var data = this.selectedData();
+    const { numRows, selectedData } = this.props;
+    if (selectedData === undefined) {
+      var data = this.entryList();
+    } else {
+      var data = this.selectedData();
+    }
     return (
       <div>
         <TableDashboard

@@ -12,7 +12,6 @@ import {
     GLOBAL_CLUSTERS_LIST,
     GLOBAL_CLUSTER_TYPE_INFO,
     GLOBAL_CLICKED_DASHBOARD_TABLE,
-    GLOBAL_SELECTED_DASHBOARD_DATA
 } from './types';
 
 // Expected input - List of clusters with their info
@@ -236,17 +235,6 @@ export function clickedDashboardTabelFunc(globalClickedDashboardTable) {
         dispatch({
             type: GLOBAL_CLICKED_DASHBOARD_TABLE,
             payload: globalClickedDashboardTable
-        });
-    }
-}
-
-// Expected input - clicked dashboard row data from specific dashboard table
-// selectedDashboardTableData returns the selected dashboard tabel data
-export function selectedDashboardTableData(globalSelectedDashboardData) {
-    return dispatch => {
-        dispatch({
-            type: GLOBAL_SELECTED_DASHBOARD_DATA,
-            payload: globalSelectedDashboardData
         });
     }
 }

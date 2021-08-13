@@ -212,7 +212,6 @@ const mapStateToProps = (state) => ({
   globalAgents: state.agents,
   globalEntries: state.entries.globalEntriesList,
   globalClickedDashboardTable: state.tornjak.globalClickedDashboardTable,
-  globalSelectedDashboardData: state.tornjak.globalSelectedDashboardData
 })
 
 export default withStyles(styles)(connect(

@@ -27,56 +27,6 @@ class AgentDashboardTable extends React.Component {
     this.SpiffeHelper = new SpiffeHelper()
   }
 
-  numberEntries(spiffeid, agentEntriesDict) {
-    var validIds = new Set([spiffeid]);
-
-    // Also check for parent IDs associated with the agent
-    let agentEntries = agentEntriesDict[spiffeid];
-    if (agentEntries !== undefined) {
-      for (let j = 0; j < agentEntries.length; j++) {
-        validIds.add(this.SpiffeHelper.getEntrySpiffeid(agentEntries[j]));
-      }
-    }
-
-    if (typeof this.props.globalEntries.globalEntriesList !== 'undefined') {
-      var entriesList = this.props.globalEntries.globalEntriesList.filter(entry => {
-        return (typeof entry !== 'undefined') && validIds.has(this.SpiffeHelper.getEntryParentid(entry));
-      });
-
-      if (typeof entriesList === 'undefined') {
-        return 0
-      } else {
-        return entriesList.length
-      }
-    } else {
-      return 0
-    }
-  }
-
-  getChildEntries(agent, agentEntriesDict) {
-    var thisSpiffeid = this.SpiffeHelper.getAgentSpiffeid(agent);
-    // get status
-    var status = this.SpiffeHelper.getAgentStatusString(agent);
-    // get tornjak metadata
-    var metadata_entry = this.SpiffeHelper.getAgentMetadata(thisSpiffeid, this.props.globalAgents.globalAgentsWorkLoadAttestorInfo);
-    var plugin = "None"
-    var cluster = "None"
-    if (typeof metadata_entry["plugin"] !== 'undefined' && metadata_entry["plugin"].length !== 0) {
-      plugin = metadata_entry["plugin"]
-    }
-    if (typeof metadata_entry["cluster"] !== 'undefined' && metadata_entry["cluster"].length !== 0) {
-      cluster = metadata_entry["cluster"]
-    }
-    return {
-      id: thisSpiffeid,
-      spiffeid: thisSpiffeid,
-      numEntries: this.numberEntries(thisSpiffeid, agentEntriesDict),
-      status: status,
-      platformType: plugin,
-      clusterName: cluster,
-    }
-  }
-
   agentList() {
     if ((typeof this.props.globalEntries.globalEntriesList === 'undefined') ||
       (typeof this.props.globalAgents.globalAgentsList === 'undefined')) {
@@ -85,44 +35,40 @@ class AgentDashboardTable extends React.Component {
 
     let agentEntriesDict = this.SpiffeHelper.getAgentsEntries(this.props.globalAgents.globalAgentsList, this.props.globalEntries.globalEntriesList)
     return this.props.globalAgents.globalAgentsList.map(currentAgent => {
-      return this.getChildEntries(currentAgent, agentEntriesDict);
+      return this.SpiffeHelper.getChildEntries(currentAgent, agentEntriesDict, this.props.globalEntries.globalEntriesList, this.props.globalAgents.globalAgentsWorkLoadAttestorInfo)
     })
   }
 
   selectedData() {
-    var data = this.agentList() , selectedData = this.props.selectedData, clickedDashboardTable = this.props.globalClickedDashboardTable;
+    var data = this.agentList(), selectedData = this.props.selectedData, clickedDashboardTable = this.props.globalClickedDashboardTable;
     var filteredData = [], selectedDataKey = [];
-    if (selectedData === undefined)
-      return data;
-    if (clickedDashboardTable === "clustersdetails") {
-      for (let i = 0; i < selectedData.length; i++) {
-        selectedDataKey[i] = selectedData[i].name;
-      }
-      for (let i = 0; i < data.length; i++) {
-        for (let j = 0; j < selectedDataKey.length; j++) {
-          if (data[i].clusterName === selectedDataKey[j]) {
+    if (selectedData !== undefined) {
+      if (clickedDashboardTable === "clustersdetails") {
+        selectedDataKey = selectedData.name;
+        for (let i = 0; i < data.length; i++) {
+          if (data[i].clusterName === selectedDataKey) {
+            filteredData.push(data[i]);
+          }
+        }
+      } else if (clickedDashboardTable === "entriesdetails") {
+        selectedDataKey = selectedData.parentId;
+        for (let i = 0; i < data.length; i++) {
+          if (data[i].id === selectedDataKey) {
             filteredData.push(data[i]);
           }
         }
       }
-    } else if (clickedDashboardTable === "entriesdetails") {
-      for (let i = 0; i < selectedData.length; i++) {
-        selectedDataKey[i] = selectedData[i].value.parentId;
-      }
-      for (let i = 0; i < data.length; i++) {
-        for (let j = 0; j < selectedDataKey.length; j++) {
-          if (data[i].id === selectedDataKey[j]) {
-            filteredData.push(data[i]);
-          }
-        }
-      }
+      return filteredData;
     }
-    return filteredData;
   }
 
   render() {
-    const { numRows } = this.props;
-    var data = this.selectedData();
+    const { numRows, selectedData } = this.props;
+    if (selectedData === undefined) {
+      var data = this.agentList();
+    } else {
+      var data = this.selectedData();
+    }
     return (
       <div>
         <TableDashboard

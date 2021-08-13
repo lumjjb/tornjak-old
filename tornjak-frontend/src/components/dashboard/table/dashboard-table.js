@@ -7,9 +7,7 @@ import {
 } from '@material-ui/core';
 import {
   clickedDashboardTabelFunc,
-  selectedDashboardTableData
 } from 'redux/actions';
-import DashboardDetails from '../dashboard-details';
 import TornjakHelper from 'components/tornjak-helper';
 
 class TableDashboard extends React.Component {
@@ -17,7 +15,6 @@ class TableDashboard extends React.Component {
     super(props);
     this.state = {
       selectedRows: [],
-      detailsLink: ""
     };
     this.TornjakHelper = new TornjakHelper();
   }
@@ -46,10 +43,6 @@ class TableDashboard extends React.Component {
               window.alert("Please Select a Row to See Details.");
             } else {
               this.props.clickedDashboardTabelFunc(title.toLowerCase() + "details")
-              this.props.selectedDashboardTableData(this.state.selectedRows)
-              this.TornjakHelper.detailsLink(this.state.selectedRows, title);
-              <DashboardDetails
-                selectedData={this.state.selectedRows}/>
             }
           }}
         >
@@ -62,8 +55,7 @@ class TableDashboard extends React.Component {
             pageSize={numRows}
             autoHeight={true}
             onRowSelected={(selectedRows) => {
-              selectedRows = Array.from(selectedRows.api.current.getSelectedRows(), ([name, value]) => ({ name, value }));
-              this.setState({ selectedRows: selectedRows })
+              this.setState({ selectedRows: selectedRows.data })
             }}
             components={{
               Toolbar: GridToolbar,
@@ -77,10 +69,9 @@ class TableDashboard extends React.Component {
 
 const mapStateToProps = state => ({
   globalClickedDashboardTable: state.tornjak.globalClickedDashboardTable,
-  globalSelectedDashboardData: state.tornjak.globalSelectedDashboardData
 })
 
 export default connect(
   mapStateToProps,
-  { clickedDashboardTabelFunc, selectedDashboardTableData }
+  { clickedDashboardTabelFunc }
 )(TableDashboard);
