@@ -64,10 +64,11 @@ class AgentDashboardTable extends React.Component {
 
   render() {
     const { numRows, selectedData } = this.props;
+    var data = [];
     if (selectedData === undefined) {
-      var data = this.agentList();
+      data = this.agentList();
     } else {
-      var data = this.selectedData();
+      data = this.selectedData();
     }
     return (
       <div>

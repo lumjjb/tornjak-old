@@ -46,10 +46,11 @@ class ClusterDashboardTable extends React.Component {
 
   render() {
     const { numRows, selectedData } = this.props;
+    var data = [];
     if (selectedData === undefined) {
-      var data = this.clusterList();
+      data = this.clusterList();
     } else {
-      var data = this.selectedData();
+      data = this.selectedData();
     }
     return (
       <div>

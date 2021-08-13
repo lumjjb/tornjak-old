@@ -51,10 +51,11 @@ class EntriesDashBoardTable extends React.Component {
 
   render() {
     const { numRows, selectedData } = this.props;
+    var data = [];
     if (selectedData === undefined) {
-      var data = this.entryList();
+      data = this.entryList();
     } else {
-      var data = this.selectedData();
+      data = this.selectedData();
     }
     return (
       <div>
