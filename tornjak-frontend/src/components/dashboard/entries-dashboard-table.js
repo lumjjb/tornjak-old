@@ -28,35 +28,32 @@ class EntriesDashBoardTable extends React.Component {
   }
 
   entryList() {
-    if (typeof this.props.globalEntriesList !== 'undefined' && typeof this.props.globalEntriesList.globalEntriesList !== 'undefined') {
-      return this.props.globalEntriesList.globalEntriesList.map(currentEntry => {
-        return this.SpiffeHelper.workloadEntry(currentEntry, this.props.globalAgents.globalAgentsWorkLoadAttestorInfo);
-      })
-    } else {
-      return []
+    var filteredData = [], selectedDataKey = this.props.selectedDataKey;
+    let entriesList = [];
+    if ((typeof this.props.globalEntries.globalEntriesList === 'undefined') ||
+      (typeof this.props.globalAgents.globalAgentsList === 'undefined')) {
+      return [];
     }
-  }
 
-  selectedData() {
-    var data = this.entryList(), filteredData = [], selectedData = this.props.selectedData;
-    if (selectedData !== undefined) {
-      for (let i = 0; i < data.length; i++) {
-        if ((data[i].clusterName === selectedData.name) || (data[i].parentId === selectedData.spiffeid)) {
-          filteredData.push(data[i]);
+    entriesList = this.props.globalEntries.globalEntriesList.map(currentEntry => {
+      return this.SpiffeHelper.workloadEntry(currentEntry, this.props.globalAgents.globalAgentsWorkLoadAttestorInfo);
+    })
+
+    //For details page filtering data
+    if (selectedDataKey !== undefined) {
+      for (let i = 0; i < entriesList.length; i++) {
+        if ((entriesList[i].clusterName === selectedDataKey["entriesFilter"]) || (entriesList[i].parentId === selectedDataKey["entriesFilter"])) {
+          filteredData.push(entriesList[i]);
         }
       }
       return filteredData;
     }
+    return entriesList;
   }
 
   render() {
-    const { numRows, selectedData } = this.props;
-    var data = [];
-    if (selectedData === undefined) {
-      data = this.entryList();
-    } else {
-      data = this.selectedData();
-    }
+    const { numRows } = this.props;
+    var data = this.entryList();
     return (
       <div>
         <TableDashboard
@@ -71,7 +68,7 @@ class EntriesDashBoardTable extends React.Component {
 
 const mapStateToProps = state => ({
   globalAgents: state.agents,
-  globalEntriesList: state.entries,
+  globalEntries: state.entries,
   globalClickedDashboardTable: state.tornjak.globalClickedDashboardTable,
 })
 

@@ -24,34 +24,28 @@ class ClusterDashboardTable extends React.Component {
   }
 
   clusterList() {
-    if (typeof this.props.globalClustersList !== 'undefined') {
-      return this.props.globalClustersList.map(a => this.SpiffeHelper.cluster(a, this.props.globalEntries.globalEntriesList))
-    } else {
-      return []
+    var filteredData = [], selectedDataKey = this.props.selectedDataKey;
+    let clustersList = [];
+    if (typeof this.props.globalClustersList === 'undefined') {
+      return [];
     }
-  }
+    clustersList = this.props.globalClustersList.map(a => this.SpiffeHelper.cluster(a, this.props.globalEntries.globalEntriesList));
 
-  selectedData() {
-    var data = this.clusterList(), filteredData = [], selectedDataKey = [], selectedData = this.props.selectedData;
-    if (selectedData !== undefined) {
-      selectedDataKey = selectedData.clusterName;
-      for (let i = 0; i < data.length; i++) {
-        if ((data[i].clusterName === selectedDataKey) || (data[i].name === selectedDataKey)) {
-          filteredData.push(data[i]);
+    //For details page filtering data
+    if (selectedDataKey !== undefined) {
+      for (let i = 0; i < clustersList.length; i++) {
+        if ((clustersList[i].clusterName === selectedDataKey["clustersFilter"]) || (clustersList[i].name === selectedDataKey["clustersFilter"])) {
+          filteredData.push(clustersList[i]);
         }
       }
       return filteredData;
     }
+    return clustersList;
   }
 
   render() {
-    const { numRows, selectedData } = this.props;
-    var data = [];
-    if (selectedData === undefined) {
-      data = this.clusterList();
-    } else {
-      data = this.selectedData();
-    }
+    const { numRows } = this.props;
+    var data = this.clusterList();
     return (
       <div>
         <TableDashboard

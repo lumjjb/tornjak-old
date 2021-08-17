@@ -28,48 +28,32 @@ class AgentDashboardTable extends React.Component {
   }
 
   agentList() {
+    var filteredData = [], selectedDataKey = this.props.selectedDataKey;
+    let agentsList = [];
     if ((typeof this.props.globalEntries.globalEntriesList === 'undefined') ||
       (typeof this.props.globalAgents.globalAgentsList === 'undefined')) {
       return [];
     }
-
     let agentEntriesDict = this.SpiffeHelper.getAgentsEntries(this.props.globalAgents.globalAgentsList, this.props.globalEntries.globalEntriesList)
-    return this.props.globalAgents.globalAgentsList.map(currentAgent => {
+    agentsList = this.props.globalAgents.globalAgentsList.map(currentAgent => {
       return this.SpiffeHelper.getChildEntries(currentAgent, agentEntriesDict, this.props.globalEntries.globalEntriesList, this.props.globalAgents.globalAgentsWorkLoadAttestorInfo)
     })
-  }
-
-  selectedData() {
-    var data = this.agentList(), selectedData = this.props.selectedData, clickedDashboardTable = this.props.globalClickedDashboardTable;
-    var filteredData = [], selectedDataKey = [];
-    if (selectedData !== undefined) {
-      if (clickedDashboardTable === "clustersdetails") {
-        selectedDataKey = selectedData.name;
-        for (let i = 0; i < data.length; i++) {
-          if (data[i].clusterName === selectedDataKey) {
-            filteredData.push(data[i]);
-          }
-        }
-      } else if (clickedDashboardTable === "entriesdetails") {
-        selectedDataKey = selectedData.parentId;
-        for (let i = 0; i < data.length; i++) {
-          if (data[i].id === selectedDataKey) {
-            filteredData.push(data[i]);
-          }
+    
+    //For details page filtering data
+    if (selectedDataKey !== undefined) {
+      for (let i = 0; i < agentsList.length; i++) {
+        if ((agentsList[i].clusterName === selectedDataKey["agentsFilter"]) || (agentsList[i].id === selectedDataKey["agentsFilter"])) {
+          filteredData.push(agentsList[i]);
         }
       }
       return filteredData;
     }
+    return agentsList;
   }
 
   render() {
-    const { numRows, selectedData } = this.props;
-    var data = [];
-    if (selectedData === undefined) {
-      data = this.agentList();
-    } else {
-      data = this.selectedData();
-    }
+    const { numRows } = this.props;
+    var data = this.agentList();
     return (
       <div>
         <TableDashboard

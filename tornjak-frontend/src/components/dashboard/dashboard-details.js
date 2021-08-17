@@ -60,6 +60,30 @@ class DashboardDetails extends React.Component {
         this.state = {
         };
     }
+
+    selectedDataKey() {
+        var selectedData = this.props.selectedData, clickedDashboardTable = this.props.globalClickedDashboardTable, selectedDataKey = [];
+        if (selectedData !== undefined) {
+            if (clickedDashboardTable === "clustersdetails") {
+                //to filter agents in clustersdetails
+                selectedDataKey["agentsFilter"] = selectedData.name;
+                //to filter entries in clustersdetails
+                selectedDataKey["entriesFilter"] = selectedData.name;
+            } else if (clickedDashboardTable === "entriesdetails") {
+                //to filter agents in entriesdetails
+                selectedDataKey["agentsFilter"] = selectedData.parentId;
+                //to filter clusters in entriesdetails
+                selectedDataKey["clustersFilter"] = selectedData.clusterName;
+            } else if (clickedDashboardTable === "agentsdetails") {
+                //to filter clusters in agentsdetails
+                selectedDataKey["clustersFilter"] = selectedData.clusterName;
+                //to filter entries in agentsdetails
+                selectedDataKey["entriesFilter"] = selectedData.spiffeid;
+            }
+        }
+        return selectedDataKey;
+    }
+
     render() {
         const { classes, selectedData } = this.props;
         return (
@@ -89,7 +113,7 @@ class DashboardDetails extends React.Component {
                                             <Paper className={classes.paper}>
                                                 <AgentsTable
                                                     numRows={100}
-                                                    selectedData={selectedData} />
+                                                    selectedDataKey={this.selectedDataKey()} />
                                             </Paper>
                                         </Grid>
                                     </Container>
@@ -99,7 +123,7 @@ class DashboardDetails extends React.Component {
                                             <Paper className={classes.paper}>
                                                 <EntriesTable
                                                     numRows={100}
-                                                    selectedData={selectedData} />
+                                                    selectedDataKey={this.selectedDataKey()} />
                                             </Paper>
                                         </Grid>
                                     </Container>
@@ -126,7 +150,7 @@ class DashboardDetails extends React.Component {
                                             <Paper className={classes.paper}>
                                                 <ClustersTable
                                                     numRows={100}
-                                                    selectedData={selectedData} />
+                                                    selectedDataKey={this.selectedDataKey()} />
                                             </Paper>
                                         </Grid>
                                     </Container>
@@ -136,7 +160,7 @@ class DashboardDetails extends React.Component {
                                             <Paper className={classes.paper}>
                                                 <EntriesTable
                                                     numRows={100}
-                                                    selectedData={selectedData} />
+                                                    selectedDataKey={this.selectedDataKey()} />
                                             </Paper>
                                         </Grid>
                                     </Container>
@@ -165,7 +189,7 @@ class DashboardDetails extends React.Component {
                                             <Paper className={classes.paper}>
                                                 <ClustersTable
                                                     numRows={100}
-                                                    selectedData={selectedData} />
+                                                    selectedDataKey={this.selectedDataKey()} />
                                             </Paper>
                                         </Grid>
                                     </Container>
@@ -175,7 +199,7 @@ class DashboardDetails extends React.Component {
                                             <Paper className={classes.paper}>
                                                 <AgentsTable
                                                     numRows={100}
-                                                    selectedData={selectedData} />
+                                                    selectedDataKey={this.selectedDataKey()} />
                                             </Paper>
                                         </Grid>
                                     </Container>

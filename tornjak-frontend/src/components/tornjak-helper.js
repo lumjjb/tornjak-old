@@ -8,7 +8,9 @@ class TornjakHelper extends Component {
     this.state = {
     };
   }
-
+  
+  // detailsLink takes in selectedRows/ specified data and entity
+  // returns a specfic routing link/ URL for an entity
   detailsLink(selectedRows, entity,) {
     const dashboardDetailsLink = "/tornjak/dashboard/details/";
     if (selectedRows.length !== 0) {
@@ -17,6 +19,8 @@ class TornjakHelper extends Component {
     return detailsLink;
   }
 
+  // detailsDataParse takes in url parameters for a specific url and properties of a class
+  // returns a parsed and filtered data for the specifed entity from the url parameteres 
   detailsDataParse(urlParams, props) {
     let selectedData = [{}], id = decodeURIComponent(urlParams.id);
     const { globalClustersList, globalAgentsList, globalEntriesList, globalAgentsWorkLoadAttestorInfo } = props;
