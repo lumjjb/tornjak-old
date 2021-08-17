@@ -205,7 +205,7 @@ class SpiffeHelper extends Component {
     let agentEntries = agentEntriesDict[spiffeid];
     if (agentEntries !== undefined) {
       for (let j = 0; j < agentEntries.length; j++) {
-        validIds.add(this.SpiffeHelper.getEntrySpiffeid(agentEntries[j]));
+        validIds.add(this.getEntrySpiffeid(agentEntries[j]));
       }
     }
 
