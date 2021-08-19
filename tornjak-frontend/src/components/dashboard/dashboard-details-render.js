@@ -6,18 +6,18 @@ import DashboardDetails from './dashboard-details';
 import TornjakHelper from '../tornjak-helper';
 import TornjakApi from '../tornjak-api-helpers';
 import {
-  serverSelectedFunc,
-  clustersListUpdateFunc,
-  agentsListUpdateFunc,
-  entriesListUpdateFunc,
-  tornjakServerInfoUpdateFunc,
-  serverInfoUpdateFunc,
-  selectorInfoFunc,
-  tornjakMessageFunc,
-  workloadSelectorInfoFunc,
-  agentworkloadSelectorInfoFunc,
-  clusterTypeInfoFunc,
-  clickedDashboardTabelFunc,
+    serverSelectedFunc,
+    clustersListUpdateFunc,
+    agentsListUpdateFunc,
+    entriesListUpdateFunc,
+    tornjakServerInfoUpdateFunc,
+    serverInfoUpdateFunc,
+    selectorInfoFunc,
+    tornjakMessageFunc,
+    workloadSelectorInfoFunc,
+    agentworkloadSelectorInfoFunc,
+    clusterTypeInfoFunc,
+    clickedDashboardTabelFunc,
 } from 'redux/actions';
 
 class DashboardDetailsRender extends Component {
@@ -30,10 +30,10 @@ class DashboardDetailsRender extends Component {
 
     componentDidMount() {
         const { params } = this.props;
-        if(this.props.globalTornjakServerInfo === "" || this.props.globalServerInfo === undefined) {
+        if (this.props.globalTornjakServerInfo === "" || this.props.globalServerInfo === undefined) {
             if (IsManager) {
                 if (this.props.globalServerSelected !== "") {
-                    this.props.clickedDashboardTabelFunc(params.entity+"details");
+                    this.props.clickedDashboardTabelFunc(params.entity + "details");
                     this.TornjakApi.populateClustersUpdate(this.props.globalServerSelected, this.props.clustersListUpdateFunc, this.props.tornjakMessageFunc);
                     this.TornjakApi.populateAgentsUpdate(this.props.globalServerSelected, this.props.agentsListUpdateFunc, this.props.tornjakMessageFunc);
                     this.TornjakApi.populateEntriesUpdate(this.props.globalServerSelected, this.props.entriesListUpdateFunc, this.props.tornjakMessageFunc);
@@ -42,7 +42,7 @@ class DashboardDetailsRender extends Component {
                     this.TornjakApi.populateTornjakServerInfo(this.props.globalServerSelected, this.props.tornjakServerInfoUpdateFunc, this.props.tornjakMessageFunc);
                 }
             } else {
-                this.props.clickedDashboardTabelFunc(params.entity+"details");
+                this.props.clickedDashboardTabelFunc(params.entity + "details");
                 this.TornjakApi.refreshLocalSelectorsState(this.props.agentworkloadSelectorInfoFunc);
                 this.TornjakApi.populateLocalClustersUpdate(this.props.clustersListUpdateFunc, this.props.tornjakMessageFunc);
                 this.TornjakApi.populateLocalAgentsUpdate(this.props.agentsListUpdateFunc, this.props.tornjakMessageFunc);
