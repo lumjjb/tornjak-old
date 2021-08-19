@@ -91,7 +91,7 @@ class DashboardDetails extends React.Component {
                 <DashboardDrawer />
                 <main className={classes.content}>
                     <div className={classes.appBarSpacer} />
-                    {(selectedData.length !== 0) &&
+                    {(selectedData.length !== 0) && (!selectedData[0]) &&
                         <div>
                             {(this.props.globalClickedDashboardTable === "clustersdetails") &&
                                 <div className="clustersdetails">
